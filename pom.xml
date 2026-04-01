@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.studyapp</groupId>
-    <artifactId>study-assistant</artifactId>
+    <artifactId>study-assistant-workspace</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -16,21 +16,18 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX UI toolkit -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- MySQL JDBC Driver -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.3.0</version>
         </dependency>
 
-        <!-- Gson for JSON import/export -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -39,6 +36,13 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>study-assistant/src/main/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>study-assistant/src/main/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.openjfx</groupId>
@@ -48,6 +52,7 @@
                     <mainClass>com.studyapp.Main</mainClass>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

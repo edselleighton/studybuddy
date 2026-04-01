@@ -5,6 +5,9 @@
 --  Run: mysql -u root -p < TempDB.sql
 -- =============================================================
 
+
+
+
 CREATE DATABASE IF NOT EXISTS study_assistant
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;

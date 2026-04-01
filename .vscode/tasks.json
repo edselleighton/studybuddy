@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Study Assistant (Maven JavaFX)",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "-f",
+                "${workspaceFolder}\\pom.xml",
+                "javafx:run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

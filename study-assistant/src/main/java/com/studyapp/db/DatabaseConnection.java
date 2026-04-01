@@ -9,12 +9,13 @@ public class DatabaseConnection {
     private static String USER;
     private static String PASS;
 
-    public static void setCredentials(String username, String password) {
+    public static void setCredentials(String username, String password){
         USER = username;
         PASS = password;
     }
-
+    
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASS);
     }
+
 }
