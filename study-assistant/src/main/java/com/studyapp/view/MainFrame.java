@@ -2,9 +2,8 @@ package com.studyapp.view;
 
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -12,46 +11,37 @@ public class MainFrame {
 
     public static void show(Stage stage) {
 
-        BorderPane root = new BorderPane();
-
-        // Top bar
-        HBox header = new HBox();
-        header.setPadding(new Insets(15));
-        header.setStyle("-fx-background-color: #1a2a6c;");
-
-        Label title = new Label("Study Assistant Dashboard");
-        title.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
-
-        header.getChildren().add(title);
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setStyle("-fx-background-color: #f7f9fc;");
+        
+        // The padding will be handled by the internal components.
 
         // Sidebar
-        VBox sidebar = new VBox(10);
-        sidebar.setPadding(new Insets(15));
-        sidebar.setStyle("-fx-background-color: #e3f2fd;");
-        sidebar.setPrefWidth(150);
+        VBox sidebar = new VBox(15);
+        sidebar.setPadding(new Insets(30, 20, 30, 20));
+        sidebar.setMinWidth(250); // Set a minimum width for the sidebar
+        sidebar.setStyle("-fx-background-color: white; -fx-border-width: 0 1 0 0; -fx-border-color: #e2e8f0;"); // Only right border
 
-        sidebar.getChildren().addAll(
-                new Label("Dashboard"),
-                new Label("Study"),
-                new Label("Progress")
-        );
+        // Navigation button
+        Button dashBtn = new Button("Dashboard");
+        dashBtn.setMaxWidth(Double.MAX_VALUE); // Let button fill sidebar width
+        dashBtn.setStyle("-fx-background-color: #4f46e5; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 6;");
 
-        // Center content
-        VBox content = new VBox();
-        content.setPadding(new Insets(20));
+        dashBtn.setOnAction(e -> {
+            mainLayout.setCenter(DashboardPanel.create());
+        });
 
-        Label welcome = new Label("Welcome to your Study Assistant");
-        welcome.setStyle("-fx-font-size: 16px;");
+        sidebar.getChildren().addAll(dashBtn);
 
-        content.getChildren().add(welcome);
+        // Default view
+        mainLayout.setLeft(sidebar);
+        mainLayout.setCenter(DashboardPanel.create());
 
-        // Layout
-        root.setTop(header);
-        root.setLeft(sidebar);
-        root.setCenter(content);
+        // Scene
+        Scene scene = new Scene(mainLayout, 850, 550);
 
-        Scene scene = new Scene(root, 900, 600);
-
+        // Apply scene
         stage.setScene(scene);
+        stage.setMaximized(true); // Maximizes the window
     }
 }

@@ -13,9 +13,8 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
 
         Scene setupScene = SetupPanel.createScene(primaryStage, () -> {
-            // This runs AFTER successful DB connection
+            // After successful login → open MainFrame
             MainFrame.show(primaryStage);
-
         });
 
         primaryStage.setTitle("Study Assistant");
@@ -24,6 +23,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        Application.launch(args);
     }
 }

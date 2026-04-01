@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "com.studyapp.Main",
+            "projectName": "study-assistant"
+        },
+        {
+            "type": "java",
             "name": "Study Assistant (JavaFX)",
             "request": "launch",
             "mainClass": "com.studyapp.Main",
