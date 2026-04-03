@@ -24,7 +24,7 @@ public class DeckDAOImpl implements DeckDAO{
         }
     }
 
-    /// ONLY NAME AND DESCRIPTION CAN BE UPDATED
+    // Update name and description only.
     @Override
     public void update(Deck deck) throws SQLException {
         String sql = "UPDATE deck SET name = ?, description = ? WHERE deck_id = ?";
@@ -64,7 +64,7 @@ public class DeckDAOImpl implements DeckDAO{
         return null;
     }
 
-    //HELPER METHOD FOR CREATING A NEW DECK OBJECT
+    // Build a Deck object from a result row.
     Deck createNewDeck(ResultSet rs){
     try{
         Deck deck = new Deck();

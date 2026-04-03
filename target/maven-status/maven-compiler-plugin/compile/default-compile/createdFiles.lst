@@ -1,7 +1,6 @@
 com\studyapp\controller\DeckController.class
 com\studyapp\dao\impl\DeckDAOImpl.class
 com\studyapp\model\Flashcard.class
-com\studyapp\view\ProgressPanel.class
 com\studyapp\view\MainFrame.class
 com\studyapp\service\CardJson.class
 com\studyapp\model\Deck.class
@@ -19,7 +18,6 @@ com\studyapp\dao\impl\StudySessionDAOImpl.class
 com\studyapp\service\JsonImportExportService.class
 com\studyapp\dao\CardReviewDAO.class
 com\studyapp\model\CardReview.class
-com\studyapp\view\StudyPanel.class
 com\studyapp\controller\ProgressController.class
 com\studyapp\view\SetupPanel.class
 com\studyapp\listener\StudyListener.class

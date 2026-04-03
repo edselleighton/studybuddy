@@ -6,94 +6,74 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
 public class DashboardPanel {
 
-    // Modern Color Palette
-    private static final String BG_COLOR = "#f8fafc";       // Light grayish-blue background
-    private static final String ACCENT_COLOR = "#4f46e5";   // Modern Indigo
-    private static final String TEXT_MAIN = "#1e293b";      // Dark Slate
-    private static final String TEXT_MUTED = "#64748b";     // Light Slate
+    private static final String PRIMARY_BLUE = "#2a548f";
+    private static final String HEADER_BLUE = "#41729f";
     
-    // Base card style
-    private static final String CARD_STYLE = "-fx-background-color: white; -fx-background-radius: 12;";
+    private static final String BORDER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: white;";
 
     public static VBox create() {
 
-        VBox mainContent = new VBox(30); // Spacing between rows
-        mainContent.setPadding(new Insets(40)); // Outer padding
-        mainContent.setStyle("-fx-background-color: " + BG_COLOR + ";");
-        // Ensure the main container fills the space provided by the BorderPane
+        VBox wrapper = new VBox();
+        wrapper.setPadding(new Insets(20)); 
+        wrapper.setStyle("-fx-background-color: transparent;");
+        VBox.setVgrow(wrapper, Priority.ALWAYS);
+
+        VBox mainContent = new VBox(20);
+        mainContent.setPadding(new Insets(20));
+        mainContent.setStyle(BORDER_STYLE);
         VBox.setVgrow(mainContent, Priority.ALWAYS);
 
         Label dashHeader = createHeaderLabel("Dashboard");
 
-        // --- Stats Row ---
         HBox statsRow = new HBox(20);
         
         VBox stat1 = createStatCard("Accuracy", "92.3%");
         VBox stat2 = createStatCard("Cards Reviewed", "112 / 150");
-        VBox stat3 = createStatCard("Study Time", "1h 12m");
+        VBox stat3 = createStatCard("Study Time", "1 hr 12m");
         
-        // Make stat cards stretch evenly across the width
         HBox.setHgrow(stat1, Priority.ALWAYS);
         HBox.setHgrow(stat2, Priority.ALWAYS);
         HBox.setHgrow(stat3, Priority.ALWAYS);
         
         statsRow.getChildren().addAll(stat1, stat2, stat3);
 
-        // --- Bottom Content Area ---
-        HBox bottomContent = new HBox(30);
-        VBox.setVgrow(bottomContent, Priority.ALWAYS); // Let bottom content stretch vertically
+        HBox bottomContent = new HBox(20);
+        VBox.setVgrow(bottomContent, Priority.ALWAYS); 
 
-        // 1. Recent Decks Column
-        VBox recentDecksWrapper = new VBox(20);
-        recentDecksWrapper.setStyle(CARD_STYLE);
-        recentDecksWrapper.setPadding(new Insets(25));
-        recentDecksWrapper.setEffect(createSubtleShadow());
-        
-        // Let the decks wrapper take up available horizontal space
-        HBox.setHgrow(recentDecksWrapper, Priority.ALWAYS);
+        VBox recentDecks = new VBox(15);
+        HBox.setHgrow(recentDecks, Priority.ALWAYS);
 
         Label recentHeader = new Label("Recent Decks");
-        recentHeader.setFont(Font.font("System", FontWeight.BOLD, 18));
-        recentHeader.setTextFill(Color.web(TEXT_MAIN));
+        recentHeader.setFont(Font.font("Serif", 22));
+        recentHeader.setTextFill(Color.web(PRIMARY_BLUE));
 
         VBox deckList = new VBox(15);
         deckList.getChildren().addAll(
-                createDeckItem("CMSC127 - LE2", "40 Cards"),
-                createDeckItem("MATH55 - LE4", "35 Cards"),
-                createDeckItem("BIOLOGY - QUIZ", "25 Cards")
+                createDeckItem("CMSC127 - LE2"),
+                createDeckItem("MATH55 - LE4"),
+                createDeckItem("BIOLOGY - QUIZ")
         );
 
-        recentDecksWrapper.getChildren().addAll(recentHeader, deckList);
+        recentDecks.getChildren().addAll(recentHeader, deckList);
 
-        // 2. Chart Column
-        VBox chartBox = new VBox(15);
-        chartBox.setStyle(CARD_STYLE);
-        chartBox.setPadding(new Insets(25));
+        VBox chartBox = new VBox(5);
+        chartBox.setStyle(BORDER_STYLE);
+        chartBox.setPadding(new Insets(10));
         chartBox.setAlignment(Pos.TOP_CENTER);
-        chartBox.setEffect(createSubtleShadow());
-        
-        // Set chart to take up a proportional amount of space (e.g., slightly smaller than decks list)
         HBox.setHgrow(chartBox, Priority.SOMETIMES);
-        chartBox.setMinWidth(400); // Prevent it from getting squished too much
+        chartBox.setMinWidth(350); 
 
-        Label chartTitle = new Label("Card Distribution");
-        chartTitle.setFont(Font.font("System", FontWeight.BOLD, 16));
-        chartTitle.setTextFill(Color.web(TEXT_MAIN));
-        
-        Label chartSubtitle = new Label("Total Flashcards: 140");
-        chartSubtitle.setFont(Font.font("System", FontWeight.NORMAL, 13));
-        chartSubtitle.setTextFill(Color.web(TEXT_MUTED));
+        Label chartTitle = new Label("Total Flashcards");
+        chartTitle.setFont(Font.font("SansSerif", 14));
+        chartTitle.setTextFill(Color.BLACK);
 
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
                 new PieChart.Data("Easy", 40),
@@ -103,88 +83,62 @@ public class DashboardPanel {
 
         PieChart chart = new PieChart(pieChartData);
         chart.setLabelsVisible(false);
-        chart.setLegendSide(javafx.geometry.Side.BOTTOM);
+        chart.setLegendSide(javafx.geometry.Side.TOP);
         chart.setStyle("-fx-background-color: transparent;"); 
         
-        // Let chart expand vertically to fill the card
         VBox.setVgrow(chart, Priority.ALWAYS);
 
-        chartBox.getChildren().addAll(chartTitle, chartSubtitle, chart);
+        chartBox.getChildren().addAll(chartTitle, chart);
 
-        bottomContent.getChildren().addAll(recentDecksWrapper, chartBox);
-
+        bottomContent.getChildren().addAll(recentDecks, chartBox);
         mainContent.getChildren().addAll(dashHeader, statsRow, bottomContent);
+        wrapper.getChildren().add(mainContent);
 
-        return mainContent;
+        return wrapper;
     }
-
-    // --- UI Helper Methods ---
 
     private static Label createHeaderLabel(String text) {
         Label header = new Label(text);
-        header.setFont(Font.font("System", FontWeight.BOLD, 32)); // Slightly larger for full screen
-        header.setTextFill(Color.web(TEXT_MAIN));
+        header.setFont(Font.font("Serif", 32)); 
+        header.setTextFill(Color.WHITE);
         header.setMaxWidth(Double.MAX_VALUE);
-        header.setAlignment(Pos.CENTER_LEFT); 
+        header.setAlignment(Pos.CENTER);
+        header.setStyle("-fx-background-color: " + HEADER_BLUE + "; -fx-background-radius: 8; -fx-padding: 10;");
         return header;
     }
 
     private static VBox createStatCard(String title, String value) {
-        VBox box = new VBox(10);
-        box.setStyle(CARD_STYLE);
-        box.setPadding(new Insets(25));
-        box.setEffect(createSubtleShadow());
-        // Max width ensures they don't look awkwardly long on ultra-wide monitors
+        VBox box = new VBox(5);
+        box.setStyle(BORDER_STYLE);
+        box.setPadding(new Insets(15, 20, 15, 20));
         box.setMaxWidth(Double.MAX_VALUE); 
 
-        Label titleLbl = new Label(title.toUpperCase());
-        titleLbl.setFont(Font.font("System", FontWeight.BOLD, 13));
-        titleLbl.setTextFill(Color.web(TEXT_MUTED));
+        Label titleLbl = new Label(title);
+        titleLbl.setFont(Font.font("Serif", 18));
+        titleLbl.setTextFill(Color.BLACK);
 
         Label valLbl = new Label(value);
-        valLbl.setFont(Font.font("System", FontWeight.BOLD, 28)); // Larger number
-        valLbl.setTextFill(Color.web(ACCENT_COLOR));
+        valLbl.setFont(Font.font("Serif", 22)); 
+        valLbl.setTextFill(Color.web(PRIMARY_BLUE));
 
         box.getChildren().addAll(titleLbl, valLbl);
         return box;
     }
 
-    private static HBox createDeckItem(String name, String subText) {
-        HBox row = new HBox();
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 8; -fx-padding: 15 20 15 20; -fx-cursor: hand;");
-        
-        VBox textData = new VBox(5);
-        Label nameLbl = new Label(name);
-        nameLbl.setFont(Font.font("System", FontWeight.BOLD, 15));
-        nameLbl.setTextFill(Color.web(TEXT_MAIN));
-        
-        Label subLbl = new Label(subText);
-        subLbl.setFont(Font.font("System", FontWeight.NORMAL, 13));
-        subLbl.setTextFill(Color.web(TEXT_MUTED));
-        
-        textData.getChildren().addAll(nameLbl, subLbl);
-        
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+    private static Label createDeckItem(String name) {
+        Label lbl = new Label(name);
+        lbl.setMaxWidth(Double.MAX_VALUE);
+        lbl.setStyle("-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-color: white; -fx-padding: 15 20 15 20; -fx-cursor: hand;");
+        lbl.setFont(Font.font("Serif", 16));
+        lbl.setTextFill(Color.BLACK);
 
-        row.getChildren().addAll(textData, spacer);
-
-        row.setOnMouseEntered(e -> 
-            row.setStyle("-fx-background-color: #eef2ff; -fx-background-radius: 8; -fx-padding: 15 20 15 20; -fx-cursor: hand;")
+        lbl.setOnMouseEntered(e -> 
+            lbl.setStyle("-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-color: #f0f4f8; -fx-padding: 15 20 15 20; -fx-cursor: hand;")
         );
-        row.setOnMouseExited(e -> 
-            row.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 8; -fx-padding: 15 20 15 20; -fx-cursor: hand;")
+        lbl.setOnMouseExited(e -> 
+            lbl.setStyle("-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-color: white; -fx-padding: 15 20 15 20; -fx-cursor: hand;")
         );
 
-        return row;
-    }
-
-    private static DropShadow createSubtleShadow() {
-        DropShadow shadow = new DropShadow();
-        shadow.setColor(Color.rgb(0, 0, 0, 0.04)); 
-        shadow.setRadius(15);
-        shadow.setOffsetY(5);
-        return shadow;
+        return lbl;
     }
 }
