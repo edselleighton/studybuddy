@@ -18,9 +18,11 @@ com\studyapp\dao\impl\StudySessionDAOImpl.class
 com\studyapp\service\JsonImportExportService.class
 com\studyapp\dao\CardReviewDAO.class
 com\studyapp\model\CardReview.class
+com\studyapp\view\StudyPanel.class
 com\studyapp\controller\ProgressController.class
 com\studyapp\view\SetupPanel.class
 com\studyapp\listener\StudyListener.class
+com\studyapp\view\AllCardsPanel.class
 com\studyapp\dao\impl\CardReviewDAOImpl.class
 com\studyapp\view\DeckDetailPanel.class
 com\studyapp\dao\StudySessionDAO.class
