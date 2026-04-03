@@ -32,6 +32,6 @@ public class Flashcard {
     public void setAnswer(String answer) { this.answer = answer; } 
     public String getDifficulty() { return difficulty; } 
     public void setDifficulty(String difficulty) { this.difficulty = difficulty; } 
-    public LocalDateTime getCreated_at() { return createdAt; } 
+    public LocalDateTime getCreatedAt() { return createdAt; } 
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; };
 }

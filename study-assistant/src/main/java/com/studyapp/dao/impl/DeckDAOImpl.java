@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 
 import com.studyapp.dao.DeckDAO;
 import com.studyapp.db.DatabaseConnection;
@@ -14,11 +13,12 @@ import com.studyapp.model.ObjectFactory;
 public class DeckDAOImpl implements DeckDAO{
     @Override
     public void insert(Deck deck) throws SQLException {
-        String sql = "INSERT INTO deck (name, description) VALUES (?, ?)";
+        String sql = "INSERT INTO deck (name, description, created_at) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, deck.getName());
             ps.setString(2, deck.getDescription());
+            ps.setObject(3, deck.getCreatedAt());
             ps.executeUpdate();
         }
     }
