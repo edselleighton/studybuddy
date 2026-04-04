@@ -7,29 +7,47 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class MainFrame {
 
-    private static final String ACTIVE_STYLE = "-fx-background-color: #4f46e5; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 15; -fx-background-radius: 8; -fx-alignment: CENTER-LEFT; -fx-cursor: hand;";
-    private static final String INACTIVE_STYLE = "-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-weight: bold; -fx-padding: 12 15; -fx-background-radius: 8; -fx-alignment: CENTER-LEFT; -fx-cursor: hand;";
-    private static final String HOVER_STYLE = "-fx-background-color: #f1f5f9; -fx-text-fill: #1e293b; -fx-font-weight: bold; -fx-padding: 12 15; -fx-background-radius: 8; -fx-alignment: CENTER-LEFT; -fx-cursor: hand;";
+    private static final String PRIMARY_BLUE = "#2a548f";
+    private static final String BORDER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: white;";
+    private static final String ACTIVE_STYLE = "-fx-background-color: #e6eaf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+    private static final String INACTIVE_STYLE = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+    private static final String HOVER_STYLE = "-fx-background-color: #f0f4f8; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
 
-    private static Button dashBtn, decksBtn, cardsBtn;
+    private static Button dashBtn;
+    private static Button decksBtn;
+    private static Button cardsBtn;
 
     public static void show(Stage stage) {
-
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-background-color: #f8fafc;");
 
-        VBox sidebar = new VBox(10);
-        sidebar.setPadding(new Insets(30, 20, 30, 20));
+        VBox sidebar = new VBox(15);
+        sidebar.setPadding(new Insets(20, 20, 20, 20));
+        sidebar.setPrefWidth(250);
         sidebar.setMinWidth(250);
-        sidebar.setStyle("-fx-background-color: white; -fx-border-width: 0 1 0 0; -fx-border-color: #e2e8f0;");
+        sidebar.setMaxWidth(250);
+        sidebar.setStyle("-fx-background-color: transparent;");
+
+        Label appTitleLabel = new Label("Study Assistant\nApplication");
+        appTitleLabel.setFont(Font.font("Serif", 18));
+        appTitleLabel.setTextFill(Color.web(PRIMARY_BLUE));
+        VBox.setMargin(appTitleLabel, new Insets(0, 0, 10, 0));
+
+        VBox buttonBox = new VBox(15);
+        buttonBox.setPadding(new Insets(20));
+        buttonBox.setStyle(BORDER_STYLE);
+        VBox.setVgrow(buttonBox, Priority.ALWAYS);
 
         dashBtn = createNavButton("Dashboard");
         decksBtn = createNavButton("My Decks");
@@ -38,13 +56,14 @@ public class MainFrame {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        Button exitBtn = new Button("Exit");
+        Button exitBtn = new Button("EXIT");
         exitBtn.setMaxWidth(Double.MAX_VALUE);
-        exitBtn.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-padding: 12 15; -fx-background-radius: 8; -fx-alignment: CENTER; -fx-cursor: hand;");
-
-        exitBtn.setOnMouseEntered(e -> exitBtn.setStyle("-fx-background-color: #f87171; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 15; -fx-background-radius: 8; -fx-alignment: CENTER; -fx-cursor: hand;"));
-        exitBtn.setOnMouseExited(e -> exitBtn.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-padding: 12 15; -fx-background-radius: 8; -fx-alignment: CENTER; -fx-cursor: hand;"));
-
+        exitBtn.setFont(Font.font("Serif", 16));
+        String exitDefault = "-fx-background-color: #ff9999; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+        String exitHover = "-fx-background-color: #ff6666; -fx-text-fill: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+        exitBtn.setStyle(exitDefault);
+        exitBtn.setOnMouseEntered(e -> exitBtn.setStyle(exitHover));
+        exitBtn.setOnMouseExited(e -> exitBtn.setStyle(exitDefault));
         exitBtn.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Exit Application");
@@ -57,14 +76,17 @@ public class MainFrame {
             }
         });
 
+        buttonBox.getChildren().addAll(dashBtn, decksBtn, cardsBtn, spacer, exitBtn);
+        sidebar.getChildren().addAll(appTitleLabel, buttonBox);
+
         dashBtn.setOnAction(e -> {
             setActiveButton(dashBtn);
-            mainLayout.setCenter(DashboardPanel.create());
+            mainLayout.setCenter(DashboardPanel.create(mainLayout));
         });
 
         decksBtn.setOnAction(e -> {
             setActiveButton(decksBtn);
-            mainLayout.setCenter(DeckDetailPanel.create());
+            mainLayout.setCenter(MyDeckPanel.create(mainLayout));
         });
 
         cardsBtn.setOnAction(e -> {
@@ -72,10 +94,8 @@ public class MainFrame {
             mainLayout.setCenter(AllCardsPanel.create(mainLayout));
         });
 
-        sidebar.getChildren().addAll(dashBtn, decksBtn, cardsBtn, spacer, exitBtn);
-
         mainLayout.setLeft(sidebar);
-        mainLayout.setCenter(DashboardPanel.create());
+        mainLayout.setCenter(DashboardPanel.create(mainLayout));
         setActiveButton(dashBtn);
 
         Scene scene = new Scene(mainLayout, 1024, 768);
@@ -86,15 +106,18 @@ public class MainFrame {
     private static Button createNavButton(String text) {
         Button btn = new Button(text);
         btn.setMaxWidth(Double.MAX_VALUE);
+        btn.setFont(Font.font("Serif", 16));
         btn.setStyle(INACTIVE_STYLE);
-
         btn.setOnMouseEntered(e -> {
-            if (!btn.getStyle().equals(ACTIVE_STYLE)) btn.setStyle(HOVER_STYLE);
+            if (!btn.getStyle().equals(ACTIVE_STYLE)) {
+                btn.setStyle(HOVER_STYLE);
+            }
         });
         btn.setOnMouseExited(e -> {
-            if (!btn.getStyle().equals(ACTIVE_STYLE)) btn.setStyle(INACTIVE_STYLE);
+            if (!btn.getStyle().equals(ACTIVE_STYLE)) {
+                btn.setStyle(INACTIVE_STYLE);
+            }
         });
-
         return btn;
     }
 

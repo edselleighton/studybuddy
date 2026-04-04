@@ -1,7 +1,9 @@
 package com.studyapp.view;
 
 import com.studyapp.controller.CredentialHandler;
+import com.studyapp.data.AppContext;
 import com.studyapp.db.DatabaseConnection;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -30,11 +32,15 @@ public class SetupPanel {
         loginRoot.setPadding(new Insets(40, 30, 40, 30));
         loginRoot.setAlignment(Pos.CENTER_LEFT);
         loginRoot.setStyle(borderStyle);
-        loginRoot.setMaxSize(300, 450);
+        loginRoot.setMaxSize(320, 520);
 
         Label titleLabel = new Label("Connect Your\nDatabase");
         titleLabel.setFont(Font.font("Serif", 28));
         titleLabel.setTextFill(Color.web(primaryBlue));
+
+        Label helperLabel = new Label("You can continue with local sample data for now and switch to MySQL later.");
+        helperLabel.setWrapText(true);
+        helperLabel.setTextFill(Color.web("#475569"));
 
         VBox userBox = new VBox(5);
         Label userLabel = new Label("Enter Username");
@@ -62,16 +68,26 @@ public class SetupPanel {
 
         Button connectBtn = new Button("CONNECT");
         connectBtn.setPrefWidth(200);
+        Button offlineBtn = new Button("USE SAMPLE DATA");
+        offlineBtn.setPrefWidth(200);
 
         String defaultStyle = "-fx-background-color: " + lightBlueBg + "; -fx-text-fill: " + primaryBlue + "; -fx-background-radius: 20; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;";
         String hoverStyle = "-fx-background-color: " + headerBlue + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;";
+        String secondaryStyle = "-fx-background-color: white; -fx-text-fill: " + primaryBlue + "; -fx-border-color: " + primaryBlue + "; -fx-border-radius: 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;";
+        String secondaryHoverStyle = "-fx-background-color: #f8fafc; -fx-text-fill: " + primaryBlue + "; -fx-border-color: " + primaryBlue + "; -fx-border-radius: 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;";
 
         connectBtn.setStyle(defaultStyle);
         connectBtn.setOnMouseEntered(e -> connectBtn.setStyle(hoverStyle));
         connectBtn.setOnMouseExited(e -> connectBtn.setStyle(defaultStyle));
 
-        HBox btnBox = new HBox(connectBtn);
-        btnBox.setAlignment(Pos.CENTER);
+        offlineBtn.setStyle(secondaryStyle);
+        offlineBtn.setOnMouseEntered(e -> offlineBtn.setStyle(secondaryHoverStyle));
+        offlineBtn.setOnMouseExited(e -> offlineBtn.setStyle(secondaryStyle));
+
+        HBox connectBox = new HBox(connectBtn);
+        connectBox.setAlignment(Pos.CENTER);
+        HBox offlineBox = new HBox(offlineBtn);
+        offlineBox.setAlignment(Pos.CENTER);
 
         connectBtn.setOnAction(e -> {
             String username = userField.getText();
@@ -86,6 +102,7 @@ public class SetupPanel {
                     throw new IllegalStateException("Invalid credentials");
                 }
                 DatabaseConnection.setCredentials(username, password);
+                AppContext.useMySqlData();
                 if (rememberCheck.isSelected()) {
                     CREDENTIAL_HANDLER.write(username, password);
                 } else {
@@ -93,26 +110,26 @@ public class SetupPanel {
                 }
                 onSuccess.run();
             } catch (Exception ex) {
-                errorLabel.setText("Connection failed. Check credentials.");
+                errorLabel.setText("Connection failed. Check credentials or continue with sample data.");
+                AppContext.useInMemoryData();
             }
 
             connectBtn.setDisable(false);
             connectBtn.setText("CONNECT");
         });
 
-        loginRoot.getChildren().addAll(
-                titleLabel,
-                userBox,
-                passBox,
-                rememberBox,
-                btnBox,
-                errorLabel
-        );
+        offlineBtn.setOnAction(e -> {
+            AppContext.useInMemoryData();
+            errorLabel.setText("");
+            onSuccess.run();
+        });
+
+        loginRoot.getChildren().addAll(titleLabel, helperLabel, userBox, passBox, rememberBox, connectBox, offlineBox, errorLabel);
 
         StackPane wrapper = new StackPane(loginRoot);
         wrapper.setPadding(new Insets(20));
         wrapper.setStyle("-fx-background-color: #f7f9fc;");
 
-        return new Scene(wrapper, 400, 550);
+        return new Scene(wrapper, 420, 580);
     }
 }

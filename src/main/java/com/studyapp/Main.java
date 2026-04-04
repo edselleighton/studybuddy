@@ -1,5 +1,6 @@
 package com.studyapp;
 
+import com.studyapp.data.AppContext;
 import com.studyapp.view.MainFrame;
 import com.studyapp.view.SetupPanel;
 
@@ -11,12 +12,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
-        Scene setupScene = SetupPanel.createScene(primaryStage, () -> {
-            // After successful login → open MainFrame
-            MainFrame.show(primaryStage);
-        });
-
+        AppContext.useInMemoryData();
+        Scene setupScene = SetupPanel.createScene(primaryStage, () -> MainFrame.show(primaryStage));
         primaryStage.setTitle("Study Assistant");
         primaryStage.setScene(setupScene);
         primaryStage.show();
