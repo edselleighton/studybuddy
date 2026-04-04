@@ -1,5 +1,6 @@
 package com.studyapp.view;
 
+import com.studyapp.controller.CredentialHandler;
 import com.studyapp.db.DatabaseConnection;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,6 +18,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class SetupPanel {
+    private static final CredentialHandler CREDENTIAL_HANDLER = new CredentialHandler();
 
     public static Scene createScene(Stage primaryStage, Runnable onSuccess) {
         String primaryBlue = "#1a2a6c";
@@ -80,8 +82,15 @@ public class SetupPanel {
             errorLabel.setText("");
 
             try {
+                if (!DatabaseConnection.authenticate(username, password)) {
+                    throw new IllegalStateException("Invalid credentials");
+                }
                 DatabaseConnection.setCredentials(username, password);
-                DatabaseConnection.getConnection();
+                if (rememberCheck.isSelected()) {
+                    CREDENTIAL_HANDLER.write(username, password);
+                } else {
+                    CREDENTIAL_HANDLER.deleteEnvFile();
+                }
                 onSuccess.run();
             } catch (Exception ex) {
                 errorLabel.setText("Connection failed. Check credentials.");

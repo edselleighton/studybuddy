@@ -1,11 +1,50 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# VS Code logs
+.vscode/*.log
+
+# Build outputs
+dist/
+build/
 target/
 **/target/
+bin/
+*.class
+*.jar
+*.war
+*.log
+npm-debug.log*
 
+# Java project metadata
 .classpath
 .project
 .settings/
 
-.idea/
-*.iml
+# OS
+Thumbs.db
 
-.vscode/*.log
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

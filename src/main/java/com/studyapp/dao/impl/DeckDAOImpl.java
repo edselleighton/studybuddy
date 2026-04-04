@@ -4,14 +4,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.studyapp.dao.DeckDAO;
 import com.studyapp.db.DatabaseConnection;
 import com.studyapp.model.Deck;
+import com.studyapp.model.ObjectFactory;
 
-public class DeckDAOImpl implements DeckDAO{
+public class DeckDAOImpl implements DeckDAO {
     @Override
     public void insert(Deck deck) throws SQLException {
         String sql = "INSERT INTO deck (name, description, created_at) VALUES (?, ?, ?)";
@@ -24,7 +25,6 @@ public class DeckDAOImpl implements DeckDAO{
         }
     }
 
-    // Update name and description only.
     @Override
     public void update(Deck deck) throws SQLException {
         String sql = "UPDATE deck SET name = ?, description = ? WHERE deck_id = ?";
@@ -38,8 +38,8 @@ public class DeckDAOImpl implements DeckDAO{
     }
 
     @Override
-    public void delete(int deckID) throws SQLException{
-        String sql = "DELETE FROM deck WHERE deck_id=?";
+    public void delete(int deckID) throws SQLException {
+        String sql = "DELETE FROM deck WHERE deck_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, deckID);
@@ -51,12 +51,14 @@ public class DeckDAOImpl implements DeckDAO{
 
     @Override
     public Deck findByID(int deckID) {
-        String sql = "SELECT * FROM deck WHERE deck_id=?";
+        String sql = "SELECT * FROM deck WHERE deck_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, deckID);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return createNewDeck(rs);
+                if (rs.next()) {
+                    return new ObjectFactory().createNewDeck(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -64,25 +66,19 @@ public class DeckDAOImpl implements DeckDAO{
         return null;
     }
 
-    // Build a Deck object from a result row.
-    Deck createNewDeck(ResultSet rs){
-    try{
-        Deck deck = new Deck();
-        deck.setDeckID(rs.getInt("deck_id"));
-        deck.setName(rs.getString("name"));
-        deck.setDescription(rs.getString("description"));
-        
-        Object createdAtObj = rs.getObject("created_at");
-        if (createdAtObj instanceof LocalDateTime) {
-            deck.setCreatedAt((LocalDateTime) createdAtObj);
-        } else if (createdAtObj instanceof java.sql.Timestamp) {
-            deck.setCreatedAt(((java.sql.Timestamp) createdAtObj).toLocalDateTime());
+    @Override
+    public List<Deck> getAllDecks() {
+        List<Deck> allDecks = new ArrayList<>();
+        String sql = "SELECT * FROM deck";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                allDecks.add(new ObjectFactory().createNewDeck(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        
-        return deck;
-    }catch(SQLException e) {
-        e.printStackTrace();
+        return allDecks;
     }
-    return null;
-}
 }
