@@ -26,19 +26,15 @@ import com.studyapp.model.StudySession;
 //DATA VALIDATION
 
 public class MainController {
-    private DeckDAOImpl deckDaoImpl = new DeckDAOImpl();
+    private DeckController deckController;
     private FlashcardDAOImpl flashcardDAOImpl = new FlashcardDAOImpl();
     private StudySessionDAOImpl studySessionDAOImpl = new StudySessionDAOImpl();
     private CardReviewDAOImpl cardReviewDAOImpl = new CardReviewDAOImpl();
 
-    private List<Deck> decks = new ArrayList<>();
     private List<Flashcard> flashcards = new ArrayList<>();
     private List<StudySession> studySessions = new ArrayList<>();
     private List<CardReview> cardReviews = new ArrayList<>();
 
-    private List<Deck> addedDecks    = new ArrayList<>();
-    private Map<Integer, Deck> modifiedDecks = new HashMap<>();
-    private List<Integer> deletedDecks  = new ArrayList<>();
     private List<Flashcard> addedFlashcards = new ArrayList<>();
     private Map<Integer, Flashcard> modifiedFlashcards = new HashMap<>();
     private List<Integer> deletedFlashcards  = new ArrayList<>();
@@ -49,11 +45,13 @@ public class MainController {
     private List<Integer> deletedCardReviews = new ArrayList<>();
 
 
-    private int lastDeckID = 999;
     private int lastCardID = 999;
     private int lastSessionID = 999;
     private int lastReviewID = 999;
 
+    public MainController(){
+        deckController = new DeckController(this);
+    }
 
     // --------- AUTHENTICATION --------------
     public boolean tryAutoLogin() {
@@ -78,74 +76,23 @@ public class MainController {
     //------------- DMLs --------------------
     //-----DECK--------
     public void createDeck(String deckName, String description) throws CustomException{
-        Deck deck = new Deck(++lastDeckID, deckName, description, LocalDateTime.now());
-        //TODO: Validate constraints first before adding
-        decks.add(deck);
-        addedDecks.add(deck);
-    }
-
-    public void updateDeck(int deckID, String deckName, String description) throws CustomException{
-        try{
-            Deck deck = new Deck(deckID, deckName, description, LocalDateTime.now());
-            deckDaoImpl.update(deck);
-        }catch(SQLException e){
-            throw new CustomException("Error updating deck.");
-        }
+        deckController.createDeck(deckName, description);
     }
 
     public void deleteDeck(int deckID) throws CustomException{
-        Deck existing = decks.stream()
-                .filter(i -> i.getDeckID() == deckID)
-                .findFirst().orElse(null);
-        if (existing == null) {
-            throw new CustomException("No record matched. No row was deleted.");
-        }
-        decks.remove(existing);
-
-        if (addedDecks.contains(existing)) {
-            addedDecks.remove(existing);
-        } else {
-            modifiedDecks.remove(deckID);
-            deletedDecks.add(deckID);
-        }
-
-        //DELETE ALL CARDS IN THIS DECK
-        for(Flashcard flashcard: getFlashcardsByDeck(deckID)){
-            deleteFlashcard(flashcard.getCardID());
-        }
-        //DELETE ALL SESSIONS ASSOCIATED IN THIS DECK
-        for(StudySession session: getAllSessions()){
-            if(session.getDeck().getDeckID() == deckID){
-                deleteSession(session.getSessionID());
-            }
-        }
+        deckController.deleteDeck(deckID);
     }
 
-    public Deck findDeck(int deckID){
-        return deckDaoImpl.findByID(deckID);
+    public Deck findDeck(int deckID) throws  CustomException{
+        return deckController.findDeck(deckID);
     }
 
     public List<Deck> allDecks(){
-        return new ArrayList<>(decks);
+        return deckController.allDecks();
     }
 
-    public void update(Deck deck) throws CustomException {
-        Deck existing = decks.stream()
-                .filter(i -> i.getDeckID() == deck.getDeckID())
-                .findFirst().orElse(null);
-        if (existing == null) {
-            throw new CustomException("Deck not found.");
-        }
-
-        decks.remove(existing);
-        decks.add(deck);
-
-        if (addedDecks.contains(existing)) {
-            addedDecks.remove(existing);
-            addedDecks.add(deck);
-        } else {
-            modifiedDecks.put(deck.getDeckID(), deck);
-        }
+    public void updateDeck(Deck deck) throws CustomException {
+        deckController.updateDeck(deck);
     }
 
     //-----FLASHCARDS------
@@ -161,7 +108,7 @@ public class MainController {
 
     public void createFlashcard(int deckID, String question, String answer, String difficulty) throws CustomException{
         //CHECK IF DECK EXISTS
-        Deck deck = decks.stream()
+        Deck deck = allDecks().stream()
                 .filter(i -> i.getDeckID() == deckID)
                 .findFirst().orElse(null);
         if (deck == null) {
@@ -212,7 +159,7 @@ public class MainController {
 
     //---------- STUDY SESSIONS ----------------------//
     public StudySession createStudySession(int deckID, LocalDateTime startedAt) throws CustomException{
-        Deck deck = decks.stream()
+        Deck deck = allDecks().stream()
                 .filter(i -> i.getDeckID() == deckID)
                 .findFirst().orElse(null);
         if (deck == null) {
@@ -323,8 +270,7 @@ public class MainController {
     //----------------- DATA -----------------------
     public void loadData() throws CustomException{
         try{
-            decks = deckDaoImpl.getAllDecks();
-            lastDeckID = deckDaoImpl.getLastID();
+            deckController.loadDecks();
             flashcards = flashcardDAOImpl.getAllFlashcards();
             lastCardID = flashcardDAOImpl.getLastID();
             studySessions = studySessionDAOImpl.getAllSessions();
