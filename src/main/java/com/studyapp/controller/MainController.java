@@ -27,7 +27,6 @@ import com.studyapp.model.StudySession;
 
 public class MainController {
     private DeckDAOImpl deckDaoImpl = new DeckDAOImpl();
-    private CredentialHandler cHandler = new CredentialHandler();
     private FlashcardDAOImpl flashcardDAOImpl = new FlashcardDAOImpl();
     private StudySessionDAOImpl studySessionDAOImpl = new StudySessionDAOImpl();
     private CardReviewDAOImpl cardReviewDAOImpl = new CardReviewDAOImpl();
@@ -58,8 +57,7 @@ public class MainController {
 
     // --------- AUTHENTICATION --------------
     public boolean tryAutoLogin() {
-        if (!cHandler.checkForCred()) return false;
-        if (!cHandler.readAndValidate()) return false;
+        if (!CredentialHandler.validateCredentials()) return false;
         try {
             loadData();
             return true;
@@ -72,7 +70,7 @@ public class MainController {
         if (!DatabaseConnection.authenticate(username, password)) {
             throw new CustomException("Invalid credentials.");
         }
-        cHandler.write(username, password);
+        CredentialHandler.save(username, password);
         DatabaseConnection.setCredentials(username, password);
         loadData();
     }
@@ -306,7 +304,7 @@ public class MainController {
                 .toList();
     }
 
-    public void deleteCardReview(int reviewID) throws CustomException{
+    public void deleteCardReview(int reviewID) throws CustomException {
         CardReview existing = cardReviews.stream()
                 .filter(i -> i.getReviewID() == reviewID)
                 .findFirst().orElse(null);
