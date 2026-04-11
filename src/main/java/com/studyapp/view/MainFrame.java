@@ -25,7 +25,7 @@ public class MainFrame {
     private static final String HOVER_STYLE = "-fx-background-color: #f0f4f8; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
 
     private static Button dashBtn;
-    private static Button cardsBtn;
+    private static Button decksBtn;
     private static Button allCardsBtn;
 
     public static void show(Stage stage) {
@@ -50,7 +50,7 @@ public class MainFrame {
         VBox.setVgrow(buttonBox, Priority.ALWAYS);
 
         dashBtn = createNavButton("Dashboard");
-        cardsBtn = createNavButton("My Cards");
+        decksBtn = createNavButton("My Decks");
         allCardsBtn = createNavButton("All Cards");
 
         Region spacer = new Region();
@@ -76,7 +76,7 @@ public class MainFrame {
             }
         });
 
-        buttonBox.getChildren().addAll(dashBtn, cardsBtn, allCardsBtn, spacer, exitBtn);
+        buttonBox.getChildren().addAll(dashBtn, decksBtn, allCardsBtn, spacer, exitBtn);
         sidebar.getChildren().addAll(appTitleLabel, buttonBox);
 
         dashBtn.setOnAction(e -> {
@@ -84,8 +84,8 @@ public class MainFrame {
             mainLayout.setCenter(DashboardPanel.create(mainLayout));
         });
 
-        cardsBtn.setOnAction(e -> {
-            setActiveButton(cardsBtn);
+        decksBtn.setOnAction(e -> {
+            setActiveButton(decksBtn);
             mainLayout.setCenter(MyDeckPanel.create(mainLayout));
         });
 
@@ -105,6 +105,11 @@ public class MainFrame {
             existingScene.setRoot(mainLayout);
         }
         stage.setMaximized(true);
+    }
+
+    /** Called by DeckDetailPanel's BACK button to restore correct active state. */
+    public static void activateMyDecks() {
+        setActiveButton(decksBtn);
     }
 
     private static Button createNavButton(String text) {
@@ -127,7 +132,7 @@ public class MainFrame {
 
     private static void setActiveButton(Button active) {
         dashBtn.setStyle(INACTIVE_STYLE);
-        cardsBtn.setStyle(INACTIVE_STYLE);
+        decksBtn.setStyle(INACTIVE_STYLE);
         allCardsBtn.setStyle(INACTIVE_STYLE);
         active.setStyle(ACTIVE_STYLE);
     }

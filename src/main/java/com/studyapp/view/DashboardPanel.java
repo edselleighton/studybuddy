@@ -72,13 +72,16 @@ public class DashboardPanel {
                 createFlowStep("3", "My Cards"),
                 createFlowStep("4", "All Cards"));
 
-        Button nextButton = new Button("Open My Cards");
-        String buttonStyle = "-fx-background-color: #e6eaf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 10 20; -fx-cursor: hand;";
-        String hoverStyle = "-fx-background-color: #d0dcf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 10 20; -fx-cursor: hand;";
-        nextButton.setStyle(buttonStyle);
-        nextButton.setOnMouseEntered(e -> nextButton.setStyle(hoverStyle));
-        nextButton.setOnMouseExited(e -> nextButton.setStyle(buttonStyle));
-        nextButton.setOnAction(e -> mainLayout.setCenter(MyDeckPanel.create(mainLayout)));
+                Button nextButton = new Button("Open My Decks");
+                String buttonStyle = "-fx-background-color: #e6eaf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 10 20; -fx-cursor: hand;";
+                String hoverStyle = "-fx-background-color: #d0dcf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 10 20; -fx-cursor: hand;";
+                nextButton.setStyle(buttonStyle);
+                nextButton.setOnMouseEntered(e -> nextButton.setStyle(hoverStyle));
+                nextButton.setOnMouseExited(e -> nextButton.setStyle(buttonStyle));
+                nextButton.setOnAction(e -> {
+                    MainFrame.activateMyDecks();
+                    mainLayout.setCenter(MyDeckPanel.create(mainLayout));
+                });
 
         flowPanel.getChildren().addAll(flowHeader, flowText, flowSteps, nextButton);
 
