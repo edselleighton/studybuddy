@@ -108,6 +108,22 @@ public class DeckController {
         }
     }
 
+    public void saveDeckToDB() throws CustomException{
+        try{
+            for(Deck deck: addedDecks){
+                deckDaoImpl.insert(deck);
+            }
+            for(Deck deck: modifiedDecks.values()){
+                deckDaoImpl.update(deck);
+            }
+            for(int deckID: deletedDecks){
+                deckDaoImpl.delete(deckID);
+            }
+        }catch(Exception e){
+            throw new CustomException("Failed to Save Decks");
+        }
+    }
+
     void validateConstraints(Deck deck) throws CustomException{
         //VALIDATE ID UNIQUENESS
         if(decks.stream().anyMatch(i -> (i.getDeckID() == deck.getDeckID()) && (i != deck))){

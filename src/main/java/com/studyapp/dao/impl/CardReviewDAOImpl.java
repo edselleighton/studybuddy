@@ -16,7 +16,7 @@ import com.studyapp.model.StudySession;
 public class CardReviewDAOImpl implements CardReviewDAO{
     @Override
     public void insert(CardReview cardReview) throws SQLException{
-        String sql = "INSERT INTO card_review (reeview_id, session_id, card_id, reviewed_at, is_correct) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO card_review (review_id, session_id, card_id, reviewed_at, is_correct) VALUES (?, ?, ?, ?, ?)";
         try(Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setInt(1, cardReview.getReviewID());
@@ -57,6 +57,19 @@ public class CardReviewDAOImpl implements CardReviewDAO{
         }
         return allReviews;
     }
+
+    @Override
+    public void delete(int reviewID) {
+        String sql = "DELETE FROM card_review WHERE review_id=?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reviewID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public int getLastID(){

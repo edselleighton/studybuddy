@@ -42,7 +42,7 @@ study-assistant/
 ## Database Setup
 
 1. Create the `study_assistant` database in MySQL.
-2. Import [`TestDB.sql`](./TestDB.sql) to create the tables and seed data.
+2. Import [`TestDB.sql`](src/main/resources/db/TestDB.sql) to create the tables and seed data.
 3. Confirm the database is running before starting the application.
 
 

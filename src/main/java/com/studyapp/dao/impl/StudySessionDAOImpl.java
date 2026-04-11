@@ -81,5 +81,17 @@ public class StudySessionDAOImpl implements StudySessionDAO{
         }
         return 999;
     }
+
+    @Override
+    public void delete(int sessionID) {
+        String sql = "DELETE FROM study_session WHERE session_id=?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, sessionID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
 

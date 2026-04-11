@@ -12,4 +12,5 @@ public interface StudySessionDAO {
     public StudySession findByID(int sessionID);
     public List<StudySession> getAllSessions();
     public int getLastID();
+    public void delete(int sessionID) throws SQLException;
 }

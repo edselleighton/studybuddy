@@ -59,12 +59,13 @@ public class CLIView {
                     case 2 -> { listCards(mc.allFlashcards());}
                     case 3 -> { printSessions();}
                     case 4 -> { printCardReviews(mc.getAllCardReviews());}
-                    case 5 -> { System.exit(0);}
+                    case 5 -> { mc.saveChanges();}
+                    case 6 -> { System.exit(0);}
 
                     default -> System.out.println("Invalid choice.\n");
                 }
-            } catch (Exception e) {
-                System.out.println("Invalid input.\n");
+            } catch (CustomException e) {
+                System.out.println(e.getMessage() + "\n");
                 scanner.nextLine();
             }
         }
@@ -424,6 +425,7 @@ public class CLIView {
             }
         }
         System.out.println("\n" + BAR + "\nYOUR SCORE WAS " + totalCorrect + "/" + flashcards.size() + "\n"+ BAR + "\n");
+        studySession.setEndedAt(LocalDateTime.now());
     }
 
     void printSessions(){
@@ -570,7 +572,8 @@ public class CLIView {
         System.out.println("  2. ALL cards");
         System.out.println("  3. All sessions");
         System.out.println("  4. All card reviews");
-        System.out.println("  5. EXIT");
+        System.out.println("  5. SAVE to database");
+        System.out.println("  6. EXIT");
         System.out.print("SELECT: ");
     }
 

@@ -10,4 +10,5 @@ public interface CardReviewDAO {
     public CardReview findByID(int reviewID);
     public List<CardReview> getAllReviews();
     public int getLastID();
+    public void delete(int reviewID) throws SQLException;
 }
