@@ -19,6 +19,8 @@ import javafx.stage.Stage;
 
 public class SetupPanel {
     private static final CredentialHandler CREDENTIAL_HANDLER = new CredentialHandler();
+    private static final double SETUP_WIDTH = 420;
+    private static final double SETUP_HEIGHT = 580;
 
     public static Scene createScene(Stage primaryStage, Runnable onSuccess) {
         String primaryBlue = "#1a2a6c";
@@ -99,6 +101,11 @@ public class SetupPanel {
         wrapper.setPadding(new Insets(20));
         wrapper.setStyle("-fx-background-color: #f7f9fc;");
 
-        return new Scene(wrapper, 420, 580);
+        primaryStage.setMaximized(false);
+        primaryStage.setWidth(SETUP_WIDTH);
+        primaryStage.setHeight(SETUP_HEIGHT);
+        primaryStage.centerOnScreen();
+
+        return new Scene(wrapper, SETUP_WIDTH, SETUP_HEIGHT);
     }
 }

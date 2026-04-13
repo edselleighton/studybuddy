@@ -25,15 +25,15 @@ public class MainFrame {
     private static final String HOVER_STYLE = "-fx-background-color: #f0f4f8; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
 
     private static Button dashBtn;
+    private static Button decksBtn;
     private static Button cardsBtn;
-    private static Button allCardsBtn;
 
     public static void show(Stage stage) {
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-background-color: #f8fafc;");
 
         VBox sidebar = new VBox(15);
-        sidebar.setPadding(new Insets(20));
+        sidebar.setPadding(new Insets(20, 20, 20, 20));
         sidebar.setPrefWidth(250);
         sidebar.setMinWidth(250);
         sidebar.setMaxWidth(250);
@@ -50,8 +50,8 @@ public class MainFrame {
         VBox.setVgrow(buttonBox, Priority.ALWAYS);
 
         dashBtn = createNavButton("Dashboard");
-        cardsBtn = createNavButton("My Cards");
-        allCardsBtn = createNavButton("All Cards");
+        decksBtn = createNavButton("My Decks");
+        cardsBtn = createNavButton("All Cards");
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
@@ -76,7 +76,7 @@ public class MainFrame {
             }
         });
 
-        buttonBox.getChildren().addAll(dashBtn, cardsBtn, allCardsBtn, spacer, exitBtn);
+        buttonBox.getChildren().addAll(dashBtn, decksBtn, cardsBtn, spacer, exitBtn);
         sidebar.getChildren().addAll(appTitleLabel, buttonBox);
 
         dashBtn.setOnAction(e -> {
@@ -84,13 +84,13 @@ public class MainFrame {
             mainLayout.setCenter(DashboardPanel.create(mainLayout));
         });
 
-        cardsBtn.setOnAction(e -> {
-            setActiveButton(cardsBtn);
+        decksBtn.setOnAction(e -> {
+            setActiveButton(decksBtn);
             mainLayout.setCenter(MyDeckPanel.create(mainLayout));
         });
 
-        allCardsBtn.setOnAction(e -> {
-            setActiveButton(allCardsBtn);
+        cardsBtn.setOnAction(e -> {
+            setActiveButton(cardsBtn);
             mainLayout.setCenter(AllCardsPanel.create(mainLayout));
         });
 
@@ -127,8 +127,8 @@ public class MainFrame {
 
     private static void setActiveButton(Button active) {
         dashBtn.setStyle(INACTIVE_STYLE);
+        decksBtn.setStyle(INACTIVE_STYLE);
         cardsBtn.setStyle(INACTIVE_STYLE);
-        allCardsBtn.setStyle(INACTIVE_STYLE);
         active.setStyle(ACTIVE_STYLE);
     }
 }
