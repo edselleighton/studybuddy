@@ -162,39 +162,45 @@ public class CLIView {
     }
 
     void addDeck(){
-        System.out.println("\n----- ADD DECK -----\n");
-        System.out.print("Enter Deck Name to be added: ");
-        String deckName = readLine();
-        System.out.print("Enter Deck description (Enter for no description):\n      " );
-        String description = readLine();
-        try {
-            mc.createDeck(deckName, description);
-            System.out.println("Deck added successfully.");
+        while(true){
+            System.out.println("\n----- ADD DECK -----\n");
+            System.out.print("Enter Deck Name to be added: ");
+            String deckName = readLine();
+            System.out.print("Enter Deck description (Enter for no description):\n      " );
+            String description = readLine();
+            try {
+                mc.createDeck(deckName, description);
+                System.out.println("Deck added successfully.");
                 System.out.println(BAR + "\n");
-        } catch (CustomException e) {
-            System.out.println(e.getMessage() + "\n");
-            System.out.println(BAR + "\n");
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage() + "\n");
+                System.out.println(BAR + "\n");
+            }
         }
     }
     void editDeck(int attribute, Deck deck){
         String value = "";
-        try{
-            switch(attribute){
-                case 0: //EDIT NAME
-                    System.out.print("Enter Deck name: ");
-                    value = readLine();
-                    deck.setName(value);
-                    break;
-                case 1: //EDIT DESCRIPTION
-                    System.out.print("Enter description: ");
-                    value = readLine();
-                    deck.setDescription(value);
-                    break;
+        while (true){
+            try{
+                switch(attribute){
+                    case 0: //EDIT NAME
+                        System.out.print("Enter Deck name: ");
+                        value = readLine();
+                        deck.setName(value);
+                        break;
+                    case 1: //EDIT DESCRIPTION
+                        System.out.print("Enter description: ");
+                        value = readLine();
+                        deck.setDescription(value);
+                        break;
+                }
+                mc.updateDeck(deck);
+                System.out.println("Deck updated successfully.\n");
+                break;
+            }catch(CustomException e){
+                System.out.println(e.getMessage());
             }
-            mc.update(deck);
-            System.out.println("Deck updated successfully.\n");
-        }catch(CustomException e){
-            System.out.println(e.getMessage());
         }
     }
 
