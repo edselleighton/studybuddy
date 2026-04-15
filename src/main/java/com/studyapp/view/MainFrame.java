@@ -107,6 +107,10 @@ public class MainFrame {
         stage.setMaximized(true);
     }
 
+    public static void activateMyDecks() {
+        setActiveButton(decksBtn);
+    }
+
     private static Button createNavButton(String text) {
         Button btn = new Button(text);
         btn.setMaxWidth(Double.MAX_VALUE);

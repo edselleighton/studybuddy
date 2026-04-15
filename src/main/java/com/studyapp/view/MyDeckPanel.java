@@ -1,6 +1,10 @@
 package com.studyapp.view;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
+import com.studyapp.model.Deck;
+import com.studyapp.model.Flashcard;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,16 +33,15 @@ public class MyDeckPanel {
     private static final String OPEN_BUTTON_STYLE = "-fx-background-color: #e6eaf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
     private static final String OPEN_BUTTON_HOVER_STYLE = "-fx-background-color: #d0dcf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
 
+    public record DeckData(Deck deck, int cardCount, int progressPercent, List<Flashcard> cards) {
+    }
+
     public static VBox create(BorderPane mainLayout) {
         return create(mainLayout, "Manage decks, or import/export your deck data as JSON.", PRIMARY_BLUE);
     }
 
     public static VBox create(BorderPane mainLayout, String statusMessage, String statusColor) {
-        List<DeckPreview> decks = List.of(
-                new DeckPreview(101, "Java Foundations", 4, 75),
-                new DeckPreview(102, "SQL Essentials", 3, 60),
-                new DeckPreview(103, "UI Navigation", 2, 90),
-                new DeckPreview(104, "Data Structures", 5, 40));
+        List<DeckData> decks = createPrototypeDecks();
 
         VBox wrapper = new VBox();
         wrapper.setPadding(new Insets(20));
@@ -101,8 +104,8 @@ public class MyDeckPanel {
         deckList.setPadding(new Insets(5, 15, 5, 5));
         deckList.setStyle("-fx-background-color: white;");
 
-        for (DeckPreview deck : decks) {
-            deckList.getChildren().add(createDeckItem(deck));
+        for (DeckData deck : decks) {
+            deckList.getChildren().add(createDeckItem(deck, mainLayout));
         }
 
         scrollPane.setContent(deckList);
@@ -120,7 +123,7 @@ public class MyDeckPanel {
         return button;
     }
 
-    private static HBox createDeckItem(DeckPreview deck) {
+    private static HBox createDeckItem(DeckData deck, BorderPane mainLayout) {
         HBox row = new HBox(20);
         row.setStyle(DECK_ROW_STYLE);
         row.setAlignment(Pos.CENTER_LEFT);
@@ -129,9 +132,9 @@ public class MyDeckPanel {
 
         VBox leftInfo = new VBox(5);
         leftInfo.setPrefWidth(250);
-        Label idLbl = new Label("ID: " + deck.id());
+        Label idLbl = new Label("ID: " + deck.deck().getDeckID());
         idLbl.setFont(Font.font("Serif", 14));
-        Label titleLbl = new Label(deck.name());
+        Label titleLbl = new Label(deck.deck().getName());
         titleLbl.setFont(Font.font("Serif", 18));
         leftInfo.getChildren().addAll(idLbl, titleLbl);
 
@@ -149,11 +152,52 @@ public class MyDeckPanel {
         selectBtn.setStyle(OPEN_BUTTON_STYLE);
         selectBtn.setOnMouseEntered(e -> selectBtn.setStyle(OPEN_BUTTON_HOVER_STYLE));
         selectBtn.setOnMouseExited(e -> selectBtn.setStyle(OPEN_BUTTON_STYLE));
+        selectBtn.setOnAction(e -> DeckDetailPanel.show(mainLayout, deck));
 
         row.getChildren().addAll(leftInfo, middleInfo, spacer, selectBtn);
         return row;
     }
 
-    private record DeckPreview(int id, String name, int cardCount, int progressPercent) {
+    private static List<DeckData> createPrototypeDecks() {
+        Deck javaDeck = createDeck(101, "Java Foundations", "Core Java syntax, OOP, and collections.", 75);
+        Deck sqlDeck = createDeck(102, "SQL Essentials", "Query basics, joins, and schema design.", 60);
+        Deck navDeck = createDeck(103, "UI Navigation", "Prototype routing, panels, and layout flow.", 90);
+        Deck dsDeck = createDeck(104, "Data Structures", "Arrays, linked lists, stacks, and trees.", 40);
+
+        List<Flashcard> javaCards = List.of(
+                createCard(1, javaDeck, "What does JVM stand for?", "Java Virtual Machine", "Easy"),
+                createCard(2, javaDeck, "What collection keeps insertion order?", "LinkedHashMap", "Medium"),
+                createCard(3, javaDeck, "What keyword prevents inheritance?", "final", "Easy"),
+                createCard(4, javaDeck, "Which interface supports lambda expressions?", "Functional interface", "Medium"));
+
+        List<Flashcard> sqlCards = List.of(
+                createCard(5, sqlDeck, "What clause filters grouped rows?", "HAVING", "Medium"),
+                createCard(6, sqlDeck, "What does a LEFT JOIN keep?", "All rows from the left table", "Easy"),
+                createCard(7, sqlDeck, "What command removes a table?", "DROP TABLE", "Easy"));
+
+        List<Flashcard> navCards = List.of(
+                createCard(8, navDeck, "Which layout is used for the main shell?", "BorderPane", "Easy"),
+                createCard(9, navDeck, "Which panel opens from Dashboard next?", "My Decks", "Medium"));
+
+        List<Flashcard> dsCards = List.of(
+                createCard(10, dsDeck, "Which data structure uses FIFO?", "Queue", "Easy"),
+                createCard(11, dsDeck, "Which traversal visits root-left-right?", "Preorder", "Medium"),
+                createCard(12, dsDeck, "Which structure gives O(1) average lookup?", "Hash table", "Hard"),
+                createCard(13, dsDeck, "Which structure supports LIFO?", "Stack", "Easy"),
+                createCard(14, dsDeck, "Which tree keeps values ordered?", "Binary search tree", "Medium"));
+
+        return List.of(
+                new DeckData(javaDeck, javaCards.size(), 75, javaCards),
+                new DeckData(sqlDeck, sqlCards.size(), 60, sqlCards),
+                new DeckData(navDeck, navCards.size(), 90, navCards),
+                new DeckData(dsDeck, dsCards.size(), 40, dsCards));
+    }
+
+    private static Deck createDeck(int id, String name, String description, int progressPercent) {
+        return new Deck(id, name, description, LocalDateTime.of(2026, 4, 10 + (id - 101), 9 + progressPercent % 3, 0));
+    }
+
+    private static Flashcard createCard(int cardId, Deck deck, String question, String answer, String difficulty) {
+        return new Flashcard(cardId, deck, question, answer, difficulty, deck.getCreatedAt());
     }
 }
