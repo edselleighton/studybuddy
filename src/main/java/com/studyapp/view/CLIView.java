@@ -59,12 +59,13 @@ public class CLIView {
                     case 2 -> { listCards(mc.allFlashcards());}
                     case 3 -> { printSessions();}
                     case 4 -> { printCardReviews(mc.getAllCardReviews());}
-                    case 5 -> { System.exit(0);}
+                    case 5 -> { mc.saveChanges();}
+                    case 6 -> { System.exit(0);}
 
                     default -> System.out.println("Invalid choice.\n");
                 }
-            } catch (Exception e) {
-                System.out.println("Invalid input.\n");
+            } catch (CustomException e) {
+                System.out.println(e.getMessage() + "\n");
                 scanner.nextLine();
             }
         }
@@ -162,34 +163,44 @@ public class CLIView {
     }
 
     void addDeck(){
-        System.out.println("\n----- ADD DECK -----\n");
-        System.out.print("Enter Deck Name to be added: ");
-        String deckName = readLine();
-        System.out.print("Enter Deck description (Enter for no description):\n      " );
-        String description = readLine();
-        try {
-            mc.createDeck(deckName, description);
-            System.out.println("Deck added successfully.");
+        while(true){
+            System.out.println("\n----- ADD DECK -----\n");
+            System.out.print("Enter Deck Name to be added: ");
+            String deckName = readLine();
+            System.out.print("Enter Deck description (Enter for no description):\n      " );
+            String description = readLine();
+            try {
+                mc.createDeck(deckName, description);
+                System.out.println("Deck added successfully.");
                 System.out.println(BAR + "\n");
-        } catch (CustomException e) {
-            System.out.println(e.getMessage() + "\n");
-            System.out.println(BAR + "\n");
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage() + "\n");
+                System.out.println(BAR + "\n");
+            }
         }
     }
     void editDeck(int attribute, Deck deck){
         String value = "";
-        try{
-            switch(attribute){
-                case 0: //EDIT NAME
-                    System.out.print("Enter Deck name: ");
-                    value = readLine();
-                    deck.setName(value);
-                    break;
-                case 1: //EDIT DESCRIPTION
-                    System.out.print("Enter description: ");
-                    value = readLine();
-                    deck.setDescription(value);
-                    break;
+        while (true){
+            try{
+                switch(attribute){
+                    case 0: //EDIT NAME
+                        System.out.print("Enter Deck name: ");
+                        value = readLine();
+                        deck.setName(value);
+                        break;
+                    case 1: //EDIT DESCRIPTION
+                        System.out.print("Enter description: ");
+                        value = readLine();
+                        deck.setDescription(value);
+                        break;
+                }
+                mc.updateDeck(deck);
+                System.out.println("Deck updated successfully.\n");
+                break;
+            }catch(CustomException e){
+                System.out.println(e.getMessage());
             }
             mc.updateDeck(deck);
             System.out.println("Deck updated successfully.\n");
@@ -418,6 +429,7 @@ public class CLIView {
             }
         }
         System.out.println("\n" + BAR + "\nYOUR SCORE WAS " + totalCorrect + "/" + flashcards.size() + "\n"+ BAR + "\n");
+        studySession.setEndedAt(LocalDateTime.now());
     }
 
     void printSessions(){
@@ -564,7 +576,8 @@ public class CLIView {
         System.out.println("  2. ALL cards");
         System.out.println("  3. All sessions");
         System.out.println("  4. All card reviews");
-        System.out.println("  5. EXIT");
+        System.out.println("  5. SAVE to database");
+        System.out.println("  6. EXIT");
         System.out.print("SELECT: ");
     }
 
