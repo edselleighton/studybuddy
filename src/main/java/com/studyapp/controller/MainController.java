@@ -2,6 +2,7 @@ package com.studyapp.controller;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -155,6 +156,10 @@ public class MainController {
 
         int total = getFlashcardsByDeck(deckID).size();
 
+        if (total == 0) {
+            return 0;
+        }
+
         return (correctlyReviewed*100/total);
     }
 
@@ -162,11 +167,26 @@ public class MainController {
         int allCorrectReviews = reviewController.getCorrectReviews().size();
         int allReviews = getAllCardReviews().size();
 
+        if (allReviews == 0) {
+            return 0;
+        }
+
         return (allCorrectReviews*100)/allReviews;
     }
 
     public String getOverallProgress(){
         return reviewController.getCorrectReviews().size() + " / " + allFlashcards().size();
+    }
+
+    public String getCardsReviewedProgress() {
+        return getAllCardReviews().size() + "/" + allFlashcards().size();
+    }
+
+    public List<Deck> getRecentDecks() {
+        return allDecks().stream()
+                .sorted(Comparator.comparing(Deck::getCreatedAt).reversed())
+                .limit(3)
+                .collect(Collectors.toList());
     }
 
     public String getTotalStudyTime(){

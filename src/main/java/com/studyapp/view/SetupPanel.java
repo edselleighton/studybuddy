@@ -22,6 +22,10 @@ public class SetupPanel {
     private static final double SETUP_WIDTH = 420;
     private static final double SETUP_HEIGHT = 580;
 
+    public static MainController getMainController() {
+        return MAIN_CONTROLLER;
+    }
+
     public static Scene createScene(Stage primaryStage, Runnable onSuccess) {
         String primaryBlue = "#1a2a6c";
         String lightBlueBg = "#e3f2fd";

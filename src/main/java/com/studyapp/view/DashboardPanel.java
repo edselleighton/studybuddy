@@ -2,6 +2,9 @@ package com.studyapp.view;
 
 import java.util.List;
 
+import com.studyapp.controller.MainController;
+import com.studyapp.model.Deck;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -29,6 +32,9 @@ public class DashboardPanel {
     private static final String DECK_ITEM_HOVER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-color: #f0f4f8; -fx-padding: 15 20 15 20; -fx-cursor: hand;";
 
     public static VBox create(BorderPane mainLayout) {
+        MainController mainController = SetupPanel.getMainController();
+        DashboardStats stats = loadStats(mainController);
+
         VBox wrapper = new VBox();
         wrapper.setPadding(new Insets(20));
         wrapper.setStyle("-fx-background-color: transparent;");
@@ -42,9 +48,9 @@ public class DashboardPanel {
         Label dashHeader = createHeaderLabel("Dashboard");
 
         HBox statsRow = new HBox(20);
-        VBox stat1 = createStatCard("Accuracy", "92%");
-        VBox stat2 = createStatCard("Cards Reviewed", "148");
-        VBox stat3 = createStatCard("Study Time", "5.4 hrs");
+        VBox stat1 = createStatCard("Accuracy", stats.accuracy());
+        VBox stat2 = createStatCard("Cards Reviewed", stats.cardsReviewed());
+        VBox stat3 = createStatCard("Study Time", stats.studyTime());
         HBox.setHgrow(stat1, Priority.ALWAYS);
         HBox.setHgrow(stat2, Priority.ALWAYS);
         HBox.setHgrow(stat3, Priority.ALWAYS);
@@ -61,9 +67,15 @@ public class DashboardPanel {
         recentHeader.setTextFill(Color.web(PRIMARY_BLUE));
 
         VBox deckList = new VBox(15);
-        List<String> recent = List.of("Java Foundations", "SQL Essentials", "UI Navigation");
-        for (String deckName : recent) {
-            deckList.getChildren().add(createDeckItem(deckName));
+        if (stats.recentDecks().isEmpty()) {
+            Label emptyState = new Label("No decks available yet.");
+            emptyState.setFont(Font.font("Serif", 16));
+            emptyState.setTextFill(Color.web("#475569"));
+            deckList.getChildren().add(emptyState);
+        } else {
+            for (Deck deck : stats.recentDecks()) {
+                deckList.getChildren().add(createDeckItem(deck.getName()));
+            }
         }
         recentDecks.getChildren().addAll(recentHeader, deckList);
 
@@ -74,13 +86,13 @@ public class DashboardPanel {
         HBox.setHgrow(chartBox, Priority.SOMETIMES);
         chartBox.setMinWidth(350);
 
-        Label chartTitle = new Label("Total Flashcards");
+        Label chartTitle = new Label("Card Difficulty Mix");
         chartTitle.setFont(Font.font("SansSerif", 16));
         chartTitle.setTextFill(Color.BLACK);
 
-        PieChart.Data easyData = new PieChart.Data("Easy", 48);
-        PieChart.Data mediumData = new PieChart.Data("Medium", 31);
-        PieChart.Data hardData = new PieChart.Data("Hard", 21);
+        PieChart.Data easyData = new PieChart.Data("Easy", stats.easyCount() > 0 ? stats.easyCount() : 0.001);
+        PieChart.Data mediumData = new PieChart.Data("Medium", stats.mediumCount() > 0 ? stats.mediumCount() : 0.001);
+        PieChart.Data hardData = new PieChart.Data("Hard", stats.hardCount() > 0 ? stats.hardCount() : 0.001);
 
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(easyData, mediumData, hardData);
         bindPieSliceColor(easyData, EASY_PIE_COLOR);
@@ -107,6 +119,30 @@ public class DashboardPanel {
         wrapper.getChildren().add(mainContent);
 
         return wrapper;
+    }
+
+    private record DashboardStats(
+            String accuracy,
+            String cardsReviewed,
+            String studyTime,
+            List<Deck> recentDecks,
+            int easyCount,
+            int mediumCount,
+            int hardCount) {
+    }
+
+    private static DashboardStats loadStats(MainController mainController) {
+        int reviewCount = mainController.getAllCardReviews().size();
+        String accuracy = reviewCount == 0 ? "--" : mainController.getAccuracy() + "%";
+
+        return new DashboardStats(
+                accuracy,
+                mainController.getCardsReviewedProgress(),
+                mainController.getTotalStudyTime(),
+                mainController.getRecentDecks(),
+                mainController.getEasyFlashcards().size(),
+                mainController.getMediumFlashcards().size(),
+                mainController.getHardFlashcards().size());
     }
 
     private static void bindPieSliceColor(PieChart.Data data, String color) {
