@@ -3,6 +3,8 @@ package com.studyapp.view;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.studyapp.controller.MainController;
+import com.studyapp.model.Deck;
 import com.studyapp.model.Flashcard;
 import com.studyapp.view.MyDeckPanel.DeckData;
 
@@ -36,13 +38,13 @@ public class DeckDetailPanel {
             + " -fx-border-color: " + PRIMARY_BLUE
             + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
 
-    public static void show(BorderPane mainLayout, DeckData deckData) {
+    public static void show(BorderPane mainLayout, Deck deckData, MainController mc) {
         Node savedSidebar = mainLayout.getLeft();
-        mainLayout.setLeft(buildSidebar(mainLayout, savedSidebar, deckData));
-        mainLayout.setCenter(buildContent(deckData));
+        mainLayout.setLeft(buildSidebar(mainLayout, savedSidebar, deckData, mc));
+        mainLayout.setCenter(buildContent(deckData, mc));
     }
 
-    private static VBox buildSidebar(BorderPane mainLayout, Node savedSidebar, DeckData deckData) {
+    private static VBox buildSidebar(BorderPane mainLayout, Node savedSidebar, Deck deckData, MainController mc) {
         VBox sidebar = new VBox(15);
         sidebar.setPadding(new Insets(20));
         sidebar.setPrefWidth(250);
@@ -70,7 +72,7 @@ public class DeckDetailPanel {
                 "-fx-background-color: #d0dcf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE
                         + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;"));
         cardsBtn.setOnMouseExited(e -> cardsBtn.setStyle(ACTIVE_BTN_STYLE));
-        cardsBtn.setOnAction(e -> mainLayout.setCenter(AllCardsPanel.create(mainLayout, deckData.deck())));
+        cardsBtn.setOnAction(e -> mainLayout.setCenter(AllCardsPanel.create(mainLayout, deckData, mc)));
 
         Button studyBtn = createDisabledBtn("Study");
 
@@ -100,7 +102,7 @@ public class DeckDetailPanel {
         backBtn.setOnAction(ev -> {
             mainLayout.setLeft(savedSidebar);
             MainFrame.activateMyDecks();
-            mainLayout.setCenter(MyDeckPanel.create(mainLayout));
+            mainLayout.setCenter(MyDeckPanel.create(mainLayout, mc));
         });
 
         buttonBox.getChildren().addAll(editBtn, cardsBtn, studyBtn, spacer, deleteBtn, backBtn);
@@ -117,7 +119,7 @@ public class DeckDetailPanel {
         return btn;
     }
 
-    private static VBox buildContent(DeckData deckData) {
+    private static VBox buildContent(Deck deckData, MainController mc) {
         VBox wrapper = new VBox();
         wrapper.setPadding(new Insets(20));
         wrapper.setStyle("-fx-background-color: transparent;");
@@ -128,7 +130,7 @@ public class DeckDetailPanel {
         mainContent.setStyle(BORDER_STYLE);
         VBox.setVgrow(mainContent, Priority.ALWAYS);
 
-        Label header = new Label(deckData.deck().getName());
+        Label header = new Label(deckData.getName());
         header.setFont(Font.font("Serif", 32));
         header.setTextFill(Color.WHITE);
         header.setMaxWidth(Double.MAX_VALUE);
@@ -144,14 +146,14 @@ public class DeckDetailPanel {
 
         VBox leftInfo = new VBox(6);
         leftInfo.getChildren().addAll(
-                infoLabel("ID: " + deckData.deck().getDeckID()),
-                infoLabel("Cards: " + deckData.cardCount()),
-                infoLabel("Created at: " + deckData.deck().getCreatedAt().format(fmt)));
+                infoLabel("ID: " + deckData.getDeckID()),
+                infoLabel("Cards: " + mc.getFlashcardsByDeck(deckData.getDeckID()).size()),
+                infoLabel("Created at: " + deckData.getCreatedAt().format(fmt)));
 
         VBox rightInfo = new VBox(6);
         Label descTitle = new Label("Description:");
         descTitle.setFont(Font.font("Serif", 14));
-        String descText = deckData.deck().getDescription();
+        String descText = deckData.getDescription();
         Label descLbl = new Label(descText == null || descText.isBlank() ? "No description." : descText);
         descLbl.setFont(Font.font("Serif", 14));
         descLbl.setTextFill(Color.web("#475569"));
@@ -164,12 +166,12 @@ public class DeckDetailPanel {
         Label progressTitle = new Label("Progress:");
         progressTitle.setFont(Font.font("Serif", 16));
 
-        ProgressBar bar = new ProgressBar(deckData.progressPercent() / 100.0);
+        ProgressBar bar = new ProgressBar(mc.getDeckProgress(deckData.getDeckID()) / 100.0);
         bar.setMaxWidth(Double.MAX_VALUE);
         bar.setPrefHeight(36);
         bar.setStyle("-fx-accent: " + HEADER_BLUE + ";");
 
-        Label pctLbl = new Label(deckData.progressPercent() + "%");
+        Label pctLbl = new Label(mc.getDeckProgress(deckData.getDeckID()) + "%");
         pctLbl.setFont(Font.font("Serif Bold", 16));
         pctLbl.setTextFill(Color.WHITE);
 
@@ -191,7 +193,7 @@ public class DeckDetailPanel {
         col.setPercentWidth(50);
         grid.getColumnConstraints().addAll(col, col);
 
-        List<Flashcard> preview = deckData.cards();
+        List<Flashcard> preview = mc.getFlashcardsByDeck(deckData.getDeckID());
         if (preview.isEmpty()) {
             Label empty = new Label("No cards in this deck yet.");
             empty.setFont(Font.font("Serif", 14));
