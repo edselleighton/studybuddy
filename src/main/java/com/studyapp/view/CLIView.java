@@ -182,8 +182,8 @@ public class CLIView {
     }
     void editDeck(int attribute, Deck deck){
         String value = "";
-        while (true){
-            try{
+        while (true) {
+            try {
                 switch(attribute){
                     case 0: //EDIT NAME
                         System.out.print("Enter Deck name: ");
@@ -195,11 +195,14 @@ public class CLIView {
                         value = readLine();
                         deck.setDescription(value);
                         break;
+                    default:
+                        System.out.println("Invalid deck attribute.\n");
+                        return;
                 }
                 mc.updateDeck(deck);
                 System.out.println("Deck updated successfully.\n");
-                break;
-            }catch(CustomException e){
+                return;
+            } catch (CustomException e) {
                 System.out.println(e.getMessage());
             }
         }
