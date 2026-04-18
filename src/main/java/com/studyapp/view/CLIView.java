@@ -202,10 +202,6 @@ public class CLIView {
             }catch(CustomException e){
                 System.out.println(e.getMessage());
             }
-            mc.updateDeck(deck);
-            System.out.println("Deck updated successfully.\n");
-        }catch(CustomException e){
-            System.out.println(e.getMessage());
         }
     }
 
