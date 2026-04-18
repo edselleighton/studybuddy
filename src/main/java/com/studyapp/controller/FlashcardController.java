@@ -1,14 +1,14 @@
 package com.studyapp.controller;
 
-import com.studyapp.dao.impl.FlashcardDAOImpl;
-import com.studyapp.model.Deck;
-import com.studyapp.model.Flashcard;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.studyapp.dao.impl.FlashcardDAOImpl;
+import com.studyapp.model.Deck;
+import com.studyapp.model.Flashcard;
 
 public class FlashcardController {
     private MainController mc;
@@ -30,20 +30,23 @@ public class FlashcardController {
     }
 
     public List<Flashcard> getHardFlashcards(){
-        return flashcards.stream()
-                .filter(i -> i.getDifficulty().equalsIgnoreCase("HARD"))
-                .toList();
+    return flashcards.stream()
+            .filter(i -> i.getDifficulty() != null
+                    && i.getDifficulty().equalsIgnoreCase("HARD"))
+            .toList();
     }
 
     public List<Flashcard> getMediumFlashcards(){
         return flashcards.stream()
-                .filter(i -> i.getDifficulty().equalsIgnoreCase("MEDIUM"))
+                .filter(i -> i.getDifficulty() != null
+                        && i.getDifficulty().equalsIgnoreCase("MEDIUM"))
                 .toList();
     }
 
     public List<Flashcard> getEasyFlashcards(){
         return flashcards.stream()
-                .filter(i -> i.getDifficulty().equalsIgnoreCase("EASY"))
+                .filter(i -> i.getDifficulty() != null
+                        && i.getDifficulty().equalsIgnoreCase("EASY"))
                 .toList();
     }
 

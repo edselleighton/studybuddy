@@ -2,6 +2,7 @@ package com.studyapp.view;
 
 import java.util.Optional;
 
+import com.studyapp.controller.MainController;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -29,6 +30,7 @@ public class MainFrame {
     private static Button cardsBtn;
 
     public static void show(Stage stage) {
+        MainController mc = SetupPanel.getMainController();
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-background-color: #f8fafc;");
 
@@ -86,12 +88,12 @@ public class MainFrame {
 
         decksBtn.setOnAction(e -> {
             setActiveButton(decksBtn);
-            mainLayout.setCenter(MyDeckPanel.create(mainLayout));
+            mainLayout.setCenter(MyDeckPanel.create(mainLayout, mc));
         });
 
         cardsBtn.setOnAction(e -> {
             setActiveButton(cardsBtn);
-            mainLayout.setCenter(AllCardsPanel.create(mainLayout));
+            mainLayout.setCenter(AllCardsPanel.create(mainLayout, mc));
         });
 
         mainLayout.setLeft(sidebar);
