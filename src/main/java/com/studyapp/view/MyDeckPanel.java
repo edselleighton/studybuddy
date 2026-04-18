@@ -1,17 +1,25 @@
 package com.studyapp.view;
 
-import java.time.LocalDateTime;
+import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
+import com.studyapp.controller.CustomException;
+import com.studyapp.controller.MainController;
 import com.studyapp.model.Deck;
 import com.studyapp.model.Flashcard;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -20,6 +28,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class MyDeckPanel {
 
@@ -36,12 +47,12 @@ public class MyDeckPanel {
     public record DeckData(Deck deck, int cardCount, int progressPercent, List<Flashcard> cards) {
     }
 
-    public static VBox create(BorderPane mainLayout) {
-        return create(mainLayout, "Manage decks, or import/export your deck data as JSON.", PRIMARY_BLUE);
+    public static VBox create(BorderPane mainLayout, MainController mc) {
+        return create(mainLayout, "Manage decks, or import/export your deck data as JSON.", PRIMARY_BLUE, mc);
     }
 
-    public static VBox create(BorderPane mainLayout, String statusMessage, String statusColor) {
-        List<DeckData> decks = createPrototypeDecks();
+    public static VBox create(BorderPane mainLayout, String statusMessage, String statusColor, MainController mc) {
+        List<Deck> decks = mc.allDecks();
 
         VBox wrapper = new VBox();
         wrapper.setPadding(new Insets(20));
@@ -67,6 +78,166 @@ public class MyDeckPanel {
         Button importBtn = createToolbarButton("Import");
         Button exportBtn = createToolbarButton("Export");
 
+        // NEW DECK button handler - shows custom dialog matching storyboard
+        newBtn.setOnAction(e -> {
+            showCreateDeckDialog(mainLayout, mc);
+        });
+
+        // IMPORT button handler
+        importBtn.setOnAction(e -> {
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Import Decks from JSON");
+            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+            File file = fc.showOpenDialog(mainLayout.getScene().getWindow());
+            
+            if (file != null) {
+                try {
+                    int count = mc.importFromJson(file);
+                    mainLayout.setCenter(MyDeckPanel.create(mainLayout, count + " deck(s) imported successfully!", "#22c55e", mc));
+                } catch (CustomException ex) {
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Import Error");
+                    alert.setHeaderText("Failed to import decks");
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                }
+            }
+        });
+        
+        // EXPORT button handler
+        exportBtn.setOnAction(e -> {
+            List<Deck> allDecks = mc.allDecks();
+            if (allDecks.isEmpty()) {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("No Decks");
+                alert.setHeaderText("No decks to export");
+                alert.setContentText("Create or import some decks first.");
+                alert.showAndWait();
+                return;
+            }
+            
+            ChoiceDialog<String> deckPicker = new ChoiceDialog<>(
+                allDecks.get(0).getName(),
+                allDecks.stream().map(Deck::getName).toList()
+            );
+            deckPicker.setTitle("Export Deck");
+            deckPicker.setHeaderText("Select deck to export");
+            deckPicker.setContentText("Choose deck:");
+            
+            Optional<String> deckChoice = deckPicker.showAndWait();
+            if (deckChoice.isPresent()) {
+                Deck selectedDeck = allDecks.stream()
+                    .filter(d -> d.getName().equals(deckChoice.get()))
+                    .findFirst()
+                    .orElse(null);
+                
+                if (selectedDeck != null) {
+                    FileChooser fc = new FileChooser();
+                    fc.setTitle("Save Deck as JSON");
+                    fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+                    fc.setInitialFileName(selectedDeck.getName() + ".json");
+                    File file = fc.showSaveDialog(mainLayout.getScene().getWindow());
+                    
+                    if (file != null) {
+                        try {
+                            mc.exportDeckToJson(selectedDeck.getDeckID(), file);
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                            alert.setHeaderText("Export successful");
+                            alert.setContentText("Deck exported to: " + file.getName());
+                            alert.showAndWait();
+                        } catch (CustomException ex) {
+                            Alert alert = new Alert(AlertType.ERROR);
+                            alert.setTitle("Export Error");
+                            alert.setHeaderText("Failed to export deck");
+                            alert.setContentText(ex.getMessage());
+                            alert.showAndWait();
+                        }
+                    }
+                }
+            }
+        });
+
+        // NEW DECK button handler - shows custom dialog matching storyboard
+        newBtn.setOnAction(e -> {
+            showCreateDeckDialog(mainLayout, mc);
+        });
+
+        // IMPORT button handler
+        importBtn.setOnAction(e -> {
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Import Decks from JSON");
+            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+            File file = fc.showOpenDialog(mainLayout.getScene().getWindow());
+            
+            if (file != null) {
+                try {
+                    int count = mc.importFromJson(file);
+                    mainLayout.setCenter(MyDeckPanel.create(mainLayout, count + " deck(s) imported successfully!", "#22c55e", mc));
+                } catch (CustomException ex) {
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Import Error");
+                    alert.setHeaderText("Failed to import decks");
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                }
+            }
+        });
+        
+        // EXPORT button handler
+        exportBtn.setOnAction(e -> {
+            List<Deck> allDecks = mc.allDecks();
+            if (allDecks.isEmpty()) {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("No Decks");
+                alert.setHeaderText("No decks to export");
+                alert.setContentText("Create or import some decks first.");
+                alert.showAndWait();
+                return;
+            }
+            
+            ChoiceDialog<String> deckPicker = new ChoiceDialog<>(
+                allDecks.get(0).getName(),
+                allDecks.stream().map(Deck::getName).toList()
+            );
+            deckPicker.setTitle("Export Deck");
+            deckPicker.setHeaderText("Select deck to export");
+            deckPicker.setContentText("Choose deck:");
+            
+            Optional<String> deckChoice = deckPicker.showAndWait();
+            if (deckChoice.isPresent()) {
+                Deck selectedDeck = allDecks.stream()
+                    .filter(d -> d.getName().equals(deckChoice.get()))
+                    .findFirst()
+                    .orElse(null);
+                
+                if (selectedDeck != null) {
+                    FileChooser fc = new FileChooser();
+                    fc.setTitle("Save Deck as JSON");
+                    fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+                    fc.setInitialFileName(selectedDeck.getName() + ".json");
+                    File file = fc.showSaveDialog(mainLayout.getScene().getWindow());
+                    
+                    if (file != null) {
+                        try {
+                            mc.exportDeckToJson(selectedDeck.getDeckID(), file);
+                            Alert alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                            alert.setHeaderText("Export successful");
+                            alert.setContentText("Deck exported to: " + file.getName());
+                            alert.showAndWait();
+                        } catch (CustomException ex) {
+                            Alert alert = new Alert(AlertType.ERROR);
+                            alert.setTitle("Export Error");
+                            alert.setHeaderText("Failed to export deck");
+                            alert.setContentText(ex.getMessage());
+                            alert.showAndWait();
+                        }
+                    }
+                }
+            }
+        });
+        
         TextField searchField = new TextField();
         searchField.setPromptText("Search decks");
         searchField.setPrefWidth(200);
@@ -104,15 +275,69 @@ public class MyDeckPanel {
         deckList.setPadding(new Insets(5, 15, 5, 5));
         deckList.setStyle("-fx-background-color: white;");
 
-        for (DeckData deck : decks) {
-            deckList.getChildren().add(createDeckItem(deck, mainLayout));
-        }
+        // Initial load of decks
+        updateDeckList(deckList, decks, "", "Newest", mainLayout, mc);
+
+        // Search functionality - filter as user types
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateDeckList(deckList, decks, newValue, sortCombo.getValue(), mainLayout, mc);
+        });
+
+        // Sort functionality - re-sort when dropdown changes
+        sortCombo.setOnAction(e -> {
+            updateDeckList(deckList, decks, searchField.getText(), sortCombo.getValue(), mainLayout, mc);
+        });
 
         scrollPane.setContent(deckList);
         mainContent.getChildren().addAll(header, toolbar, statusLabel, scrollPane);
         wrapper.getChildren().add(mainContent);
 
         return wrapper;
+    }
+
+    /**
+     * Updates the deck list based on search query and sort option.
+     */
+    private static void updateDeckList(VBox deckList, List<Deck> allDecks, String searchQuery, 
+                                       String sortOption, BorderPane mainLayout, MainController mc) {
+        // Filter decks by search query
+        String query = searchQuery == null ? "" : searchQuery.toLowerCase().trim();
+        List<Deck> filteredDecks = allDecks.stream()
+            .filter(deck -> {
+                if (query.isEmpty()) return true;
+                String name = deck.getName().toLowerCase();
+                String desc = deck.getDescription() == null ? "" : deck.getDescription().toLowerCase();
+                return name.contains(query) || desc.contains(query);
+            })
+            .collect(java.util.stream.Collectors.toList());
+
+        // Sort the filtered decks
+        switch (sortOption) {
+            case "Oldest":
+                filteredDecks.sort(java.util.Comparator.comparing(Deck::getDeckID));
+                break;
+            case "Name":
+                filteredDecks.sort(java.util.Comparator.comparing(Deck::getName, String.CASE_INSENSITIVE_ORDER));
+                break;
+            case "Newest":
+            default:
+                filteredDecks.sort(java.util.Comparator.comparing(Deck::getDeckID).reversed());
+                break;
+        }
+
+        // Clear and repopulate the deck list
+        deckList.getChildren().clear();
+        if (filteredDecks.isEmpty()) {
+            Label emptyLabel = new Label("No decks found");
+            emptyLabel.setFont(Font.font("Serif", 16));
+            emptyLabel.setTextFill(Color.GRAY);
+            emptyLabel.setPadding(new Insets(20));
+            deckList.getChildren().add(emptyLabel);
+        } else {
+            for (Deck deck : filteredDecks) {
+                deckList.getChildren().add(createDeckItem(deck, mainLayout, mc));
+            }
+        }
     }
 
     private static Button createToolbarButton(String text) {
@@ -123,7 +348,7 @@ public class MyDeckPanel {
         return button;
     }
 
-    private static HBox createDeckItem(DeckData deck, BorderPane mainLayout) {
+    private static HBox createDeckItem(Deck deck, BorderPane mainLayout, MainController mc) {
         HBox row = new HBox(20);
         row.setStyle(DECK_ROW_STYLE);
         row.setAlignment(Pos.CENTER_LEFT);
@@ -132,16 +357,16 @@ public class MyDeckPanel {
 
         VBox leftInfo = new VBox(5);
         leftInfo.setPrefWidth(250);
-        Label idLbl = new Label("ID: " + deck.deck().getDeckID());
+        Label idLbl = new Label("ID: " + deck.getDeckID());
         idLbl.setFont(Font.font("Serif", 14));
-        Label titleLbl = new Label(deck.deck().getName());
+        Label titleLbl = new Label(deck.getName());
         titleLbl.setFont(Font.font("Serif", 18));
         leftInfo.getChildren().addAll(idLbl, titleLbl);
 
         VBox middleInfo = new VBox(5);
-        Label cardsLbl = new Label("Cards: " + deck.cardCount());
+        Label cardsLbl = new Label("Cards: " + mc.getFlashcardsByDeck(deck.getDeckID()).size());
         cardsLbl.setFont(Font.font("Serif", 14));
-        Label progLbl = new Label(String.format("Progress: %d%%", deck.progressPercent()));
+        Label progLbl = new Label(String.format("Progress: %d%%", mc.getDeckProgress(deck.getDeckID())));
         progLbl.setFont(Font.font("Serif", 14));
         middleInfo.getChildren().addAll(cardsLbl, progLbl);
 
@@ -152,52 +377,108 @@ public class MyDeckPanel {
         selectBtn.setStyle(OPEN_BUTTON_STYLE);
         selectBtn.setOnMouseEntered(e -> selectBtn.setStyle(OPEN_BUTTON_HOVER_STYLE));
         selectBtn.setOnMouseExited(e -> selectBtn.setStyle(OPEN_BUTTON_STYLE));
-        selectBtn.setOnAction(e -> DeckDetailPanel.show(mainLayout, deck));
+        selectBtn.setOnAction(e -> DeckDetailPanel.show(mainLayout, deck, mc));
 
         row.getChildren().addAll(leftInfo, middleInfo, spacer, selectBtn);
         return row;
     }
 
-    private static List<DeckData> createPrototypeDecks() {
-        Deck javaDeck = createDeck(101, "Java Foundations", "Core Java syntax, OOP, and collections.", 75);
-        Deck sqlDeck = createDeck(102, "SQL Essentials", "Query basics, joins, and schema design.", 60);
-        Deck navDeck = createDeck(103, "UI Navigation", "Prototype routing, panels, and layout flow.", 90);
-        Deck dsDeck = createDeck(104, "Data Structures", "Arrays, linked lists, stacks, and trees.", 40);
-
-        List<Flashcard> javaCards = List.of(
-                createCard(1, javaDeck, "What does JVM stand for?", "Java Virtual Machine", "Easy"),
-                createCard(2, javaDeck, "What collection keeps insertion order?", "LinkedHashMap", "Medium"),
-                createCard(3, javaDeck, "What keyword prevents inheritance?", "final", "Easy"),
-                createCard(4, javaDeck, "Which interface supports lambda expressions?", "Functional interface", "Medium"));
-
-        List<Flashcard> sqlCards = List.of(
-                createCard(5, sqlDeck, "What clause filters grouped rows?", "HAVING", "Medium"),
-                createCard(6, sqlDeck, "What does a LEFT JOIN keep?", "All rows from the left table", "Easy"),
-                createCard(7, sqlDeck, "What command removes a table?", "DROP TABLE", "Easy"));
-
-        List<Flashcard> navCards = List.of(
-                createCard(8, navDeck, "Which layout is used for the main shell?", "BorderPane", "Easy"),
-                createCard(9, navDeck, "Which panel opens from Dashboard next?", "My Decks", "Medium"));
-
-        List<Flashcard> dsCards = List.of(
-                createCard(10, dsDeck, "Which data structure uses FIFO?", "Queue", "Easy"),
-                createCard(11, dsDeck, "Which traversal visits root-left-right?", "Preorder", "Medium"),
-                createCard(12, dsDeck, "Which structure gives O(1) average lookup?", "Hash table", "Hard"),
-                createCard(13, dsDeck, "Which structure supports LIFO?", "Stack", "Easy"),
-                createCard(14, dsDeck, "Which tree keeps values ordered?", "Binary search tree", "Medium"));
-
-        return List.of(
-                new DeckData(javaDeck, javaCards.size(), 75, javaCards),
-                new DeckData(sqlDeck, sqlCards.size(), 60, sqlCards),
-                new DeckData(navDeck, navCards.size(), 90, navCards),
-                new DeckData(dsDeck, dsCards.size(), 40, dsCards));
-    }
-
-    private static Deck createDeck(int id, String name, String description, int progressPercent) {
-        return new Deck(id, name, description, LocalDateTime.of(2026, 4, 10 + (id - 101), 9 + progressPercent % 3, 0));
-    }
-
-    private static Flashcard createCard(int cardId, Deck deck, String question, String answer, String difficulty) {
-        return new Flashcard(cardId, deck, question, answer, difficulty, deck.getCreatedAt());
+    private static void showCreateDeckDialog(BorderPane mainLayout, MainController mc) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Create Deck");
+        
+        // Main container with card styling
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(30, 40, 30, 40));
+        container.setAlignment(Pos.TOP_LEFT);
+        container.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-border-radius: 15;");
+        
+        // Title
+        Label title = new Label("Create Deck");
+        title.setFont(Font.font("Serif", 36));
+        title.setTextFill(Color.web("#2a548f"));
+        
+        // Deck Name section
+        Label nameLabel = new Label("Enter Deck Name");
+        nameLabel.setFont(Font.font("Serif", 16));
+        nameLabel.setTextFill(Color.web("#2a548f"));
+        
+        TextField nameField = new TextField();
+        nameField.setPromptText("Deck name");
+        nameField.setPrefHeight(40);
+        nameField.setStyle("-fx-border-color: #2a548f; -fx-border-width: 2; -fx-border-radius: 5; " +
+                          "-fx-background-radius: 5; -fx-font-size: 14; -fx-padding: 5 10;");
+        
+        // Description section
+        Label descLabel = new Label("Enter Description");
+        descLabel.setFont(Font.font("Serif", 16));
+        descLabel.setTextFill(Color.web("#2a548f"));
+        
+        TextArea descArea = new TextArea();
+        descArea.setPromptText("Description (optional)");
+        descArea.setPrefRowCount(6);
+        descArea.setPrefHeight(150);
+        descArea.setWrapText(true);
+        descArea.setStyle("-fx-border-color: #2a548f; -fx-border-width: 2; -fx-border-radius: 5; " +
+                         "-fx-control-inner-background: white; -fx-background-radius: 5; " +
+                         "-fx-font-size: 14; -fx-padding: 5;");
+        
+        // Create button
+        Button createBtn = new Button("CREATE");
+        createBtn.setPrefWidth(250);
+        createBtn.setPrefHeight(45);
+        createBtn.setStyle("-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; " +
+                          "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; " +
+                          "-fx-cursor: hand;");
+        createBtn.setOnMouseEntered(e -> 
+            createBtn.setStyle("-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; " +
+                              "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; " +
+                              "-fx-cursor: hand;"));
+        createBtn.setOnMouseExited(e -> 
+            createBtn.setStyle("-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; " +
+                              "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; " +
+                              "-fx-cursor: hand;"));
+        
+        // Create button action
+        createBtn.setOnAction(e -> {
+            String deckName = nameField.getText().trim();
+            if (deckName.isEmpty()) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Validation Error");
+                alert.setHeaderText("Deck name is required");
+                alert.setContentText("Please enter a deck name.");
+                alert.showAndWait();
+                return;
+            }
+            
+            String description = descArea.getText().trim();
+            
+            try {
+                mc.createDeck(deckName, description);
+                mc.saveChanges();
+                dialog.close();
+                mainLayout.setCenter(MyDeckPanel.create(mainLayout, 
+                    "Deck '" + deckName + "' created successfully!", "#22c55e", mc));
+            } catch (CustomException ex) {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Failed to create deck");
+                alert.setContentText(ex.getMessage());
+                alert.showAndWait();
+            }
+        });
+        
+        // Center the button
+        HBox buttonBox = new HBox(createBtn);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        container.getChildren().addAll(title, nameLabel, nameField, descLabel, descArea, buttonBox);
+        
+        Scene scene = new Scene(container, 400, 550);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        dialog.show();
     }
 }
