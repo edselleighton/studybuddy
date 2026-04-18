@@ -1,8 +1,8 @@
 package com.studyapp.view;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import com.studyapp.controller.MainController;
 import com.studyapp.model.Deck;
 import com.studyapp.model.Flashcard;
 
@@ -25,14 +25,16 @@ public class AllCardsPanel {
     private static final String HEADER_BLUE = "#41729f";
     private static final String BORDER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: white;";
 
-    public static VBox create(BorderPane mainLayout, MainController mc) {
-        return create(mainLayout, null, mc);
+    public static VBox create(BorderPane mainLayout) {
+        return create(mainLayout, null);
     }
 
-    public static VBox create(BorderPane mainLayout, Deck deck, MainController mc) {
+    public static VBox create(BorderPane mainLayout, Deck deck) {
         List<Flashcard> cards = deck == null
-                ? mc.allFlashcards()
-                : mc.getFlashcardsByDeck(deck.getDeckID());
+                ? createAllCards()
+                : createAllCards().stream()
+                        .filter(card -> card.getDeck().getDeckID() == deck.getDeckID())
+                        .toList();
 
         VBox wrapper = new VBox();
         wrapper.setPadding(new Insets(20));
@@ -93,7 +95,33 @@ public class AllCardsPanel {
 
         return wrapper;
     }
-    
+
+    private static List<Flashcard> createAllCards() {
+        Deck javaDeck = createDeck(101, "Java Foundations");
+        Deck sqlDeck = createDeck(102, "SQL Essentials");
+        Deck navDeck = createDeck(103, "UI Navigation");
+        Deck dsDeck = createDeck(104, "Data Structures");
+
+        return List.of(
+                createCard(1, javaDeck, "What does JVM stand for?", "Java Virtual Machine", "Easy"),
+                createCard(2, javaDeck, "What collection keeps insertion order?", "LinkedHashMap", "Medium"),
+                createCard(3, javaDeck, "What keyword prevents inheritance?", "final", "Easy"),
+                createCard(4, sqlDeck, "What clause filters grouped rows?", "HAVING", "Medium"),
+                createCard(5, sqlDeck, "What does a LEFT JOIN keep from the first table?", "All rows from the left table", "Easy"),
+                createCard(6, navDeck, "Which layout is used for the main shell?", "BorderPane", "Easy"),
+                createCard(7, navDeck, "What panel opens from the Dashboard next button?", "My Decks", "Medium"),
+                createCard(8, dsDeck, "Which data structure uses FIFO?", "Queue", "Easy"),
+                createCard(9, dsDeck, "Which structure supports LIFO?", "Stack", "Easy"));
+    }
+
+    private static Deck createDeck(int id, String name) {
+        return new Deck(id, name, "", LocalDateTime.of(2026, 4, 10, 9, 0));
+    }
+
+    private static Flashcard createCard(int cardId, Deck deck, String question, String answer, String difficulty) {
+        return new Flashcard(cardId, deck, question, answer, difficulty, LocalDateTime.of(2026, 4, 10, 9, 0));
+    }
+
     private static VBox createCard(Flashcard flashcard) {
         VBox card = new VBox();
         card.setAlignment(Pos.CENTER_LEFT);
