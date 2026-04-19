@@ -83,13 +83,7 @@ public class DeckDetailPanel {
                 "-fx-background-color: #d0dcf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE
                         + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;"));
         studyBtn.setOnMouseExited(e -> studyBtn.setStyle(ACTIVE_BTN_STYLE));
-        studyBtn.setOnAction(e -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Study Unavailable");
-            alert.setHeaderText("Study view is not implemented in this branch");
-            alert.setContentText("The deck detail view is available, but the study panel is not connected yet.");
-            alert.showAndWait();
-        });
+        studyBtn.setOnAction(e -> StudyPanel.create(mainLayout, deckData, mc));
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
