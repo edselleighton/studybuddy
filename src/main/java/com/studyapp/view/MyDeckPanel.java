@@ -93,7 +93,19 @@ public class MyDeckPanel {
             if (file != null) {
                 try {
                     int count = mc.importFromJson(file);
-                    mainLayout.setCenter(MyDeckPanel.create(mainLayout, count + " deck(s) imported successfully!", "#22c55e", mc));
+                    if (count > 0) {
+                        mainLayout.setCenter(MyDeckPanel.create(
+                                mainLayout,
+                                count + " deck(s) imported successfully!",
+                                "#22c55e",
+                                mc));
+                    } else {
+                        mainLayout.setCenter(MyDeckPanel.create(
+                                mainLayout,
+                                "No new decks were imported. The selected file may contain duplicate deck names or no valid decks.",
+                                "#d97706",
+                                mc));
+                    }
                 } catch (CustomException ex) {
                     Alert alert = new Alert(AlertType.ERROR);
                     alert.setTitle("Import Error");
