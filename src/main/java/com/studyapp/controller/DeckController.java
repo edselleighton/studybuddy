@@ -28,12 +28,13 @@ public class DeckController {
         this.mc = mc;
     }
 
-    public void createDeck(String deckName, String description) throws CustomException{
+    public Deck createDeck(String deckName, String description) throws CustomException{
         Deck deck = new Deck(lastDeckID, deckName, description, LocalDateTime.now());
         validateConstraints(deck);
         decks.add(deck);
         addedDecks.add(deck);
         lastDeckID++;
+        return deck;
     }
 
     public void deleteDeck(int deckID) throws CustomException{
@@ -123,6 +124,19 @@ public class DeckController {
             modifiedDecks.clear();
             deletedDecks.clear();
         }catch(Exception e){
+            throw new CustomException("Failed to Save Decks");
+        }
+    }
+
+    public void saveAddedDecks(List<Deck> decksToSave) throws CustomException {
+        try {
+            for (Deck deck : decksToSave) {
+                if (addedDecks.contains(deck)) {
+                    deckDaoImpl.insert(deck);
+                }
+            }
+            addedDecks.removeAll(decksToSave);
+        } catch (Exception e) {
             throw new CustomException("Failed to Save Decks");
         }
     }

@@ -58,8 +58,8 @@ public class MainController {
 
     //------------- DMLs --------------------
     //-----DECK--------
-    public void createDeck(String deckName, String description) throws CustomException{
-        deckController.createDeck(deckName, description);
+    public Deck createDeck(String deckName, String description) throws CustomException{
+        return deckController.createDeck(deckName, description);
     }
 
     public void deleteDeck(int deckID) throws CustomException{
@@ -99,8 +99,8 @@ public class MainController {
         return flashcardController.getEasyFlashcards();
     }
 
-    public void createFlashcard(int deckID, String question, String answer, String difficulty) throws CustomException{
-        flashcardController.createFlashcard(deckID, question, answer, difficulty);
+    public Flashcard createFlashcard(int deckID, String question, String answer, String difficulty) throws CustomException{
+        return flashcardController.createFlashcard(deckID, question, answer, difficulty);
     }
 
     public void updateFlashcard(Flashcard flashcard) throws CustomException {
@@ -225,6 +225,11 @@ public class MainController {
                 || flashcardController.hasPendingChanges()
                 || studyController.hasPendingChanges()
                 || reviewController.hasPendingChanges();
+    }
+
+    public void saveImportedChanges(List<Deck> importedDecks, List<Flashcard> importedFlashcards) throws CustomException {
+        deckController.saveAddedDecks(importedDecks);
+        flashcardController.saveAddedFlashcards(importedFlashcards);
     }
 
     // --------- JSON IMPORT / EXPORT --------------

@@ -37,6 +37,8 @@ public class JsonImportExportService {
     public int importFromFile(File file, MainController mc) throws CustomException {
         List<DeckJson> deckJsonList = parseFile(file);
         int imported = 0;
+        List<Deck> importedDecks = new ArrayList<>();
+        List<Flashcard> importedFlashcards = new ArrayList<>();
 
         for (DeckJson deckJson : deckJsonList) {
             String rawName = deckJson.getDeckName();
@@ -49,14 +51,8 @@ public class JsonImportExportService {
             if (exists) continue;
 
             String desc = deckJson.getDescription() == null ? "" : deckJson.getDescription().trim();
-            mc.createDeck(deckName, desc);
-
-            // Retrieve the newly created deck by name to get its assigned in-memory ID
-            Deck newDeck = mc.allDecks().stream()
-                    .filter(d -> d.getName().equalsIgnoreCase(deckName))
-                    .findFirst()
-                    .orElse(null);
-            if (newDeck == null) continue;
+            Deck newDeck = mc.createDeck(deckName, desc);
+            importedDecks.add(newDeck);
 
             List<CardJson> cards = deckJson.getCards();
             if (cards != null) {
@@ -64,16 +60,17 @@ public class JsonImportExportService {
                     if (c.getQuestion() == null || c.getQuestion().isBlank()) continue;
                     if (c.getAnswer()   == null || c.getAnswer().isBlank())   continue;
                     String difficulty = normaliseDifficulty(c.getDifficulty());
-                    mc.createFlashcard(newDeck.getDeckID(),
+                    Flashcard flashcard = mc.createFlashcard(newDeck.getDeckID(),
                             c.getQuestion().trim(),
                             c.getAnswer().trim(),
                             difficulty);
+                    importedFlashcards.add(flashcard);
                 }
             }
             imported++;
         }
 
-        mc.saveChanges();
+        mc.saveImportedChanges(importedDecks, importedFlashcards);
         return imported;
     }
 

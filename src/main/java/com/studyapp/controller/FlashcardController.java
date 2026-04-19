@@ -56,7 +56,7 @@ public class FlashcardController {
                 .toList();
     }
 
-    public void createFlashcard(int deckID, String question, String answer, String difficulty) throws CustomException{
+    public Flashcard createFlashcard(int deckID, String question, String answer, String difficulty) throws CustomException{
         //CHECK IF DECK EXISTS
         Deck deck = mc.allDecks().stream()
                 .filter(i -> i.getDeckID() == deckID)
@@ -70,6 +70,7 @@ public class FlashcardController {
         flashcards.add(flashcard);
         addedFlashcards.add(flashcard);
         lastCardID++;
+        return flashcard;
     }
 
     public void updateFlashcard(Flashcard flashcard) throws CustomException {
@@ -134,6 +135,19 @@ public class FlashcardController {
             modifiedFlashcards.clear();
             deletedFlashcards.clear();
         }catch(Exception e){
+            throw new CustomException("Failed to Save Flashcards");
+        }
+    }
+
+    void saveAddedFlashcards(List<Flashcard> flashcardsToSave) throws CustomException {
+        try {
+            for (Flashcard flashcard : flashcardsToSave) {
+                if (addedFlashcards.contains(flashcard)) {
+                    flashcardDAOImpl.insert(flashcard);
+                }
+            }
+            addedFlashcards.removeAll(flashcardsToSave);
+        } catch (Exception e) {
             throw new CustomException("Failed to Save Flashcards");
         }
     }
