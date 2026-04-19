@@ -5,6 +5,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.studyapp.db.DatabaseConnection;
@@ -147,14 +149,17 @@ public class MainController {
 
     //------------ STATISTICS  -------------------//
     public int getDeckProgress(int deckID){
-        List<CardReview> allReviews = studyController.getSpecificDeckSession(deckID).stream()
+        // Delegate filtering logic to the ReviewController
+        List<CardReview> deckReviews = studyController.getSpecificDeckSession(deckID).stream()
                 .flatMap(session -> getCardReviewsBySession(session.getSessionID()).stream())
-                .toList()   ;
+                .toList();
 
-
-        int correctlyReviewed = (int) allReviews.stream()
+        Set<Integer> correctCardIds = deckReviews.stream()
                 .filter(CardReview::isCorrect)
-                .count();
+                .map(review -> review.getFlashcard().getCardID())
+                .collect(Collectors.toSet());
+
+        long uniqueCorrectlyReviewed = correctCardIds.size();
 
         int total = getFlashcardsByDeck(deckID).size();
 
@@ -162,7 +167,7 @@ public class MainController {
             return 0;
         }
 
-        return (correctlyReviewed*100/total);
+        return (int) (uniqueCorrectlyReviewed * 100 / total);
     }
 
     public int getAccuracy(){
@@ -177,11 +182,21 @@ public class MainController {
     }
 
     public String getOverallProgress(){
-        return reviewController.getCorrectReviews().size() + " / " + allFlashcards().size();
+        // Simply ask the ReviewController for the latest unique state of all cards
+        Set<Integer> correctCardIds = getAllCardReviews().stream()
+                .filter(CardReview::isCorrect)
+                .map(review -> review.getFlashcard().getCardID())
+                .collect(Collectors.toSet());
+
+        long uniqueCorrect = correctCardIds.size();
+
+        return uniqueCorrect + " / " + allFlashcards().size();
     }
 
     public String getCardsReviewedProgress() {
-        return getAllCardReviews().size() + "/" + allFlashcards().size();
+        // Coverage is just the count of unique cards that have been reviewed
+        int uniqueReviewedCount = reviewController.getLatestUniqueReviews(getAllCardReviews()).size();
+        return uniqueReviewedCount + "/" + allFlashcards().size();
     }
 
     public List<Deck> getRecentDecks() {
