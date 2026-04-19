@@ -141,7 +141,7 @@ public class AllCardsPanel {
         selectBtn.setStyle(OPEN_BUTTON_STYLE);
         selectBtn.setOnMouseEntered(e -> selectBtn.setStyle(OPEN_BUTTON_HOVER_STYLE));
         selectBtn.setOnMouseExited(e -> selectBtn.setStyle(OPEN_BUTTON_STYLE));
-        selectBtn.setOnAction(e -> showCardDetailDialog(flashcard));
+        selectBtn.setOnAction(e -> CardDetailPanel.show(mainLayout, flashcard, mc));
 
         HBox mainContent = new HBox();
         mainContent.setAlignment(Pos.CENTER_LEFT);
@@ -194,13 +194,5 @@ public class AllCardsPanel {
                 cardsBox.getChildren().add(createCard(flashcard, mainLayout, mc));
             }
         }
-    }
-
-    private static void showCardDetailDialog(Flashcard flashcard) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Card Details");
-        alert.setHeaderText(flashcard.getQuestion());
-        alert.setContentText("Answer: " + flashcard.getAnswer() + "\nDifficulty: " + flashcard.getDifficulty());
-        alert.showAndWait();
     }
 }
