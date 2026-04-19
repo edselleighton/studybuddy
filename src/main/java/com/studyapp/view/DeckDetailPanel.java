@@ -74,7 +74,15 @@ public class DeckDetailPanel {
         cardsBtn.setOnMouseExited(e -> cardsBtn.setStyle(ACTIVE_BTN_STYLE));
         cardsBtn.setOnAction(e -> mainLayout.setCenter(AllCardsPanel.create(mainLayout, deckData, mc)));
 
-        Button studyBtn = createDisabledBtn("Study");
+        Button studyBtn = new Button("Study");
+        studyBtn.setMaxWidth(Double.MAX_VALUE);
+        studyBtn.setFont(Font.font("Serif", 16));
+        studyBtn.setStyle(ACTIVE_BTN_STYLE);
+        studyBtn.setOnMouseEntered(e -> studyBtn.setStyle(
+                "-fx-background-color: #d0dcf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE
+                        + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;"));
+        studyBtn.setOnMouseExited(e -> studyBtn.setStyle(ACTIVE_BTN_STYLE));
+        studyBtn.setOnAction(e -> StudyPanel.create(mainLayout, deckData, mc));
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
