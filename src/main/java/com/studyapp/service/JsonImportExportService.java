@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.studyapp.controller.CustomException;
 import com.studyapp.controller.MainController;
@@ -121,6 +122,8 @@ public class JsonImportExportService {
             // Single-deck format: { "deck_name": ..., "cards": [...] }
             return List.of(GSON.fromJson(obj, DeckJson.class));
 
+        } catch (JsonParseException e) {
+            throw new CustomException("Malformed JSON file: " + e.getMessage());
         } catch (IOException e) {
             throw new CustomException("Could not read file: " + e.getMessage());
         }

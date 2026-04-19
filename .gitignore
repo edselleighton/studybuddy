@@ -39,3 +39,5 @@ target/
 .project
 .settings/
 bin/
+
+.env
