@@ -30,7 +30,7 @@ public class JsonImportExportService {
      * Supports both single-deck format { "deck_name":..., "cards":[...] }
      * and multi-deck format { "decks": [...] }.
      * Skips decks whose name already exists in the system.
-     * Persists all changes to the database before returning.
+     * Persists only the imported decks and cards before returning.
      *
      * @return number of new decks actually imported
      */
