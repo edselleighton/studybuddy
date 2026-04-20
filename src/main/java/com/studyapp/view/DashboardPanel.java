@@ -12,10 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
@@ -74,7 +71,7 @@ public class DashboardPanel {
             deckList.getChildren().add(emptyState);
         } else {
             for (Deck deck : stats.recentDecks()) {
-                deckList.getChildren().add(createDeckItem(deck.getName()));
+                deckList.getChildren().add(createDeckItem(mainLayout, deck, mainController));
             }
         }
         recentDecks.getChildren().addAll(recentHeader, deckList);
@@ -198,14 +195,15 @@ public class DashboardPanel {
         return box;
     }
 
-    private static Label createDeckItem(String deckName) {
-        Label lbl = new Label(deckName);
+    private static Label createDeckItem(BorderPane mainLayout, Deck deck, MainController mc) {
+        Label lbl = new Label(deck.getName());
         lbl.setMaxWidth(Double.MAX_VALUE);
         lbl.setStyle(DECK_ITEM_STYLE);
         lbl.setFont(Font.font("Serif", 16));
         lbl.setTextFill(Color.BLACK);
         lbl.setOnMouseEntered(e -> lbl.setStyle(DECK_ITEM_HOVER_STYLE));
         lbl.setOnMouseExited(e -> lbl.setStyle(DECK_ITEM_STYLE));
+        lbl.setOnMouseClicked(e -> DeckDetailPanel.show(mainLayout, deck, mc));
         return lbl;
     }
 }

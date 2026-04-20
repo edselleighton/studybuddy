@@ -72,6 +72,7 @@ public class StudyController {
 
     public List<StudySession> getRecentSessions() {
         return studySessions.stream()
+                .filter(i -> i.getEndedAt() != null)
                 .sorted(Comparator.comparing(StudySession::getEndedAt).reversed())
                 .limit(3)
                 .collect(Collectors.toList());
