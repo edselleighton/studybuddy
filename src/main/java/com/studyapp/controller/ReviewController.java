@@ -7,7 +7,9 @@ import com.studyapp.model.StudySession;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReviewController {
     private MainController mc;
@@ -51,6 +53,17 @@ public class ReviewController {
         return cardReviews.stream()
                 .filter(CardReview::isCorrect)
                 .toList();
+    }
+
+    public Collection<CardReview> getLatestUniqueReviews(List<CardReview> reviews) {
+        return reviews.stream()
+                .collect(Collectors.toMap(
+                        review -> review.getFlashcard().getCardID(),
+                        review -> review,
+                        (existing, replacement) ->
+                                replacement.getReviewedAt().isAfter(existing.getReviewedAt()) ? replacement : existing
+                ))
+                .values();
     }
 
     public List<CardReview> getCardReviewsBySession(int sessionID){
