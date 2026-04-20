@@ -116,7 +116,7 @@ public class AllCardsPanel {
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(18));
         card.setSpacing(8);
-        card.setStyle("-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-color: white;");
+        card.setStyle(DECK_ROW_STYLE);
 
         VBox textContainer = new VBox(5);
         Label question = new Label(flashcard.getQuestion());
