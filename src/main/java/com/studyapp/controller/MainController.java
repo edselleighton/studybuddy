@@ -200,10 +200,9 @@ public class MainController {
     }
 
     public List<Deck> getRecentDecks() {
-        return allDecks().stream()
-                .sorted(Comparator.comparing(Deck::getCreatedAt).reversed())
-                .limit(3)
-                .collect(Collectors.toList());
+        return studyController.getRecentSessions().stream()
+                .map(StudySession::getDeck)
+                .toList();
     }
 
     public String getTotalStudyTime(){
