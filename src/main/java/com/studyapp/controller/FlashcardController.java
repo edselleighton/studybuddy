@@ -72,7 +72,9 @@ public class FlashcardController {
         lastCardID++;
         return flashcard;
     }
-
+    //edited so that it throws exception if flashcard doesn't exist, 
+    // instead of returning null. 
+    //allows to edit flashcard, no design change, just added exception handling.
     public void updateFlashcard(Flashcard flashcard) throws CustomException {
         Flashcard existing = flashcards.stream()
                 .filter(i -> i.getCardID() == flashcard.getCardID())
@@ -81,9 +83,17 @@ public class FlashcardController {
             throw new CustomException("Flashcard not found.");
         }
 
-        validateConstraints(flashcard);
-
+        // Remove first so validateConstraints doesn't see a duplicate ID.
         flashcards.remove(existing);
+
+        try {
+            validateConstraints(flashcard);
+        } catch (CustomException e) {
+            // Rollback: put the original back if validation fails.
+            flashcards.add(existing);
+            throw e;
+        }
+
         flashcards.add(flashcard);
 
         if (addedFlashcards.contains(existing)) {

@@ -2,15 +2,17 @@ package com.studyapp.view;
 
 import java.util.List;
 
-import com.studyapp.controller.CustomException;
 import com.studyapp.controller.MainController;
 import com.studyapp.model.Deck;
 import com.studyapp.model.Flashcard;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -18,8 +20,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 public class AllCardsPanel {
 
@@ -92,16 +92,15 @@ public class AllCardsPanel {
         cardsBox.setPadding(new Insets(5, 15, 5, 5));
         cardsBox.setStyle("-fx-background-color: white;");
 
-        updateCardList(cardsBox, cards, "", "Newest", mainLayout, mc);
+        updateCardList(cardsBox, cards, "", "Newest", deck, mainLayout, mc);
 
-        // Search functionality - filter as user types
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateCardList(cardsBox, cards, newValue, sortCombo.getValue(), mainLayout, mc);
+        updateCardList(cardsBox, cards, newValue, sortCombo.getValue(), deck, mainLayout, mc);
         });
 
-        // Sort functionality - re-sort when dropdown changes
+        // Sort listener:
         sortCombo.setOnAction(e -> {
-            updateCardList(cardsBox, cards, searchField.getText(), sortCombo.getValue(), mainLayout, mc);
+            updateCardList(cardsBox, cards, searchField.getText(), sortCombo.getValue(), deck, mainLayout, mc);
         });
 
         scrollPane.setContent(cardsBox);
@@ -111,7 +110,12 @@ public class AllCardsPanel {
         return wrapper;
     }
 
-    private static VBox createCard(Flashcard flashcard, BorderPane mainLayout, MainController mc) {
+    // ── REPLACE createCard() ──────────────────────────────────────────────────────
+// Old signature: createCard(Flashcard flashcard, BorderPane mainLayout, MainController mc)
+// New signature adds 'Deck deck' so the refresh lambda knows which list to rebuild.
+
+    private static VBox createCard(Flashcard flashcard, Deck deck,
+                                BorderPane mainLayout, MainController mc) {
         VBox card = new VBox();
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(18));
@@ -140,30 +144,37 @@ public class AllCardsPanel {
         Button selectBtn = new Button("OPEN");
         selectBtn.setStyle(OPEN_BUTTON_STYLE);
         selectBtn.setOnMouseEntered(e -> selectBtn.setStyle(OPEN_BUTTON_HOVER_STYLE));
-        selectBtn.setOnMouseExited(e -> selectBtn.setStyle(OPEN_BUTTON_STYLE));
-        selectBtn.setOnAction(e -> CardDetailPanel.show(mainLayout, flashcard, mc));
+        selectBtn.setOnMouseExited(e  -> selectBtn.setStyle(OPEN_BUTTON_STYLE));
+
+        // Pass a refresh lambda: after edit/delete, rebuild AllCardsPanel from fresh mc data.
+        selectBtn.setOnAction(e -> CardDetailPanel.show(
+                mainLayout, flashcard, mc,
+                () -> mainLayout.setCenter(AllCardsPanel.create(mainLayout, deck, mc))));
 
         HBox mainContent = new HBox();
         mainContent.setAlignment(Pos.CENTER_LEFT);
         mainContent.getChildren().addAll(textContainer, spacer, selectBtn);
 
         card.getChildren().add(mainContent);
-
         card.setOnMouseEntered(e -> card.setStyle(DECK_ROW_HOVER_STYLE));
-        card.setOnMouseExited(e -> card.setStyle(DECK_ROW_STYLE));
+        card.setOnMouseExited(e  -> card.setStyle(DECK_ROW_STYLE));
 
         return card;
     }
 
-    private static void updateCardList(VBox cardsBox, List<Flashcard> flashcards, String searchQuery,
-                                       String sortOption, BorderPane mainLayout, MainController mc) {
-        // Filter decks by search query
+    // ── REPLACE updateCardList() ──────────────────────────────────────────────────
+// Old signature lacked 'Deck deck'. Now it passes deck down to createCard().
+
+    private static void updateCardList(VBox cardsBox, List<Flashcard> flashcards,
+                                    String searchQuery, String sortOption,
+                                    Deck deck,                    // ← new
+                                    BorderPane mainLayout, MainController mc) {
         String query = searchQuery == null ? "" : searchQuery.toLowerCase().trim();
         List<Flashcard> filteredCards = new java.util.ArrayList<>(flashcards.stream()
                 .filter(flashcard -> {
                     if (query.isEmpty()) return true;
                     String question = flashcard.getQuestion().toLowerCase();
-                    String answer = flashcard.getAnswer().toLowerCase();
+                    String answer   = flashcard.getAnswer().toLowerCase();
                     return question.contains(query) || answer.contains(query);
                 })
                 .toList());
@@ -173,15 +184,16 @@ public class AllCardsPanel {
                 filteredCards.sort(java.util.Comparator.comparing(Flashcard::getCreatedAt));
                 break;
             case "Name":
-                filteredCards.sort(java.util.Comparator.comparing(Flashcard::getQuestion, String.CASE_INSENSITIVE_ORDER));
+                filteredCards.sort(java.util.Comparator.comparing(
+                        Flashcard::getQuestion, String.CASE_INSENSITIVE_ORDER));
                 break;
             case "Newest":
             default:
-                filteredCards.sort(java.util.Comparator.comparing(Flashcard::getCreatedAt).reversed());
+                filteredCards.sort(java.util.Comparator.comparing(
+                        Flashcard::getCreatedAt).reversed());
                 break;
         }
 
-        // Clear and repopulate the deck list
         cardsBox.getChildren().clear();
         if (filteredCards.isEmpty()) {
             Label emptyLabel = new Label("No cards found");
@@ -191,7 +203,8 @@ public class AllCardsPanel {
             cardsBox.getChildren().add(emptyLabel);
         } else {
             for (Flashcard flashcard : filteredCards) {
-                cardsBox.getChildren().add(createCard(flashcard, mainLayout, mc));
+                cardsBox.getChildren().add(
+                        createCard(flashcard, deck, mainLayout, mc)); // ← deck passed through
             }
         }
     }
