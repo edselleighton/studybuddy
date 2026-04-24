@@ -163,7 +163,7 @@ public class DeckDetailPanel {
                     saveChanges(deckData, headerField.getText(), descriptionArea.getText(), mc);
                     render(mainLayout, deckData, mc, returnAction, false, originalSidebar);
                 } catch (CustomException e) {
-                    showErrorDialog(e.getMessage() != null ? e.getMessage() : "Unknown error occurred while saving.");
+                    MainFrame.showErrorDialog(e.getMessage() != null ? e.getMessage() : "Unknown error occurred while saving.");
                 }
             });
 
@@ -391,6 +391,7 @@ public class DeckDetailPanel {
         deleteBtn.setOnAction(e -> {
             try {
                 mc.deleteDeck(deckData.getDeckID());
+                MainFrame.showSuccessDialog("Deck deleted successfully.");
                 mainLayout.setLeft(originalSidebar);
                 returnAction.run();
                 dialog.close();
@@ -465,79 +466,5 @@ public class DeckDetailPanel {
         }
         String trimmed = description.trim();
         return trimmed.isEmpty() ? null : trimmed;
-    }
-
-    private static void showErrorDialog(String message) {
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.initStyle(StageStyle.TRANSPARENT);
-        dialog.setTitle("Error");
-
-        VBox container = new VBox(20);
-        container.setPrefWidth(300);
-        container.setPrefHeight(210);
-        container.setSpacing(4);
-        container.setPadding(new Insets(0, 40, 40, 40));
-        container.setAlignment(Pos.TOP_LEFT);
-        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
-
-        container.setOnMousePressed(event -> {
-            delXOffset = event.getSceneX();
-            delYOffset = event.getSceneY();
-        });
-
-        container.setOnMouseDragged(event -> {
-            Stage stage = (Stage) container.getScene().getWindow();
-            stage.setX(event.getScreenX() - delXOffset);
-            stage.setY(event.getScreenY() - delYOffset);
-        });
-
-        Label title = new Label("Error");
-        title.setFont(Font.font("Serif", 38));
-        title.setTextFill(Color.web("#D32F2F"));
-        VBox.setMargin(title, new Insets(-8, 0, 0, 0));
-
-        Label description = new Label(message);
-        description.setFont(Font.font("Serif", 15));
-        description.setTextFill(Color.web("#2a548f"));
-        description.setWrapText(true);
-        VBox.setMargin(description, new Insets(8, 20, 30, 20));
-
-        Button okayBtn = new Button("OKAY");
-        okayBtn.setPrefWidth(250);
-        okayBtn.setPrefHeight(45);
-        String normalStyle = "-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; "
-                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
-                + "-fx-cursor: hand;";
-        String hoverStyleStr = "-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; "
-                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
-                + "-fx-cursor: hand;";
-
-        okayBtn.setStyle(normalStyle);
-        okayBtn.setOnMouseEntered(e -> okayBtn.setStyle(hoverStyleStr));
-        okayBtn.setOnMouseExited(e -> okayBtn.setStyle(normalStyle));
-        okayBtn.setOnAction(e -> dialog.close());
-
-        HBox topBar = new HBox();
-        topBar.setAlignment(Pos.TOP_RIGHT);
-
-        Button closeBtn = new Button("X");
-        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
-        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
-
-        closeBtn.setStyle(xBarNormal);
-        closeBtn.setOnAction(e -> dialog.close());
-        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
-        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
-
-        topBar.getChildren().add(closeBtn);
-        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
-        container.getChildren().addAll(topBar, title, description, okayBtn);
-
-        Scene scene = new Scene(container, 300, 210);
-        scene.setFill(Color.TRANSPARENT);
-        dialog.setScene(scene);
-        dialog.setResizable(false);
-        dialog.show();
     }
 }

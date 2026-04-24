@@ -4,18 +4,16 @@ import java.util.Optional;
 
 import com.studyapp.controller.MainController;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MainFrame {
 
@@ -28,6 +26,9 @@ public class MainFrame {
     private static Button dashBtn;
     private static Button decksBtn;
     private static Button cardsBtn;
+
+    private static double Xoffset = 0;
+    private static double Yoffset = 0;
 
     public static void show(Stage stage) {
         MainController mc = SetupPanel.getMainController();
@@ -138,5 +139,152 @@ public class MainFrame {
         ExitPanel.show(mainLayout, mc);
     }
 
+    public static void showErrorDialog(String message) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle("Error");
+
+        VBox container = new VBox(4);
+        container.setPadding(new Insets(0, 40, 40, 40));
+        container.setAlignment(Pos.TOP_LEFT);
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
+
+        container.setOnMousePressed(event -> {
+            Xoffset = event.getSceneX();
+            Yoffset = event.getSceneY();
+        });
+
+        container.setOnMouseDragged(event -> {
+            Stage stage = (Stage) container.getScene().getWindow();
+            stage.setX(event.getScreenX() - Xoffset);
+            stage.setY(event.getScreenY() - Yoffset);
+        });
+
+        Label title = new Label("Error");
+        title.setFont(Font.font("Serif", 38));
+        title.setTextFill(Color.web("#D32F2F"));
+        VBox.setMargin(title, new Insets(-8, 0, 0, 0));
+
+        Label description = new Label(message);
+        description.setFont(Font.font("Serif", 15));
+        description.setTextFill(Color.web("#2a548f"));
+        description.setWrapText(true);
+        description.setMaxWidth(300);
+        VBox.setMargin(description, new Insets(8, 20, 30, 20));
+
+        Button okayBtn = new Button("OKAY");
+        okayBtn.setMaxWidth(Double.MAX_VALUE);
+        okayBtn.setPrefHeight(45);
+
+        String normalStyle = "-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; "
+                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
+                + "-fx-cursor: hand;";
+        String hoverStyleStr = "-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; "
+                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
+                + "-fx-cursor: hand;";
+
+        okayBtn.setStyle(normalStyle);
+        okayBtn.setOnMouseEntered(e -> okayBtn.setStyle(hoverStyleStr));
+        okayBtn.setOnMouseExited(e -> okayBtn.setStyle(normalStyle));
+        okayBtn.setOnAction(e -> dialog.close());
+
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.TOP_RIGHT);
+
+        Button closeBtn = new Button("X");
+        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
+        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
+
+        closeBtn.setStyle(xBarNormal);
+        closeBtn.setOnAction(e -> dialog.close());
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
+        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
+
+        topBar.getChildren().add(closeBtn);
+        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
+
+        container.getChildren().addAll(topBar, title, description, okayBtn);
+
+        Scene scene = new Scene(container);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        dialog.show();
+    }
+
+    public static void showSuccessDialog(String message){
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle("Success");
+
+        VBox container = new VBox(4);
+        container.setPadding(new Insets(0, 40, 40, 40));
+        container.setAlignment(Pos.TOP_LEFT);
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
+
+        container.setOnMousePressed(event -> {
+            Xoffset = event.getSceneX();
+            Yoffset = event.getSceneY();
+        });
+
+        container.setOnMouseDragged(event -> {
+            Stage stage = (Stage) container.getScene().getWindow();
+            stage.setX(event.getScreenX() - Xoffset);
+            stage.setY(event.getScreenY() - Yoffset);
+        });
+
+        Label title = new Label("Success");
+        title.setFont(Font.font("Serif", 38));
+        title.setTextFill(Color.web("#b3ffae"));
+        VBox.setMargin(title, new Insets(-8, 0, 0, 0));
+
+        Label description = new Label(message);
+        description.setFont(Font.font("Serif", 15));
+        description.setTextFill(Color.web("#2a548f"));
+        description.setWrapText(true);
+        description.setMaxWidth(300);
+        VBox.setMargin(description, new Insets(8, 20, 30, 20));
+
+        Button okayBtn = new Button("OKAY");
+        okayBtn.setMaxWidth(Double.MAX_VALUE);
+        okayBtn.setPrefHeight(45);
+
+        String normalStyle = "-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; "
+                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
+                + "-fx-cursor: hand;";
+        String hoverStyleStr = "-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; "
+                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
+                + "-fx-cursor: hand;";
+
+        okayBtn.setStyle(normalStyle);
+        okayBtn.setOnMouseEntered(e -> okayBtn.setStyle(hoverStyleStr));
+        okayBtn.setOnMouseExited(e -> okayBtn.setStyle(normalStyle));
+        okayBtn.setOnAction(e -> dialog.close());
+
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.TOP_RIGHT);
+
+        Button closeBtn = new Button("X");
+        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
+        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
+
+        closeBtn.setStyle(xBarNormal);
+        closeBtn.setOnAction(e -> dialog.close());
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
+        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
+
+        topBar.getChildren().add(closeBtn);
+        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
+
+        container.getChildren().addAll(topBar, title, description, okayBtn);
+
+        Scene scene = new Scene(container);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        dialog.show();
+    }
 
 }

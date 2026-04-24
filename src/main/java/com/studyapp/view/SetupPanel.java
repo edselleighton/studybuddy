@@ -60,9 +60,6 @@ public class SetupPanel {
         passField.setStyle("-fx-border-color: " + primaryBlue + "; -fx-border-radius: 3; -fx-background-color: white;");
         passBox.getChildren().addAll(passLabel, passField);
 
-        Label errorLabel = new Label();
-        errorLabel.setTextFill(Color.RED);
-
         Button connectBtn = new Button("SIGN IN");
         connectBtn.setPrefWidth(200);
         HBox buttonBox = new HBox(connectBtn);
@@ -85,20 +82,19 @@ public class SetupPanel {
 
             connectBtn.setDisable(true);
             connectBtn.setText("Signing in...");
-            errorLabel.setText("");
 
             try {
                 MAIN_CONTROLLER.login(username, password);
                 onSuccess.run();
             } catch (CustomException ex) {
-                errorLabel.setText("Database login failed. Check your MySQL username and password.");
+                MainFrame.showErrorDialog(ex.getMessage());
             }
 
             connectBtn.setDisable(false);
             connectBtn.setText("SIGN IN");
         });
 
-        loginRoot.getChildren().addAll(titleLabel, helperLabel, userBox, passBox, buttonBox, errorLabel);
+        loginRoot.getChildren().addAll(titleLabel, helperLabel, userBox, passBox, buttonBox);
 
         StackPane wrapper = new StackPane(loginRoot);
         wrapper.setPadding(new Insets(20));

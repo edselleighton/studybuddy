@@ -116,55 +116,52 @@ public class MyDeckPanel {
         // EXPORT button handler
         exportBtn.setOnAction(e -> {
             List<Deck> allDecks = mc.allDecks();
-            if (allDecks.isEmpty()) {
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("No Decks");
-                alert.setHeaderText("No decks to export");
-                alert.setContentText("Create or import some decks first.");
-                alert.showAndWait();
-                return;
-            }
+            if (!allDecks.isEmpty()) {
 
-            ChoiceDialog<String> deckPicker = new ChoiceDialog<>(
-                    allDecks.get(0).getName(),
-                    allDecks.stream().map(Deck::getName).toList()
-            );
-            deckPicker.setTitle("Export Deck");
-            deckPicker.setHeaderText("Select deck to export");
-            deckPicker.setContentText("Choose deck:");
+                ChoiceDialog<String> deckPicker = new ChoiceDialog<>(
+                        allDecks.get(0).getName(),
+                        allDecks.stream().map(Deck::getName).toList()
+                );
+                deckPicker.setTitle("Export Deck");
+                deckPicker.setHeaderText("Select deck to export");
+                deckPicker.setContentText("Choose deck:");
 
-            Optional<String> deckChoice = deckPicker.showAndWait();
-            if (deckChoice.isPresent()) {
-                Deck selectedDeck = allDecks.stream()
-                        .filter(d -> d.getName().equals(deckChoice.get()))
-                        .findFirst()
-                        .orElse(null);
+                Optional<String> deckChoice = deckPicker.showAndWait();
+                if (deckChoice.isPresent()) {
+                    Deck selectedDeck = allDecks.stream()
+                            .filter(d -> d.getName().equals(deckChoice.get()))
+                            .findFirst()
+                            .orElse(null);
 
-                if (selectedDeck != null) {
-                    FileChooser fc = new FileChooser();
-                    fc.setTitle("Save Deck as JSON");
-                    fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-                    fc.setInitialFileName(selectedDeck.getName() + ".json");
-                    File file = fc.showSaveDialog(mainLayout.getScene().getWindow());
+                    if (selectedDeck != null) {
+                        FileChooser fc = new FileChooser();
+                        fc.setTitle("Save Deck as JSON");
+                        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+                        fc.setInitialFileName(selectedDeck.getName() + ".json");
+                        File file = fc.showSaveDialog(mainLayout.getScene().getWindow());
 
-                    if (file != null) {
-                        try {
-                            mc.exportDeckToJson(selectedDeck.getDeckID(), file);
-                            Alert alert = new Alert(AlertType.INFORMATION);
-                            alert.setTitle("Success");
-                            alert.setHeaderText("Export successful");
-                            alert.setContentText("Deck exported to: " + file.getName());
-                            alert.showAndWait();
-                        } catch (CustomException ex) {
-                            Alert alert = new Alert(AlertType.ERROR);
-                            alert.setTitle("Export Error");
-                            alert.setHeaderText("Failed to export deck");
-                            alert.setContentText(ex.getMessage());
-                            alert.showAndWait();
+                        if (file != null) {
+                            try {
+                                mc.exportDeckToJson(selectedDeck.getDeckID(), file);
+                                Alert alert = new Alert(AlertType.INFORMATION);
+                                alert.setTitle("Success");
+                                alert.setHeaderText("Export successful");
+                                alert.setContentText("Deck exported to: " + file.getName());
+                                alert.showAndWait();
+                            } catch (CustomException ex) {
+                                Alert alert = new Alert(AlertType.ERROR);
+                                alert.setTitle("Export Error");
+                                alert.setHeaderText("Failed to export deck");
+                                alert.setContentText(ex.getMessage());
+                                alert.showAndWait();
+                            }
                         }
                     }
                 }
+            }else{
+                MainFrame.showErrorDialog("No decks to export. Please add decks before exporting.");
             }
+
         });
 
         TextField searchField = new TextField();
@@ -369,32 +366,17 @@ public class MyDeckPanel {
                         "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; " +
                         "-fx-cursor: hand;"));
 
-        // Create button action
         createBtn.setOnAction(e -> {
             String deckName = nameField.getText().trim();
-            if (deckName.isEmpty()) {
-                Alert alert = new Alert(AlertType.WARNING);
-                alert.setTitle("Validation Error");
-                alert.setHeaderText("Deck name is required");
-                alert.setContentText("Please enter a deck name.");
-                alert.showAndWait();
-                return;
-            }
-
             String description = descArea.getText().trim();
 
             try {
                 mc.createDeck(deckName, description);
-                //mc.saveChanges();
                 dialog.close();
-                mainLayout.setCenter(MyDeckPanel.create(mainLayout,
-                        "Deck '" + deckName + "' created successfully!", "#22c55e", mc));
+                MainFrame.showSuccessDialog("Deck '" + deckName + "' created successfully!");
+                mainLayout.setCenter(MyDeckPanel.create(mainLayout, mc));
             } catch (CustomException ex) {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Failed to create deck");
-                alert.setContentText(ex.getMessage());
-                alert.showAndWait();
+                MainFrame.showErrorDialog("Creation failed: " + ex.getMessage());
             }
         });
 
