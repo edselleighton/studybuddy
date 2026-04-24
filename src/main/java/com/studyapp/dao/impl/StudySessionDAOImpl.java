@@ -20,7 +20,7 @@ public class StudySessionDAOImpl implements StudySessionDAO{
         try(Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, studySession.getSessionID());
-            ps.setInt(2, studySession.getDeck().getDeckID());
+            ps.setInt(2, studySession.getDeckID());
             ps.setObject(3, studySession.getStartedAt());
             ps.setObject(4, studySession.getEndedAt());
             ps.executeUpdate();

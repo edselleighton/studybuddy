@@ -208,9 +208,15 @@ public class DeckDetailPanel {
         String currentDescription = normalizeDescription(deckData.getDescription());
 
         if (!Objects.equals(currentName, updatedName) || !Objects.equals(currentDescription, updatedDescription)) {
-            deckData.setName(updatedName);
-            deckData.setDescription(updatedDescription);
-            mc.updateDeck(deckData);
+            try{
+                deckData.setName(updatedName);
+                deckData.setDescription(updatedDescription);
+                mc.updateDeck(deckData);
+            } catch (CustomException e) {
+                deckData.setName(currentName);
+                deckData.setDescription(currentDescription);
+                throw e;
+            }
         }
     }
 

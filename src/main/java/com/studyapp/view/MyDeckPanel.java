@@ -44,9 +44,6 @@ public class MyDeckPanel {
     private static final String OPEN_BUTTON_STYLE = "-fx-background-color: #e6eaf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
     private static final String OPEN_BUTTON_HOVER_STYLE = "-fx-background-color: #d0dcf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
 
-    public record DeckData(Deck deck, int cardCount, int progressPercent, List<Flashcard> cards) {
-    }
-
     public static VBox create(BorderPane mainLayout, MainController mc) {
         return create(mainLayout, "Manage decks, or import/export your deck data as JSON.", PRIMARY_BLUE, mc);
     }

@@ -242,7 +242,7 @@ public class CardDetailPanel {
 
             Flashcard updated = new Flashcard(
                     flashcard.getCardID(),
-                    flashcard.getDeck(),
+                    flashcard.getDeckID(),
                     newQuestion,
                     newAnswer,
                     newDifficulty,
@@ -359,7 +359,7 @@ public class CardDetailPanel {
 
         infoBox.getChildren().addAll(
                 infoLabel("\nID: "      + flashcard.getCardID()),
-                infoLabel("Deck: "     + flashcard.getDeck().getDeckID()),
+                infoLabel("Deck: "     + flashcard.getDeckID()),
                 diffRow,
                 infoLabel("Created at: " + flashcard.getCreatedAt().format(fmt)));
 
