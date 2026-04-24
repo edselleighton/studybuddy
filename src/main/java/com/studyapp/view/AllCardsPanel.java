@@ -183,7 +183,7 @@ public class AllCardsPanel {
             case "Oldest":
                 filteredCards.sort(java.util.Comparator.comparing(Flashcard::getCreatedAt));
                 break;
-            case "Name":
+            case "Question":
                 filteredCards.sort(java.util.Comparator.comparing(
                         Flashcard::getQuestion, String.CASE_INSENSITIVE_ORDER));
                 break;
