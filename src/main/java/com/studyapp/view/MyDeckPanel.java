@@ -305,7 +305,11 @@ public class MyDeckPanel {
         selectBtn.setStyle(OPEN_BUTTON_STYLE);
         selectBtn.setOnMouseEntered(e -> selectBtn.setStyle(OPEN_BUTTON_HOVER_STYLE));
         selectBtn.setOnMouseExited(e -> selectBtn.setStyle(OPEN_BUTTON_STYLE));
-        selectBtn.setOnAction(e -> DeckDetailPanel.show(mainLayout, deck, mc));
+        selectBtn.setOnAction(e -> DeckDetailPanel.show(
+                mainLayout,
+                deck,
+                mc,
+                () -> mainLayout.setCenter(MyDeckPanel.create(mainLayout, mc))));
 
         row.getChildren().addAll(leftInfo, middleInfo, spacer, selectBtn);
         return row;

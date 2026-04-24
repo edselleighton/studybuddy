@@ -203,7 +203,11 @@ public class DashboardPanel {
         lbl.setTextFill(Color.BLACK);
         lbl.setOnMouseEntered(e -> lbl.setStyle(DECK_ITEM_HOVER_STYLE));
         lbl.setOnMouseExited(e -> lbl.setStyle(DECK_ITEM_STYLE));
-        lbl.setOnMouseClicked(e -> DeckDetailPanel.show(mainLayout, deck, mc));
+        lbl.setOnMouseClicked(e -> DeckDetailPanel.show(
+                mainLayout,
+                deck,
+                mc,
+                () -> mainLayout.setCenter(DashboardPanel.create(mainLayout))));
         return lbl;
     }
 }
