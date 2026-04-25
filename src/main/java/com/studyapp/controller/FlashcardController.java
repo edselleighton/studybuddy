@@ -89,6 +89,7 @@ public class FlashcardController {
 
         validateConstraints(flashcard);
 
+        flashcards.remove(existing);
         flashcards.add(flashcard);
 
         if (addedFlashcards.contains(existing)) {

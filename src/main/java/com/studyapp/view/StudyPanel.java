@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -20,9 +21,12 @@ import javafx.scene.shape.ArcType;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 public class StudyPanel {
 
@@ -52,6 +56,8 @@ public class StudyPanel {
     private Label attemptsLbl;
     private Arc   progressArc;
     private Label pctLabel;
+    private double Xoffset = 0;
+    private double Yoffset = 0;
 
     // ── entry point ───────────────────────────────────────────────────────────
     public static void create(BorderPane mainLayout, Deck deckData, MainController mc) {
@@ -87,17 +93,19 @@ public class StudyPanel {
     }
 
     private void init() {
-        flashcards = mc.getFlashcardsByDeck(deckData.getDeckID());
+        flashcards = new ArrayList<>(mc.getFlashcardsByDeck(deckData.getDeckID()));
         if (flashcards == null || flashcards.isEmpty()) {
-            showAlert("No cards in this deck.");
+            MainFrame.showErrorDialog("No cards in this deck.");
             return;
         }
+
+        orderCards();
         correctAnswers = new boolean[flashcards.size()];
 
         try {
             studySession = mc.createStudySession(deckData.getDeckID(), LocalDateTime.now());
         } catch (CustomException e) {
-            showAlert("Could not start session: " + e.getMessage());
+            MainFrame.showErrorDialog("Could not create study session: " + e.getMessage());
             return;
         }
 
@@ -108,6 +116,39 @@ public class StudyPanel {
     // ── center swappers ───────────────────────────────────────────────────────
     void showQuestion() {
         mainLayout.setCenter(QuestionPanel.build(this, flashcards.get(currentIndex), deckData));
+    }
+
+    void orderCards(){
+        // Separate cards into: unanswered, weak (wrong attempts), and rest
+        List<Flashcard> unanswered = new ArrayList<>();
+        List<Flashcard> weak = new ArrayList<>();
+        List<Flashcard> rest = new ArrayList<>();
+
+        for (Flashcard card : flashcards) {
+            int totalReviews = (int) mc.getAllCardReviews().stream()
+                    .filter(r -> r.getFlashcardID() == card.getCardID())
+                    .count();
+            int wrongCount = countWrongAttempts(card.getCardID());
+
+            if (totalReviews == 0) {
+                unanswered.add(card);
+            } else if (wrongCount > 0) {
+                weak.add(card);
+            } else {
+                rest.add(card);
+            }
+        }
+
+        // Shuffle each group
+        Collections.shuffle(unanswered);
+        Collections.shuffle(weak);
+        Collections.shuffle(rest);
+
+        // Order: unanswered first, then weak, then rest
+        flashcards.clear();
+        flashcards.addAll(unanswered);
+        flashcards.addAll(weak);
+        flashcards.addAll(rest);
     }
 
     void showResult(boolean isCorrect, String answer, Flashcard card) {
@@ -140,7 +181,7 @@ public class StudyPanel {
                     isCorrect
             );
         } catch (CustomException e) {
-            showAlert("Could not save review: " + e.getMessage());
+            MainFrame.showErrorDialog("Could not save review: " + e.getMessage());
         }
 
         refreshScore();
@@ -189,7 +230,7 @@ public class StudyPanel {
             studySession.setEndedAt(LocalDateTime.now());
             mc.updateEndStudySession(studySession);
         } catch (CustomException e) {
-            showAlert("Could not end session: " + e.getMessage());
+            MainFrame.showErrorDialog("Could not end session: " + e.getMessage());
         }
     }
 
@@ -284,15 +325,83 @@ public class StudyPanel {
     }
 
     // ── helpers ───────────────────────────────────────────────────────────────
-    private void showFinalScore() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Session Complete");
-        alert.setHeaderText("Score: " + totalCorrect + "/" + flashcards.size());
-        alert.setContentText("Great work! Your results have been saved.");
-        alert.showAndWait();
+    private int countWrongAttempts(int cardID) {
+        return (int) mc.getAllCardReviews().stream()
+                .filter(r -> r.getFlashcardID() == cardID && !r.isCorrect())
+                .count();
     }
 
-    void showAlert(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait();
+    private void showFinalScore() {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle("Finished");
+
+        VBox container = new VBox(4);
+        container.setPadding(new Insets(0, 40, 40, 40));
+        container.setAlignment(Pos.TOP_LEFT);
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
+
+        container.setOnMousePressed(event -> {
+            Xoffset = event.getSceneX();
+            Yoffset = event.getSceneY();
+        });
+
+        container.setOnMouseDragged(event -> {
+            Stage stage = (Stage) container.getScene().getWindow();
+            stage.setX(event.getScreenX() - Xoffset);
+            stage.setY(event.getScreenY() - Yoffset);
+        });
+
+        Label title = new Label("Session Complete!");
+        title.setFont(Font.font("Serif", 38));
+        title.setTextFill(Color.web("#b3ffae"));
+        VBox.setMargin(title, new Insets(-8, 0, 0, 0));
+
+        Label description = new Label("Score: " + totalCorrect + "/" + flashcards.size() + "\nGreat work!");
+        description.setFont(Font.font("Serif", 15));
+        description.setTextFill(Color.web("#2a548f"));
+        description.setWrapText(true);
+        description.setMaxWidth(300);
+        VBox.setMargin(description, new Insets(8, 20, 30, 20));
+
+        Button okayBtn = new Button("OKAY");
+        okayBtn.setMaxWidth(Double.MAX_VALUE);
+        okayBtn.setPrefHeight(45);
+
+        String normalStyle = "-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; "
+                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
+                + "-fx-cursor: hand;";
+        String hoverStyleStr = "-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; "
+                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
+                + "-fx-cursor: hand;";
+
+        okayBtn.setStyle(normalStyle);
+        okayBtn.setOnMouseEntered(e -> okayBtn.setStyle(hoverStyleStr));
+        okayBtn.setOnMouseExited(e -> okayBtn.setStyle(normalStyle));
+        okayBtn.setOnAction(e -> dialog.close());
+
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.TOP_RIGHT);
+
+        Button closeBtn = new Button("X");
+        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
+        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
+
+        closeBtn.setStyle(xBarNormal);
+        closeBtn.setOnAction(e -> dialog.close());
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
+        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
+
+        topBar.getChildren().add(closeBtn);
+        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
+
+        container.getChildren().addAll(topBar, title, description, okayBtn);
+
+        Scene scene = new Scene(container);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        dialog.show();
     }
 }
