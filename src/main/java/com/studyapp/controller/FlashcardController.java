@@ -163,7 +163,7 @@ public class FlashcardController {
 
     void validateConstraints(Flashcard flashcard) throws CustomException{
         //VALIDATE ID UNIQUENESS
-        if(flashcards.stream().anyMatch(i -> (i.getCardID() == flashcard.getCardID()) && (i != flashcard))) {
+        if(flashcards.stream().anyMatch(i -> (i.getCardID() == flashcard.getCardID() && i != flashcard))) {
             throw new CustomException("Flashcard ID already exists.");
         }
 
