@@ -106,7 +106,15 @@ public class MainFrame {
         stage.setMaximized(true);
     }
 
-    public static void showPrebuilt(Stage stage, BorderPane mainLayout) {
+    public static void showPrebuilt(Stage stage, BorderPane mainLayout, MainController mc) {
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            if (stage.isIconified()) {
+                stage.setIconified(false); // restore first
+            }
+            handleExit(mainLayout, mc);
+        });
+
         Scene existing = stage.getScene();
         if (existing == null) {
             stage.setScene(new Scene(mainLayout, 1024, 768));

@@ -126,7 +126,7 @@ public class SplashScreen {
         reveal.setOnFinished(ev -> {
             //CHECK IF THE MAINFRAME WAS PRE-BUILT, ELSE USE NORMAL START-UP
             if (prebuiltLayout[0] != null) {
-                MainFrame.showPrebuilt(primaryStage, prebuiltLayout[0]);
+                MainFrame.showPrebuilt(primaryStage, prebuiltLayout[0], mc);
             } else {
                 MainFrame.show(primaryStage, mc);
             }

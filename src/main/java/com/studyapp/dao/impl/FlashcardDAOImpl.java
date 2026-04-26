@@ -15,14 +15,15 @@ import com.studyapp.model.ObjectFactory;
 public class FlashcardDAOImpl implements FlashcardDAO{
     @Override
     public void insert(Flashcard flashcard) throws SQLException {
-        String sql = "INSERT INTO card (deck_id, question, answer, difficulty, created_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO card (card_id, deck_id, question, answer, difficulty, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, flashcard.getDeckID());
-            ps.setString(2, flashcard.getQuestion());
-            ps.setObject(3, flashcard.getAnswer());
-            ps.setObject(4, flashcard.getDifficulty());
-            ps.setObject(5, flashcard.getCreatedAt());
+            ps.setInt(1, flashcard.getCardID());
+            ps.setInt(2, flashcard.getDeckID());
+            ps.setString(3, flashcard.getQuestion());
+            ps.setObject(4, flashcard.getAnswer());
+            ps.setObject(5, flashcard.getDifficulty());
+            ps.setObject(6, flashcard.getCreatedAt());
             ps.executeUpdate();
         }
     }
@@ -31,7 +32,7 @@ public class FlashcardDAOImpl implements FlashcardDAO{
     public void update(Flashcard flashcard) throws SQLException {
         String sql = "UPDATE card SET question = ?, answer = ?, difficulty = ? WHERE card_id = ?";
         try(Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, flashcard.getQuestion());
             ps.setString(2, flashcard.getAnswer());
             ps.setString(3, flashcard.getDifficulty());
@@ -73,7 +74,7 @@ public class FlashcardDAOImpl implements FlashcardDAO{
         String sql = "SELECT * FROM card";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 allCards.add(new ObjectFactory().createNewCard(rs));
             }
