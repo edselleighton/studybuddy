@@ -18,7 +18,7 @@ public class FlashcardDAOImpl implements FlashcardDAO{
         String sql = "INSERT INTO card (deck_id, question, answer, difficulty, created_at) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, flashcard.getDeck().getDeckID());
+            ps.setInt(1, flashcard.getDeckID());
             ps.setString(2, flashcard.getQuestion());
             ps.setObject(3, flashcard.getAnswer());
             ps.setObject(4, flashcard.getDifficulty());

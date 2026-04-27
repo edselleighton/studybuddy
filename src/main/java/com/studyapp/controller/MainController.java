@@ -3,10 +3,7 @@ package com.studyapp.controller;
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.studyapp.db.DatabaseConnection;
@@ -85,6 +82,10 @@ public class MainController {
         return flashcardController.allFlashcards();
     }
 
+    public Flashcard getFlashcard(int flashcardID){
+        return flashcardController.getFlashcard(flashcardID);
+    }
+
     public List<Flashcard> getFlashcardsByDeck(int deckID){
         return flashcardController.getFlashcardsByDeck(deckID);
     }
@@ -156,7 +157,7 @@ public class MainController {
 
         Set<Integer> correctCardIds = deckReviews.stream()
                 .filter(CardReview::isCorrect)
-                .map(review -> review.getFlashcard().getCardID())
+                .map(CardReview::getFlashcardID)
                 .collect(Collectors.toSet());
 
         long uniqueCorrectlyReviewed = correctCardIds.size();
@@ -185,7 +186,7 @@ public class MainController {
         // Simply ask the ReviewController for the latest unique state of all cards
         Set<Integer> correctCardIds = getAllCardReviews().stream()
                 .filter(CardReview::isCorrect)
-                .map(review -> review.getFlashcard().getCardID())
+                .map(CardReview::getFlashcardID)
                 .collect(Collectors.toSet());
 
         long uniqueCorrect = correctCardIds.size();
@@ -201,7 +202,15 @@ public class MainController {
 
     public List<Deck> getRecentDecks() {
         return studyController.getRecentSessions().stream()
-                .map(StudySession::getDeck)
+                .map(session -> {
+                    try {
+                        return findDeck(session.getDeckID());
+                    } catch (Exception e) {
+                        System.err.println("Could not find deck: " + e.getMessage());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
                 .toList();
     }
 

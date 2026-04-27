@@ -39,7 +39,7 @@ public class ReviewController {
             throw new CustomException("Flashcard not found.");
         }
 
-        CardReview cardReview = new CardReview(lastReviewID, studySession, flashcard, reviewedAt, isCorrect);
+        CardReview cardReview = new CardReview(lastReviewID, studySession.getSessionID(), flashcard.getCardID(), reviewedAt, isCorrect);
         cardReviews.add(cardReview);
         addedCardReviews.add(cardReview);
         lastReviewID++;
@@ -58,7 +58,7 @@ public class ReviewController {
     public Collection<CardReview> getLatestUniqueReviews(List<CardReview> reviews) {
         return reviews.stream()
                 .collect(Collectors.toMap(
-                        review -> review.getFlashcard().getCardID(),
+                        CardReview::getFlashcardID,
                         review -> review,
                         (existing, replacement) ->
                                 replacement.getReviewedAt().isAfter(existing.getReviewedAt()) ? replacement : existing
@@ -68,7 +68,7 @@ public class ReviewController {
 
     public List<CardReview> getCardReviewsBySession(int sessionID){
         return cardReviews.stream()
-                .filter(i -> i.getStudySession().getSessionID() == sessionID)
+                .filter(i -> i.getStudySessionID() == sessionID)
                 .toList();
     }
 

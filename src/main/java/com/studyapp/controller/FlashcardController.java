@@ -29,6 +29,12 @@ public class FlashcardController {
         return new ArrayList<>(flashcards);
     }
 
+    public Flashcard getFlashcard(int flashcardID){
+        return flashcards.stream()
+                .filter(i -> i.getCardID() == flashcardID)
+                .findFirst().orElse(null);
+    }
+
     public List<Flashcard> getHardFlashcards(){
     return flashcards.stream()
             .filter(i -> i.getDifficulty() != null
@@ -52,7 +58,7 @@ public class FlashcardController {
 
     public List<Flashcard> getFlashcardsByDeck(int deckID){
         return flashcards.stream()
-                .filter(card -> card.getDeck().getDeckID() == deckID)
+                .filter(card -> card.getDeckID() == deckID)
                 .toList();
     }
 
@@ -65,16 +71,14 @@ public class FlashcardController {
             throw new CustomException("Deck does not exist.");
         }
 
-        Flashcard flashcard = new Flashcard(lastCardID, deck, question, answer, difficulty, LocalDateTime.now());
+        Flashcard flashcard = new Flashcard(lastCardID, deck.getDeckID(), question, answer, difficulty, LocalDateTime.now());
         validateConstraints(flashcard);
         flashcards.add(flashcard);
         addedFlashcards.add(flashcard);
         lastCardID++;
         return flashcard;
     }
-    //edited so that it throws exception if flashcard doesn't exist, 
-    // instead of returning null. 
-    //allows to edit flashcard, no design change, just added exception handling.
+
     public void updateFlashcard(Flashcard flashcard) throws CustomException {
         Flashcard existing = flashcards.stream()
                 .filter(i -> i.getCardID() == flashcard.getCardID())
@@ -83,16 +87,7 @@ public class FlashcardController {
             throw new CustomException("Flashcard not found.");
         }
 
-        // Remove first so validateConstraints doesn't see a duplicate ID.
-        flashcards.remove(existing);
-
-        try {
-            validateConstraints(flashcard);
-        } catch (CustomException e) {
-            // Rollback: put the original back if validation fails.
-            flashcards.add(existing);
-            throw e;
-        }
+        validateConstraints(flashcard);
 
         flashcards.add(flashcard);
 

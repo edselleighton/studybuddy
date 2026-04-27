@@ -232,7 +232,7 @@ public class CLIView {
         System.out.printf("%-6s %-30s  %-12s\n", "ID", "QUESTION", "DECK ID");
         for (Flashcard card : flashcards) {
             String question = card.getQuestion() == null ? "" : card.getQuestion();
-            int deckId = card.getDeck() != null ? card.getDeck().getDeckID() : 0;
+            int deckId = card.getDeckID();
             System.out.printf("%-6d %-30.20s   %-12d\n", card.getCardID(), question, deckId);
         }
 
@@ -266,7 +266,7 @@ public class CLIView {
             System.out.println("Question: " + card.getQuestion());
             System.out.println("Answer: " + card.getAnswer());
             System.out.println("Difficulty: " + card.getDifficulty());
-            System.out.println("Deck ID: " + (card.getDeck() != null ? card.getDeck().getDeckID() : "N/A"));
+            System.out.println("Deck ID: " + card.getDeckID());
             System.out.println("Created at: " + card.getCreatedAt());
 
             System.out.println("\nACTIONS: ");
@@ -442,7 +442,12 @@ public class CLIView {
 
             System.out.printf("%-6s %-20s %-20s\n", "ID", "DECK NAME", "STARTED AT");
             for(StudySession session: sessions){
-                System.out.printf("%-6d %-20s %-20s\n", session.getSessionID(), session.getDeck().getName(), session.getStartedAt());
+                try {
+                    Deck deck = mc.findDeck(session.getDeckID());
+                    System.out.printf("%-6d %-20s %-20s\n", session.getSessionID(), deck.getName(), session.getStartedAt());
+                }catch (CustomException e){
+                    System.out.println(e.getMessage());
+                }
             }
 
             System.out.print("\n1. SELECT Session\n2. Main Menu\nENTER choice: ");
@@ -476,25 +481,30 @@ public class CLIView {
 
     void sessionDescription(StudySession session){
         while(true){
-            System.out.println("\n --- Session " + session.getSessionID() + " ---\n");
-            System.out.println("Session ID: " + session.getSessionID());
-            System.out.println("Deck: " + session.getDeck().getName());
-            System.out.println("Started at: " + session.getStartedAt());
-            System.out.println("Ended at: " + (session.getEndedAt() != null ? session.getEndedAt() : "Still studying"));
+            try {
+                Deck deck = mc.findDeck(session.getDeckID());
+                System.out.println("\n --- Session " + session.getSessionID() + " ---\n");
+                System.out.println("Session ID: " + session.getSessionID());
+                System.out.println("Deck: " + deck.getName());
+                System.out.println("Started at: " + session.getStartedAt());
+                System.out.println("Ended at: " + (session.getEndedAt() != null ? session.getEndedAt() : "Still studying"));
 
-            System.out.println("\nACTIONS: ");
-            System.out.println("1. What I Reviewed");
-            System.out.println("2. BACK");
-            System.out.print("Enter action: " );
-            int choice = readInt();
-            switch(choice){
-                case 1:
-                    printCardReviews(mc.getCardReviewsBySession(session.getSessionID()));
-                    return;
-                case 2:
-                    return;
-                default:
-                    System.out.println("Invalid choice.\n");
+                System.out.println("\nACTIONS: ");
+                System.out.println("1. What I Reviewed");
+                System.out.println("2. BACK");
+                System.out.print("Enter action: " );
+                int choice = readInt();
+                switch(choice){
+                    case 1:
+                        printCardReviews(mc.getCardReviewsBySession(session.getSessionID()));
+                        return;
+                    case 2:
+                        return;
+                    default:
+                        System.out.println("Invalid choice.\n");
+                }
+            }catch (CustomException e){
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -510,7 +520,8 @@ public class CLIView {
 
             System.out.printf("%-6s %-30s %-12s\n", "ID", "QUESTION", "IS CORRECT");
             for(CardReview review: reviews){
-                String question = review.getFlashcard().getQuestion() == null ? "" : review.getFlashcard().getQuestion();
+                Flashcard flashcard = mc.getFlashcard(review.getFlashcardID());
+                String question = flashcard.getQuestion() == null ? "" : flashcard.getQuestion();
                 String isCorrect = review.isCorrect() ? "YES" : "NO";
                 System.out.printf("%-6d %-30.25s %-12s\n", review.getReviewID(), question, isCorrect);
             }
@@ -546,13 +557,14 @@ public class CLIView {
 
     void reviewDescription(CardReview cardReview){
         while(true){
+            Flashcard flashcard = mc.getFlashcard(cardReview.getFlashcardID());
             System.out.println("\n --- Card Review " + cardReview.getReviewID() + " ---\n");
             System.out.println("Review ID: " + cardReview.getReviewID());
-            System.out.println("Question: " + cardReview.getFlashcard().getQuestion());
-            System.out.println("Answer: " + cardReview.getFlashcard().getAnswer());
+            System.out.println("Question: " + flashcard.getQuestion());
+            System.out.println("Answer: " + flashcard.getAnswer());
             System.out.println("Your Answer: " + (cardReview.isCorrect() ? "Correct" : "Incorrect"));
             System.out.println("Reviewed at: " + cardReview.getReviewedAt());
-            System.out.println("Session ID: " + cardReview.getStudySession().getSessionID());
+            System.out.println("Session ID: " + cardReview.getStudySessionID());
 
             System.out.println("\nACTIONS: ");
             System.out.println("1. BACK");

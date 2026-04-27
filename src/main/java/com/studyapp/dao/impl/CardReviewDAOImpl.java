@@ -20,8 +20,8 @@ public class CardReviewDAOImpl implements CardReviewDAO{
         try(Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setInt(1, cardReview.getReviewID());
-            ps.setInt(2, cardReview.getStudySession().getSessionID());
-            ps.setInt(3, cardReview.getFlashcard().getCardID());
+            ps.setInt(2, cardReview.getStudySessionID());
+            ps.setInt(3, cardReview.getFlashcardID());
             ps.setObject(4, cardReview.getReviewedAt());
             ps.setBoolean(5, cardReview.isCorrect());
             ps.executeUpdate();
