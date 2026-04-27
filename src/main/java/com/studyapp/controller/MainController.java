@@ -182,18 +182,6 @@ public class MainController {
         return (allCorrectReviews*100)/allReviews;
     }
 
-    public String getOverallProgress(){
-        // Simply ask the ReviewController for the latest unique state of all cards
-        Set<Integer> correctCardIds = getAllCardReviews().stream()
-                .filter(CardReview::isCorrect)
-                .map(CardReview::getFlashcardID)
-                .collect(Collectors.toSet());
-
-        long uniqueCorrect = correctCardIds.size();
-
-        return uniqueCorrect + " / " + allFlashcards().size();
-    }
-
     public String getCardsReviewedProgress() {
         // Coverage is just the count of unique cards that have been reviewed
         int uniqueReviewedCount = reviewController.getLatestUniqueReviews(getAllCardReviews()).size();
@@ -211,6 +199,8 @@ public class MainController {
                     }
                 })
                 .filter(Objects::nonNull)
+                .distinct() // REMOVES DUPLICATE
+                .limit(5)
                 .toList();
     }
 
