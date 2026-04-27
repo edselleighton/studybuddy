@@ -28,8 +28,7 @@ public class DashboardPanel {
     private static final String DECK_ITEM_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-color: white; -fx-padding: 15 20 15 20; -fx-cursor: hand;";
     private static final String DECK_ITEM_HOVER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-color: #f0f4f8; -fx-padding: 15 20 15 20; -fx-cursor: hand;";
 
-    public static VBox create(BorderPane mainLayout) {
-        MainController mainController = SetupPanel.getMainController();
+    public static VBox create(BorderPane mainLayout, MainController mainController) {
         DashboardStats stats = loadStats(mainController);
 
         VBox wrapper = new VBox();
@@ -207,7 +206,7 @@ public class DashboardPanel {
                 mainLayout,
                 deck,
                 mc,
-                () -> mainLayout.setCenter(DashboardPanel.create(mainLayout))));
+                () -> mainLayout.setCenter(DashboardPanel.create(mainLayout, mc))));
         return lbl;
     }
 }

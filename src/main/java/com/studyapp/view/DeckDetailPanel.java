@@ -38,19 +38,33 @@ public class DeckDetailPanel {
     private static final String HEADER_BLUE = "#41729f";
     private static final String BORDER_STYLE = "-fx-border-color: " + PRIMARY_BLUE
             + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: white;";
-    private static final String ACTIVE_BTN_STYLE = "-fx-background-color: #e6eaf5; -fx-text-fill: black;"
-            + " -fx-border-color: " + PRIMARY_BLUE
-            + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+    private static final String ACTIVE_STYLE = "-fx-background-color: #e6eaf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+    private static final String INACTIVE_STYLE = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+    private static final String HOVER_STYLE = "-fx-background-color: #f0f4f8; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
 
     private static double delXOffset = 0;
     private static double delYOffset = 0;
+    private static Button activeButton = null;
 
     public static void show(BorderPane mainLayout, Deck deckData, MainController mc) {
-        show(mainLayout, deckData, mc, () -> mainLayout.setCenter(MyDeckPanel.create(mainLayout, mc)));
+        Runnable returnAction = () -> {
+            activeButton.setStyle(INACTIVE_STYLE);
+            mainLayout.setCenter(MyDeckPanel.create(mainLayout, mc));
+        };
+        show(mainLayout, deckData, mc, returnAction, mainLayout.getLeft());
     }
 
     public static void show(BorderPane mainLayout, Deck deckData, MainController mc, Runnable returnAction) {
-        render(mainLayout, deckData, mc, returnAction, false, mainLayout.getLeft());
+        show(mainLayout, deckData, mc, returnAction, mainLayout.getLeft());
+    }
+
+    public static void show(
+            BorderPane mainLayout,
+            Deck deckData,
+            MainController mc,
+            Runnable returnAction,
+            Node originalSidebar) {
+        render(mainLayout, deckData, mc, returnAction, false, originalSidebar);
     }
 
     private static void render(
@@ -101,14 +115,7 @@ public class DeckDetailPanel {
         buttonBox.setStyle(BORDER_STYLE);
         VBox.setVgrow(buttonBox, Priority.ALWAYS);
 
-        Button editBtn = new Button("EDIT");
-        editBtn.setMaxWidth(Double.MAX_VALUE);
-        editBtn.setFont(Font.font("Serif", 16));
-        editBtn.setStyle(ACTIVE_BTN_STYLE);
-        editBtn.setOnMouseEntered(e -> editBtn.setStyle(
-                "-fx-background-color: #d0dcf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE
-                        + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;"));
-        editBtn.setOnMouseExited(e -> editBtn.setStyle(ACTIVE_BTN_STYLE));
+        Button editBtn = createNavButton("EDIT");
         editBtn.setOnAction(e -> {
             if (!editMode) {
                 render(mainLayout, deckData, mc, returnAction, true, originalSidebar);
@@ -146,6 +153,8 @@ public class DeckDetailPanel {
         backBtn.setOnMouseExited(ev -> backBtn.setStyle(backDefault));
 
         if (editMode) {
+            editBtn.setStyle(ACTIVE_STYLE);
+            activeButton = editBtn;
             backBtn.setOnAction(ev -> render(mainLayout, deckData, mc, returnAction, false, originalSidebar));
 
             Button saveBtn = new Button("SAVE");
@@ -163,7 +172,7 @@ public class DeckDetailPanel {
                     saveChanges(deckData, headerField.getText(), descriptionArea.getText(), mc);
                     render(mainLayout, deckData, mc, returnAction, false, originalSidebar);
                 } catch (CustomException e) {
-                    showErrorDialog(e.getMessage() != null ? e.getMessage() : "Unknown error occurred while saving.");
+                    MainFrame.showErrorDialog(e.getMessage() != null ? e.getMessage() : "Unknown error occurred while saving.");
                 }
             });
 
@@ -174,25 +183,15 @@ public class DeckDetailPanel {
                 returnAction.run();
             });
 
-            Button cardsBtn = new Button("Cards");
-            cardsBtn.setMaxWidth(Double.MAX_VALUE);
-            cardsBtn.setFont(Font.font("Serif", 16));
-            cardsBtn.setStyle(ACTIVE_BTN_STYLE);
-            cardsBtn.setOnMouseEntered(e -> cardsBtn.setStyle(
-                    "-fx-background-color: #d0dcf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE
-                            + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;"));
-            cardsBtn.setOnMouseExited(e -> cardsBtn.setStyle(ACTIVE_BTN_STYLE));
-            cardsBtn.setOnAction(e -> mainLayout.setCenter(AllCardsPanel.create(mainLayout, deckData, mc)));
+            Button cardsBtn = createNavButton("CARDS");
+            cardsBtn.setOnAction(e -> {
+                cardsBtn.setStyle(ACTIVE_STYLE);
+                activeButton = cardsBtn;
+                mainLayout.setCenter(AllCardsPanel.create(mainLayout, deckData, mc));
+            });
 
-            Button studyBtn = new Button("Study");
-            studyBtn.setMaxWidth(Double.MAX_VALUE);
-            studyBtn.setFont(Font.font("Serif", 16));
-            studyBtn.setStyle(ACTIVE_BTN_STYLE);
-            studyBtn.setOnMouseEntered(e -> studyBtn.setStyle(
-                    "-fx-background-color: #d0dcf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE
-                            + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;"));
-            studyBtn.setOnMouseExited(e -> studyBtn.setStyle(ACTIVE_BTN_STYLE));
-            studyBtn.setOnAction(e -> StudyPanel.create(mainLayout, deckData, mc));
+            Button studyBtn = createNavButton("STUDY");
+            studyBtn.setOnAction(e -> StudyPanel.create(mainLayout, deckData, mc, originalSidebar, returnAction));
 
             buttonBox.getChildren().addAll(editBtn, cardsBtn, studyBtn, spacer, deleteBtn, backBtn);
         }
@@ -312,6 +311,25 @@ public class DeckDetailPanel {
         return lbl;
     }
 
+    private static Button createNavButton(String text) {
+        Button btn = new Button(text);
+        btn.setMaxWidth(Double.MAX_VALUE);
+        btn.setFont(Font.font("Serif", 16));
+        btn.setStyle(INACTIVE_STYLE);
+        btn.setOnMouseEntered(e -> {
+            if (!btn.getStyle().equals(ACTIVE_STYLE)) {
+                btn.setStyle(HOVER_STYLE);
+            }
+        });
+        btn.setOnMouseExited(e -> {
+            if (!btn.getStyle().equals(ACTIVE_STYLE)) {
+                btn.setStyle(INACTIVE_STYLE);
+            }
+        });
+        return btn;
+    }
+
+
     private static void showDeleteDeckDialog(
             BorderPane mainLayout,
             MainController mc,
@@ -391,6 +409,7 @@ public class DeckDetailPanel {
         deleteBtn.setOnAction(e -> {
             try {
                 mc.deleteDeck(deckData.getDeckID());
+                MainFrame.showSuccessDialog("Deck deleted successfully.");
                 mainLayout.setLeft(originalSidebar);
                 returnAction.run();
                 dialog.close();
@@ -465,79 +484,5 @@ public class DeckDetailPanel {
         }
         String trimmed = description.trim();
         return trimmed.isEmpty() ? null : trimmed;
-    }
-
-    private static void showErrorDialog(String message) {
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.initStyle(StageStyle.TRANSPARENT);
-        dialog.setTitle("Error");
-
-        VBox container = new VBox(20);
-        container.setPrefWidth(300);
-        container.setPrefHeight(210);
-        container.setSpacing(4);
-        container.setPadding(new Insets(0, 40, 40, 40));
-        container.setAlignment(Pos.TOP_LEFT);
-        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
-
-        container.setOnMousePressed(event -> {
-            delXOffset = event.getSceneX();
-            delYOffset = event.getSceneY();
-        });
-
-        container.setOnMouseDragged(event -> {
-            Stage stage = (Stage) container.getScene().getWindow();
-            stage.setX(event.getScreenX() - delXOffset);
-            stage.setY(event.getScreenY() - delYOffset);
-        });
-
-        Label title = new Label("Error");
-        title.setFont(Font.font("Serif", 38));
-        title.setTextFill(Color.web("#D32F2F"));
-        VBox.setMargin(title, new Insets(-8, 0, 0, 0));
-
-        Label description = new Label(message);
-        description.setFont(Font.font("Serif", 15));
-        description.setTextFill(Color.web("#2a548f"));
-        description.setWrapText(true);
-        VBox.setMargin(description, new Insets(8, 20, 30, 20));
-
-        Button okayBtn = new Button("OKAY");
-        okayBtn.setPrefWidth(250);
-        okayBtn.setPrefHeight(45);
-        String normalStyle = "-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; "
-                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
-                + "-fx-cursor: hand;";
-        String hoverStyleStr = "-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; "
-                + "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; "
-                + "-fx-cursor: hand;";
-
-        okayBtn.setStyle(normalStyle);
-        okayBtn.setOnMouseEntered(e -> okayBtn.setStyle(hoverStyleStr));
-        okayBtn.setOnMouseExited(e -> okayBtn.setStyle(normalStyle));
-        okayBtn.setOnAction(e -> dialog.close());
-
-        HBox topBar = new HBox();
-        topBar.setAlignment(Pos.TOP_RIGHT);
-
-        Button closeBtn = new Button("X");
-        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
-        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
-
-        closeBtn.setStyle(xBarNormal);
-        closeBtn.setOnAction(e -> dialog.close());
-        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
-        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
-
-        topBar.getChildren().add(closeBtn);
-        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
-        container.getChildren().addAll(topBar, title, description, okayBtn);
-
-        Scene scene = new Scene(container, 300, 210);
-        scene.setFill(Color.TRANSPARENT);
-        dialog.setScene(scene);
-        dialog.setResizable(false);
-        dialog.show();
     }
 }
