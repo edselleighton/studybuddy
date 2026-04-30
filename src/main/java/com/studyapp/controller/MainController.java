@@ -133,8 +133,8 @@ public class MainController {
         studyController.deleteSession(sessionID);
     }
 
-    public String checkAnswer(String answer, String expected){
-        return answerChecker.check(expected, answer);
+    public String checkAnswer(String expected, String actual){
+        return answerChecker.check(expected, actual);
     }
 
     //---------- CARD REVIEWS ----------------------//
