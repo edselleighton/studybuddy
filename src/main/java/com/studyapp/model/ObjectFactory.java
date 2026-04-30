@@ -41,10 +41,7 @@ public class ObjectFactory {
             card.setQuestion(rs.getString("question"));
             card.setAnswer(rs.getString("answer"));
             card.setDifficulty(rs.getString("difficulty"));
-
-            //CREATE NEW DECk OBJECT
-            Deck deck = new DeckDAOImpl().findByID(rs.getInt("deck_id"));
-            card.setDeck(deck);
+            card.setDeckID(rs.getInt("deck_id"));
             
             Object createdAtObj = rs.getObject("created_at");
             if (createdAtObj instanceof LocalDateTime) {
@@ -65,10 +62,7 @@ public class ObjectFactory {
         try{
             StudySession studySession = new StudySession();
             studySession.setSessionID(rs.getInt("session_id"));
-
-            //CREATE NEW DECK
-            Deck deck = new DeckDAOImpl().findByID(rs.getInt("deck_id"));
-            studySession.setDeck(deck);
+            studySession.setDeckID(rs.getInt("deck_id"));
         
             Object startedAObject = rs.getObject("started_at");
             if (startedAObject instanceof LocalDateTime) {
@@ -97,12 +91,8 @@ public class ObjectFactory {
         try{
             CardReview cardReview = new CardReview();
             cardReview.setReviewID(rs.getInt("review_id"));
-
-            StudySession studySession = new StudySessionDAOImpl().findByID(rs.getInt("session_id"));
-            cardReview.setStudySession(studySession);
-
-            Flashcard flashcard = new FlashcardDAOImpl().findByID(rs.getInt("card_id"));
-            cardReview.setFlashcard(flashcard);
+            cardReview.setStudySessionID(rs.getInt("session_id"));
+            cardReview.setFlashcardID(rs.getInt("card_id"));
 
             Object reviewedAtObject = rs.getObject("reviewed_at");
             if (reviewedAtObject instanceof LocalDateTime) {

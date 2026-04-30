@@ -3,8 +3,7 @@ package com.studyapp.controller;
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.studyapp.db.DatabaseConnection;
@@ -26,12 +25,14 @@ public class MainController {
     private FlashcardController flashcardController;
     private StudyController studyController;
     private ReviewController reviewController;
+    private AnswerChecker answerChecker;
 
     public MainController(){
         deckController = new DeckController(this);
         flashcardController = new FlashcardController(this);
         studyController = new StudyController(this);
         reviewController = new ReviewController(this);
+        answerChecker = new AnswerChecker();
     }
 
     // --------- AUTHENTICATION --------------
@@ -83,6 +84,10 @@ public class MainController {
         return flashcardController.allFlashcards();
     }
 
+    public Flashcard getFlashcard(int flashcardID){
+        return flashcardController.getFlashcard(flashcardID);
+    }
+
     public List<Flashcard> getFlashcardsByDeck(int deckID){
         return flashcardController.getFlashcardsByDeck(deckID);
     }
@@ -128,6 +133,10 @@ public class MainController {
         studyController.deleteSession(sessionID);
     }
 
+    public String checkAnswer(String answer, String expected){
+        return answerChecker.check(expected, answer);
+    }
+
     //---------- CARD REVIEWS ----------------------//
     public void createCardReview(int sessionID, int cardID, LocalDateTime reviewedAt, boolean isCorrect) throws CustomException{
         reviewController.createCardReview(sessionID, cardID,reviewedAt, isCorrect);
@@ -147,14 +156,17 @@ public class MainController {
 
     //------------ STATISTICS  -------------------//
     public int getDeckProgress(int deckID){
-        List<CardReview> allReviews = studyController.getSpecificDeckSession(deckID).stream()
+        // Delegate filtering logic to the ReviewController
+        List<CardReview> deckReviews = studyController.getSpecificDeckSession(deckID).stream()
                 .flatMap(session -> getCardReviewsBySession(session.getSessionID()).stream())
-                .toList()   ;
+                .toList();
 
-
-        int correctlyReviewed = (int) allReviews.stream()
+        Set<Integer> correctCardIds = deckReviews.stream()
                 .filter(CardReview::isCorrect)
-                .count();
+                .map(CardReview::getFlashcardID)
+                .collect(Collectors.toSet());
+
+        long uniqueCorrectlyReviewed = correctCardIds.size();
 
         int total = getFlashcardsByDeck(deckID).size();
 
@@ -162,7 +174,7 @@ public class MainController {
             return 0;
         }
 
-        return (correctlyReviewed*100/total);
+        return (int) (uniqueCorrectlyReviewed * 100 / total);
     }
 
     public int getAccuracy(){
@@ -176,19 +188,26 @@ public class MainController {
         return (allCorrectReviews*100)/allReviews;
     }
 
-    public String getOverallProgress(){
-        return reviewController.getCorrectReviews().size() + " / " + allFlashcards().size();
-    }
-
     public String getCardsReviewedProgress() {
-        return getAllCardReviews().size() + "/" + allFlashcards().size();
+        // Coverage is just the count of unique cards that have been reviewed
+        int uniqueReviewedCount = reviewController.getLatestUniqueReviews(getAllCardReviews()).size();
+        return uniqueReviewedCount + "/" + allFlashcards().size();
     }
 
     public List<Deck> getRecentDecks() {
-        return allDecks().stream()
-                .sorted(Comparator.comparing(Deck::getCreatedAt).reversed())
-                .limit(3)
-                .collect(Collectors.toList());
+        return studyController.getRecentSessions().stream()
+                .map(session -> {
+                    try {
+                        return findDeck(session.getDeckID());
+                    } catch (Exception e) {
+                        System.err.println("Could not find deck: " + e.getMessage());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .distinct() // REMOVES DUPLICATE
+                .limit(5)
+                .toList();
     }
 
     public String getTotalStudyTime(){

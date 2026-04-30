@@ -4,28 +4,28 @@ import java.time.LocalDateTime;
 
 public class CardReview {
     private int reviewID;
-    private StudySession studySession;
-    private Flashcard flashcard;
+    private int sessionID;
+    private int flashcardID;
     private LocalDateTime reviewedAt;
     private boolean isCorrect;
 
     public CardReview(){};
     
-    public CardReview(int reviewID, StudySession studySession, Flashcard flashcard, LocalDateTime reviewedAt,
+    public CardReview(int reviewID, int sessionID, int flashcardID, LocalDateTime reviewedAt,
             boolean isCorrect) {
         this.reviewID = reviewID;
-        this.studySession = studySession;
-        this.flashcard = flashcard;
+        this.sessionID = sessionID;
+        this.flashcardID = flashcardID;
         this.reviewedAt = reviewedAt;
         this.isCorrect = isCorrect;
     }
 
     public int getReviewID() { return reviewID; } 
     public void setReviewID(int reviewID) { this.reviewID = reviewID; } 
-    public StudySession getStudySession() { return studySession; } 
-    public void setStudySession(StudySession studySession) { this.studySession = studySession; } 
-    public Flashcard getFlashcard() { return flashcard; } 
-    public void setFlashcard(Flashcard flashcard) { this.flashcard = flashcard; } 
+    public int getStudySessionID() { return sessionID; }
+    public void setStudySessionID(int sessionID) { this.sessionID = sessionID; }
+    public int getFlashcardID() { return flashcardID; }
+    public void setFlashcardID(int flashcardID) { this.flashcardID = flashcardID; }
     public LocalDateTime getReviewedAt() { return reviewedAt; } 
     public void setReviewedAt(LocalDateTime reviewedAt) { this.reviewedAt = reviewedAt; } 
     public boolean isCorrect() { return isCorrect; } 

@@ -15,100 +15,131 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class SetupPanel {
-    private static final MainController MAIN_CONTROLLER = new MainController();
-    private static final double SETUP_WIDTH = 420;
-    private static final double SETUP_HEIGHT = 580;
+    private static final double SETUP_WIDTH = 340;
+    private static final double SETUP_HEIGHT = 520;
 
-    public static MainController getMainController() {
-        return MAIN_CONTROLLER;
-    }
+    public static Scene createScene(Stage primaryStage, MainController mainController, Runnable onSuccess) {
+        String primaryBlue  = "#1A438E";
+        String cardBg       = "#F8F9FF";
 
-    public static Scene createScene(Stage primaryStage, Runnable onSuccess) {
-        String primaryBlue = "#1a2a6c";
-        String lightBlueBg = "#e3f2fd";
-        String headerBlue = "#0d47a1";
-        String borderStyle = "-fx-background-color: white; -fx-border-color: #dce3ea; -fx-border-radius: 10; -fx-background-radius: 10;";
+        VBox loginRoot = new VBox(15);
+        loginRoot.setPadding(new Insets(0, 40, 40, 40));
+        loginRoot.setAlignment(Pos.TOP_LEFT);
+        loginRoot.setPrefWidth(300);
+        loginRoot.setPrefHeight(500);
+        loginRoot.setStyle(
+                "-fx-background-color: " + cardBg + "; " +
+                        "-fx-background-radius: 20; " +
+                        "-fx-border-radius: 20; " +
+                        "-fx-border-color: " + primaryBlue + "; " +
+                        "-fx-border-width: 2.5;;"
+        );
 
-        VBox loginRoot = new VBox(20);
-        loginRoot.setPadding(new Insets(40, 30, 40, 30));
-        loginRoot.setAlignment(Pos.CENTER_LEFT);
-        loginRoot.setStyle(borderStyle);
-        loginRoot.setMaxSize(320, 520);
+        final double[] offset = {0, 0};
+        loginRoot.setOnMousePressed(event -> {
+            offset[0] = event.getSceneX();
+            offset[1] = event.getSceneY();
+        });
+        loginRoot.setOnMouseDragged(event -> {
+            primaryStage.setX(event.getScreenX() - offset[0]);
+            primaryStage.setY(event.getScreenY() - offset[1]);
+        });
+
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.TOP_RIGHT);
+        Button closeBtn = new Button("X");
+        String closeNormal = "-fx-background-color: transparent; -fx-text-fill: " + primaryBlue + "; -fx-font-size: 18; -fx-cursor: hand;";
+        String closeHover  = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
+        closeBtn.setStyle(closeNormal);
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(closeHover));
+        closeBtn.setOnMouseExited(e  -> closeBtn.setStyle(closeNormal));
+        closeBtn.setOnAction(e -> System.exit(0));
+        topBar.getChildren().add(closeBtn);
+        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
 
         Label titleLabel = new Label("Connect Your\nDatabase");
-        titleLabel.setFont(Font.font("Serif", 28));
+        titleLabel.setFont(Font.font("Serif", FontWeight.MEDIUM, 33));
         titleLabel.setTextFill(Color.web(primaryBlue));
+        VBox.setMargin(titleLabel, new Insets(-10, 0, 20, 0));
 
-        Label helperLabel = new Label("Sign in with your MySQL credentials to open the prototype UI flow.");
-        helperLabel.setWrapText(true);
-        helperLabel.setTextFill(Color.web("#475569"));
+        String fieldStyle =
+                "-fx-background-color: white; " +
+                        "-fx-border-color: " + primaryBlue + "; " +
+                        "-fx-border-width: 1.5; " +
+                        "-fx-border-radius: 5; " +
+                        "-fx-background-radius: 5; " +
+                        "-fx-text-fill: " + primaryBlue + "; " +
+                        "-fx-font-family: 'Serif'; " +
+                        "-fx-font-size: 16px;";
 
-        VBox userBox = new VBox(5);
-        Label userLabel = new Label("Enter Username");
+        Label userLabel = new Label("Enter Username: ");
         userLabel.setTextFill(Color.web(primaryBlue));
+        userLabel.setFont(Font.font("Serif", FontWeight.MEDIUM, 18));
         TextField userField = new TextField();
-        userField.setStyle("-fx-border-color: " + primaryBlue + "; -fx-border-radius: 3; -fx-background-color: white;");
-        userBox.getChildren().addAll(userLabel, userField);
+        userField.setPrefHeight(45);
+        userField.setStyle(fieldStyle);
+        userField.setPromptText("username");
+        VBox.setMargin(userField, new Insets(0, 0, 10, 0));
 
-        VBox passBox = new VBox(5);
-        Label passLabel = new Label("Enter Password");
+        Label passLabel = new Label("Enter Password: ");
         passLabel.setTextFill(Color.web(primaryBlue));
+        passLabel.setFont(Font.font("Serif", FontWeight.MEDIUM, 18));
         PasswordField passField = new PasswordField();
-        passField.setStyle("-fx-border-color: " + primaryBlue + "; -fx-border-radius: 3; -fx-background-color: white;");
-        passBox.getChildren().addAll(passLabel, passField);
+        passField.setPrefHeight(45);
+        passField.setStyle(fieldStyle);
+        passField.setPromptText("password");
 
-        Label errorLabel = new Label();
-        errorLabel.setTextFill(Color.RED);
+        String loginNormal = "-fx-background-color: #DDE2F3; " +
+                "-fx-background-radius: 30; " +
+                "-fx-text-fill: " + primaryBlue + "; " +
+                "-fx-font-size: 25; " +
+                "-fx-font-family: 'Serif';";
+        String loginHover  = "-fx-background-color: " + primaryBlue + "; " +
+                "-fx-background-radius: 30; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 25; " +
+                "-fx-font-family: 'Serif';";
 
         Button connectBtn = new Button("SIGN IN");
-        connectBtn.setPrefWidth(200);
-        HBox buttonBox = new HBox(connectBtn);
-        buttonBox.setAlignment(Pos.CENTER);
-
-        String defaultStyle = "-fx-background-color: " + lightBlueBg + "; -fx-text-fill: " + primaryBlue + "; -fx-background-radius: 20; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;";
-        String hoverStyle = "-fx-background-color: " + headerBlue + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;";
-
-        connectBtn.setStyle(defaultStyle);
-        connectBtn.setOnMouseEntered(e -> connectBtn.setStyle(hoverStyle));
-        connectBtn.setOnMouseExited(e -> connectBtn.setStyle(defaultStyle));
-
-        if (MAIN_CONTROLLER.tryAutoLogin()) {
-            onSuccess.run();
-        }
+        connectBtn.setMaxWidth(Double.MAX_VALUE);
+        connectBtn.setPrefHeight(50);
+        connectBtn.setStyle(loginNormal);
+        connectBtn.setOnMouseEntered(e -> connectBtn.setStyle(loginHover));
+        connectBtn.setOnMouseExited(e  -> connectBtn.setStyle(loginNormal));
+        VBox.setMargin(connectBtn, new Insets(20, 0, -10, 0));
 
         connectBtn.setOnAction(e -> {
             String username = userField.getText() == null ? "" : userField.getText().trim();
-            String password = passField.getText() == null ? "" : passField.getText();
+            String password  = passField.getText()  == null ? "" : passField.getText();
 
             connectBtn.setDisable(true);
             connectBtn.setText("Signing in...");
-            errorLabel.setText("");
 
             try {
-                MAIN_CONTROLLER.login(username, password);
+                mainController.login(username, password);
                 onSuccess.run();
             } catch (CustomException ex) {
-                errorLabel.setText("Database login failed. Check your MySQL username and password.");
+                MainFrame.showErrorDialog(ex.getMessage());
             }
 
             connectBtn.setDisable(false);
             connectBtn.setText("SIGN IN");
         });
 
-        loginRoot.getChildren().addAll(titleLabel, helperLabel, userBox, passBox, buttonBox, errorLabel);
+        loginRoot.getChildren().addAll(topBar, titleLabel, userLabel, userField, passLabel, passField, connectBtn);
 
         StackPane wrapper = new StackPane(loginRoot);
-        wrapper.setPadding(new Insets(20));
-        wrapper.setStyle("-fx-background-color: #f7f9fc;");
-
-        primaryStage.setMaximized(false);
+        wrapper.setStyle("-fx-background-color: transparent;");
+        
         primaryStage.setWidth(SETUP_WIDTH);
         primaryStage.setHeight(SETUP_HEIGHT);
         primaryStage.centerOnScreen();
 
-        return new Scene(wrapper, SETUP_WIDTH, SETUP_HEIGHT);
+        return new Scene(wrapper, SETUP_WIDTH, SETUP_HEIGHT, Color.TRANSPARENT);
     }
 }

@@ -32,7 +32,7 @@ public class StudyController {
             throw new CustomException("Deck does not exist.");
         }
 
-        StudySession studySession = new StudySession(lastSessionID, deck, startedAt, null);
+        StudySession studySession = new StudySession(lastSessionID, deck.getDeckID(), startedAt, null);
 
         validateConstraints(studySession);
         studySessions.add(studySession);
@@ -72,14 +72,14 @@ public class StudyController {
 
     public List<StudySession> getRecentSessions() {
         return studySessions.stream()
+                .filter(i -> i.getEndedAt() != null)
                 .sorted(Comparator.comparing(StudySession::getEndedAt).reversed())
-                .limit(3)
                 .collect(Collectors.toList());
     }
 
     public List<StudySession> getSpecificDeckSession(int deckID){
         return studySessions.stream()
-                .filter(i -> i.getDeck().getDeckID() == deckID)
+                .filter(i -> i.getDeckID() == deckID)
                 .toList();
     }
 
@@ -92,7 +92,7 @@ public class StudyController {
         }
 
         for(CardReview review: mc.getAllCardReviews()){
-            if(review.getStudySession().getSessionID() == sessionID){
+            if(review.getStudySessionID() == sessionID){
                 mc.deleteCardReview(review.getReviewID());
             }
         }

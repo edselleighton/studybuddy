@@ -7,7 +7,9 @@ import com.studyapp.model.StudySession;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReviewController {
     private MainController mc;
@@ -37,7 +39,7 @@ public class ReviewController {
             throw new CustomException("Flashcard not found.");
         }
 
-        CardReview cardReview = new CardReview(lastReviewID, studySession, flashcard, reviewedAt, isCorrect);
+        CardReview cardReview = new CardReview(lastReviewID, studySession.getSessionID(), flashcard.getCardID(), reviewedAt, isCorrect);
         cardReviews.add(cardReview);
         addedCardReviews.add(cardReview);
         lastReviewID++;
@@ -53,9 +55,20 @@ public class ReviewController {
                 .toList();
     }
 
+    public Collection<CardReview> getLatestUniqueReviews(List<CardReview> reviews) {
+        return reviews.stream()
+                .collect(Collectors.toMap(
+                        CardReview::getFlashcardID,
+                        review -> review,
+                        (existing, replacement) ->
+                                replacement.getReviewedAt().isAfter(existing.getReviewedAt()) ? replacement : existing
+                ))
+                .values();
+    }
+
     public List<CardReview> getCardReviewsBySession(int sessionID){
         return cardReviews.stream()
-                .filter(i -> i.getStudySession().getSessionID() == sessionID)
+                .filter(i -> i.getStudySessionID() == sessionID)
                 .toList();
     }
 

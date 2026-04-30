@@ -29,6 +29,12 @@ public class FlashcardController {
         return new ArrayList<>(flashcards);
     }
 
+    public Flashcard getFlashcard(int flashcardID){
+        return flashcards.stream()
+                .filter(i -> i.getCardID() == flashcardID)
+                .findFirst().orElse(null);
+    }
+
     public List<Flashcard> getHardFlashcards(){
     return flashcards.stream()
             .filter(i -> i.getDifficulty() != null
@@ -52,7 +58,7 @@ public class FlashcardController {
 
     public List<Flashcard> getFlashcardsByDeck(int deckID){
         return flashcards.stream()
-                .filter(card -> card.getDeck().getDeckID() == deckID)
+                .filter(card -> card.getDeckID() == deckID)
                 .toList();
     }
 
@@ -65,7 +71,7 @@ public class FlashcardController {
             throw new CustomException("Deck does not exist.");
         }
 
-        Flashcard flashcard = new Flashcard(lastCardID, deck, question, answer, difficulty, LocalDateTime.now());
+        Flashcard flashcard = new Flashcard(lastCardID, deck.getDeckID(), question, answer, difficulty, LocalDateTime.now());
         validateConstraints(flashcard);
         flashcards.add(flashcard);
         addedFlashcards.add(flashcard);
@@ -158,7 +164,7 @@ public class FlashcardController {
 
     void validateConstraints(Flashcard flashcard) throws CustomException{
         //VALIDATE ID UNIQUENESS
-        if(flashcards.stream().anyMatch(i -> (i.getCardID() == flashcard.getCardID()) && (i != flashcard))) {
+        if(flashcards.stream().anyMatch(i -> (i.getCardID() == flashcard.getCardID() && i != flashcard))) {
             throw new CustomException("Flashcard ID already exists.");
         }
 
