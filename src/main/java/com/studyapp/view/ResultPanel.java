@@ -13,12 +13,17 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 public class ResultPanel {
 
-    public static VBox build(StudyPanel sp, boolean isCorrect, Flashcard card, String answer, Deck deck) {
+    public static VBox build(StudyPanel sp, String result, Flashcard card, String answer, Deck deck) {
+        // ___________________________________________________________
+        // ADDED: Get correct answer for typo display logic
+        String correctAnswer = card.getAnswer();
+        // ___________________________________________________________
         VBox wrapper = new VBox();
         wrapper.setPadding(new Insets(20));
         wrapper.setStyle("-fx-background-color: transparent;");
@@ -69,14 +74,41 @@ public class ResultPanel {
                         " -fx-focus-color: transparent;"
         );
 
+        // ___________________________________________________________
+        // ADDED: Show correct answer if CORRECT with typo (not 100% match)
+        boolean isCorrectWithTypo = result.equals("CORRECT") && !answer.equals(correctAnswer);
+        Label correctAnswerLabel = null;
+        if (isCorrectWithTypo) {
+            correctAnswerLabel = new Label("✓ Correct answer: " + correctAnswer);
+            correctAnswerLabel.setFont(Font.font("Serif", 14));
+            correctAnswerLabel.setTextFill(Color.web("#2e7d32"));
+            correctAnswerLabel.setWrapText(true);
+            correctAnswerLabel.setMaxWidth(550);
+            correctAnswerLabel.setStyle("-fx-font-style: italic;");
+        }
+        // ___________________________________________________________
+
         VBox answerSection = new VBox(8);
         answerSection.setAlignment(Pos.CENTER);
-        answerSection.getChildren().addAll(prompt, answerInput);
+        // ___________________________________________________________
+        // ADDED: Add correct answer label if typo was forgiven
+        if (isCorrectWithTypo) {
+            answerSection.getChildren().addAll(prompt, answerInput, correctAnswerLabel);
+        } else {
+            answerSection.getChildren().addAll(prompt, answerInput);
+        }
+        // ___________________________________________________________
 
         // ── result label — no correct answer revealed if wrong ────────────────
-        Label resultLabel = new Label(isCorrect ? "CORRECT" : "INCORRECT");
+        Label resultLabel = new Label(result);
         resultLabel.setFont(Font.font("Serif", FontWeight.BOLD, 36));
-        resultLabel.setTextFill(isCorrect ? Color.web("#2e7d32") : Color.web("#c62828"));
+        Paint textColor = Color.web("#2e7d32");
+        if(result.equals("INCORRECT"))
+            textColor = Color.web("#c62828");
+        else if (result.equals("CLOSE")) {
+            textColor = Color.web("#f9a825");
+        }
+        resultLabel.setTextFill(textColor);
 
         // ── nav buttons ───────────────────────────────────────────────────────
         Button prevBtn  = new Button("PREVIOUS");

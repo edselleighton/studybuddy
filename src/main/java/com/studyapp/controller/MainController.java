@@ -25,12 +25,14 @@ public class MainController {
     private FlashcardController flashcardController;
     private StudyController studyController;
     private ReviewController reviewController;
+    private AnswerChecker answerChecker;
 
     public MainController(){
         deckController = new DeckController(this);
         flashcardController = new FlashcardController(this);
         studyController = new StudyController(this);
         reviewController = new ReviewController(this);
+        answerChecker = new AnswerChecker();
     }
 
     // --------- AUTHENTICATION --------------
@@ -129,6 +131,10 @@ public class MainController {
 
     public void deleteSession(int sessionID) throws CustomException{
         studyController.deleteSession(sessionID);
+    }
+
+    public String checkAnswer(String answer, String expected){
+        return answerChecker.check(expected, answer);
     }
 
     //---------- CARD REVIEWS ----------------------//
