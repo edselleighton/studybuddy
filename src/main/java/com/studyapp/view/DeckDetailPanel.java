@@ -9,6 +9,7 @@ import com.studyapp.controller.MainController;
 import com.studyapp.model.Deck;
 import com.studyapp.model.Flashcard;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -87,6 +88,13 @@ public class DeckDetailPanel {
                 headerField,
                 descriptionArea));
         mainLayout.setCenter(buildContent(deckData, mc, headerField, descriptionArea));
+
+        if (editMode) {
+            Platform.runLater(() -> {
+                headerField.requestFocus();
+                headerField.selectAll();
+            });
+        }
     }
 
     private static VBox buildSidebar(
@@ -153,11 +161,12 @@ public class DeckDetailPanel {
         backBtn.setOnMouseExited(ev -> backBtn.setStyle(backDefault));
 
         if (editMode) {
+            editBtn.setText("EDITING");
             editBtn.setStyle(ACTIVE_STYLE);
             activeButton = editBtn;
             backBtn.setOnAction(ev -> render(mainLayout, deckData, mc, returnAction, false, originalSidebar));
 
-            Button saveBtn = new Button("SAVE");
+            Button saveBtn = new Button("SAVE CHANGES");
             saveBtn.setMaxWidth(Double.MAX_VALUE);
             saveBtn.setFont(Font.font("Serif", 16));
             String saveDefault = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: green;"
@@ -452,10 +461,17 @@ public class DeckDetailPanel {
         TextField field = new TextField(deckName == null ? "" : deckName);
         field.setFont(Font.font("Serif", 32));
         field.setEditable(editMode);
+        field.setFocusTraversable(editMode);
         field.setMaxWidth(Double.MAX_VALUE);
         field.setAlignment(Pos.CENTER);
-        field.setStyle("-fx-background-color: " + HEADER_BLUE
-                + "; -fx-background-radius: 8; -fx-padding: 10; -fx-text-fill: white;");
+        if (editMode) {
+            field.setStyle("-fx-background-color: #d8e4f5; -fx-background-radius: 8; "
+                    + "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 8; "
+                    + "-fx-padding: 10; -fx-text-fill: black;");
+        } else {
+            field.setStyle("-fx-background-color: " + HEADER_BLUE
+                    + "; -fx-background-radius: 8; -fx-padding: 10; -fx-text-fill: white;");
+        }
         return field;
     }
 
@@ -469,8 +485,12 @@ public class DeckDetailPanel {
         area.setFont(Font.font("Serif", 14));
         area.setWrapText(true);
         area.setEditable(editMode);
+        area.setFocusTraversable(editMode);
         if (editMode) {
-            area.setStyle("-fx-text-fill: #475569; -fx-background-color: white; -fx-padding: 5;");
+            area.setPromptText("Description (optional)");
+            area.setStyle("-fx-control-inner-background: #f0f4ff; -fx-text-fill: #111827; "
+                    + "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 6; "
+                    + "-fx-background-radius: 6; -fx-padding: 8;");
         } else {
             area.setStyle("-fx-text-fill: #475569; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; "
                     + "-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 5;");
