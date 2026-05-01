@@ -2,12 +2,10 @@ package com.studyapp.view;
 
 import java.io.File;
 import java.util.List;
-import java.util.Optional;
 
 import com.studyapp.controller.CustomException;
 import com.studyapp.controller.MainController;
 import com.studyapp.model.Deck;
-import com.studyapp.model.Flashcard;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,9 +13,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -31,6 +29,7 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MyDeckPanel {
 
@@ -46,6 +45,8 @@ public class MyDeckPanel {
 
     // ── NEW: page size constant ──────────────────────────────────────────────
     private static final int PAGE_SIZE = 5;
+    private static double Xoffset = 0;
+    private static double Yoffset = 0;
 
     public static VBox create(BorderPane mainLayout, MainController mc) {
         return create(mainLayout, "Manage decks, or import/export your deck data as JSON.", PRIMARY_BLUE, mc);
@@ -115,46 +116,7 @@ public class MyDeckPanel {
         exportBtn.setOnAction(e -> {
             List<Deck> allDecks = mc.allDecks();
             if (!allDecks.isEmpty()) {
-                ChoiceDialog<String> deckPicker = new ChoiceDialog<>(
-                        allDecks.get(0).getName(),
-                        allDecks.stream().map(Deck::getName).toList()
-                );
-                deckPicker.setTitle("Export Deck");
-                deckPicker.setHeaderText("Select deck to export");
-                deckPicker.setContentText("Choose deck:");
-
-                Optional<String> deckChoice = deckPicker.showAndWait();
-                if (deckChoice.isPresent()) {
-                    Deck selectedDeck = allDecks.stream()
-                            .filter(d -> d.getName().equals(deckChoice.get()))
-                            .findFirst()
-                            .orElse(null);
-
-                    if (selectedDeck != null) {
-                        FileChooser fc = new FileChooser();
-                        fc.setTitle("Save Deck as JSON");
-                        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-                        fc.setInitialFileName(selectedDeck.getName() + ".json");
-                        File file = fc.showSaveDialog(mainLayout.getScene().getWindow());
-
-                        if (file != null) {
-                            try {
-                                mc.exportDeckToJson(selectedDeck.getDeckID(), file);
-                                Alert alert = new Alert(AlertType.INFORMATION);
-                                alert.setTitle("Success");
-                                alert.setHeaderText("Export successful");
-                                alert.setContentText("Deck exported to: " + file.getName());
-                                alert.showAndWait();
-                            } catch (CustomException ex) {
-                                Alert alert = new Alert(AlertType.ERROR);
-                                alert.setTitle("Export Error");
-                                alert.setHeaderText("Failed to export deck");
-                                alert.setContentText(ex.getMessage());
-                                alert.showAndWait();
-                            }
-                        }
-                    }
-                }
+                showExportDeckDialog(mainLayout, mc, allDecks);
             } else {
                 MainFrame.showErrorDialog("No decks to export. Please add decks before exporting.");
             }
@@ -359,54 +321,63 @@ public class MyDeckPanel {
     private static void showCreateDeckDialog(BorderPane mainLayout, MainController mc) {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
         dialog.setTitle("Create Deck");
 
-        VBox container = new VBox(20);
-        container.setPadding(new Insets(30, 40, 30, 40));
+        VBox container = new VBox(12);
+        container.setPadding(new Insets(0, 40, 40, 40));
         container.setAlignment(Pos.TOP_LEFT);
-        container.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-border-radius: 15;");
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
+
+        container.setOnMousePressed(event -> {
+            Xoffset = event.getSceneX();
+            Yoffset = event.getSceneY();
+        });
+
+        container.setOnMouseDragged(event -> {
+            Stage stage = (Stage) container.getScene().getWindow();
+            stage.setX(event.getScreenX() - Xoffset);
+            stage.setY(event.getScreenY() - Yoffset);
+        });
+
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.TOP_RIGHT);
+
+        Button closeBtn = new Button("X");
+        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
+        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
+        closeBtn.setStyle(xBarNormal);
+        closeBtn.setOnAction(e -> dialog.close());
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
+        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
+        topBar.getChildren().add(closeBtn);
+        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
 
         Label title = new Label("Create Deck");
-        title.setFont(Font.font("Serif", 36));
-        title.setTextFill(Color.web("#2a548f"));
+        title.setFont(Font.font("Serif", 38));
+        title.setTextFill(Color.web(PRIMARY_BLUE));
 
         Label nameLabel = new Label("Enter Deck Name");
-        nameLabel.setFont(Font.font("Serif", 16));
-        nameLabel.setTextFill(Color.web("#2a548f"));
+        nameLabel.setFont(Font.font("Serif", 17));
+        nameLabel.setTextFill(Color.web(PRIMARY_BLUE));
 
         TextField nameField = new TextField();
         nameField.setPromptText("Deck name");
         nameField.setPrefHeight(40);
-        nameField.setStyle("-fx-border-color: #2a548f; -fx-border-width: 2; -fx-border-radius: 5; " +
-                "-fx-background-radius: 5; -fx-font-size: 14; -fx-padding: 5 10;");
+        nameField.setStyle("-fx-background-color: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-family: Serif; -fx-font-size: 14; -fx-padding: 5 10;");
 
         Label descLabel = new Label("Enter Description");
-        descLabel.setFont(Font.font("Serif", 16));
-        descLabel.setTextFill(Color.web("#2a548f"));
+        descLabel.setFont(Font.font("Serif", 17));
+        descLabel.setTextFill(Color.web(PRIMARY_BLUE));
 
         TextArea descArea = new TextArea();
         descArea.setPromptText("Description (optional)");
-        descArea.setPrefRowCount(6);
-        descArea.setPrefHeight(150);
+        descArea.setPrefRowCount(5);
+        descArea.setPrefHeight(140);
         descArea.setWrapText(true);
-        descArea.setStyle("-fx-border-color: #2a548f; -fx-border-width: 2; -fx-border-radius: 5; " +
-                "-fx-control-inner-background: white; -fx-background-radius: 5; " +
-                "-fx-font-size: 14; -fx-padding: 5;");
+        descArea.setStyle("-fx-control-inner-background: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-family: Serif; -fx-font-size: 16; -fx-padding: 8;");
 
-        Button createBtn = new Button("CREATE");
-        createBtn.setPrefWidth(250);
-        createBtn.setPrefHeight(45);
-        createBtn.setStyle("-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; " +
-                "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; " +
-                "-fx-cursor: hand;");
-        createBtn.setOnMouseEntered(e ->
-                createBtn.setStyle("-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; " +
-                        "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; " +
-                        "-fx-cursor: hand;"));
-        createBtn.setOnMouseExited(e ->
-                createBtn.setStyle("-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; " +
-                        "-fx-font-size: 16; -fx-font-weight: bold; -fx-background-radius: 25; " +
-                        "-fx-cursor: hand;"));
+        Button createBtn = createDialogActionButton("CREATE");
 
         createBtn.setOnAction(e -> {
             String deckName = nameField.getText().trim();
@@ -424,13 +395,164 @@ public class MyDeckPanel {
 
         HBox buttonBox = new HBox(createBtn);
         buttonBox.setAlignment(Pos.CENTER);
+        VBox.setMargin(title, new Insets(0, 0, 14, 0));
+        VBox.setMargin(nameField, new Insets(0, 0, 8, 0));
+        VBox.setMargin(descArea, new Insets(0, 0, 8, 0));
+        VBox.setMargin(buttonBox, new Insets(18, 0, 0, 0));
 
-        container.getChildren().addAll(title, nameLabel, nameField, descLabel, descArea, buttonBox);
+        container.getChildren().addAll(topBar, title, nameLabel, nameField, descLabel, descArea, buttonBox);
 
-        Scene scene = new Scene(container, 400, 550);
+        Scene scene = new Scene(container, 360, 540);
         scene.setFill(Color.TRANSPARENT);
         dialog.setScene(scene);
         dialog.setResizable(false);
-        dialog.show();
+        dialog.showAndWait();
+    }
+
+    private static void showExportDeckDialog(BorderPane mainLayout, MainController mc, List<Deck> allDecks) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle("Export Deck");
+
+        VBox container = new VBox(12);
+        container.setPadding(new Insets(0, 40, 40, 40));
+        container.setAlignment(Pos.TOP_LEFT);
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
+
+        container.setOnMousePressed(event -> {
+            Xoffset = event.getSceneX();
+            Yoffset = event.getSceneY();
+        });
+
+        container.setOnMouseDragged(event -> {
+            Stage stage = (Stage) container.getScene().getWindow();
+            stage.setX(event.getScreenX() - Xoffset);
+            stage.setY(event.getScreenY() - Yoffset);
+        });
+
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.TOP_RIGHT);
+
+        Button closeBtn = new Button("X");
+        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
+        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
+        closeBtn.setStyle(xBarNormal);
+        closeBtn.setOnAction(e -> dialog.close());
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
+        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
+        topBar.getChildren().add(closeBtn);
+        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
+
+        Label title = new Label("Export Deck");
+        title.setFont(Font.font("Serif", 38));
+        title.setTextFill(Color.web(PRIMARY_BLUE));
+
+        Label deckLabel = new Label("Choose Deck:");
+        deckLabel.setFont(Font.font("Serif", 17));
+        deckLabel.setTextFill(Color.web(PRIMARY_BLUE));
+
+        ComboBox<Deck> deckCombo = new ComboBox<>();
+        deckCombo.getItems().addAll(allDecks);
+        deckCombo.setMaxWidth(Double.MAX_VALUE);
+        deckCombo.setStyle("-fx-background-color: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: " + PRIMARY_BLUE + ";");
+        deckCombo.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Deck item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getName().toUpperCase());
+            }
+        });
+        deckCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Deck item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getName().toUpperCase());
+            }
+        });
+        deckCombo.setValue(allDecks.get(0));
+
+        Label formatLabel = new Label("File Type");
+        formatLabel.setFont(Font.font("Serif", 17));
+        formatLabel.setTextFill(Color.web(PRIMARY_BLUE));
+
+        ComboBox<String> formatCombo = new ComboBox<>();
+        formatCombo.getItems().addAll("JSON", "CSV");
+        formatCombo.setValue("JSON");
+        formatCombo.setStyle("-fx-background-color: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: " + PRIMARY_BLUE + ";");
+
+        HBox formatRow = new HBox(12, formatLabel, new Region(), formatCombo);
+        formatRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(formatRow.getChildren().get(1), Priority.ALWAYS);
+
+        Button exportBtn = createDialogActionButton("EXPORT");
+        exportBtn.setOnAction(e -> {
+            String format = formatCombo.getValue();
+            Deck selectedDeck = deckCombo.getValue();
+
+            if (selectedDeck == null) {
+                MainFrame.showErrorDialog("Please select a deck to export.");
+                return;
+            }
+
+            FileChooser fc = new FileChooser();
+            if ("CSV".equals(format)) {
+                fc.setTitle("Save Deck as CSV");
+                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+                fc.setInitialFileName(selectedDeck.getName() + ".csv");
+            } else {
+                fc.setTitle("Save Deck as JSON");
+                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+                fc.setInitialFileName(selectedDeck.getName() + ".json");
+            }
+
+            File file = fc.showSaveDialog(mainLayout.getScene().getWindow());
+            if (file == null) {
+                return;
+            }
+
+            try {
+                if ("CSV".equals(format)) {
+                    mc.exportDeckToCsv(selectedDeck.getDeckID(), file);
+                } else {
+                    mc.exportDeckToJson(selectedDeck.getDeckID(), file);
+                }
+                dialog.close();
+                MainFrame.showSuccessDialog("Deck exported to: " + file.getName());
+            } catch (CustomException ex) {
+                MainFrame.showErrorDialog("Export failed: " + ex.getMessage());
+            }
+        });
+
+        HBox buttonBox = new HBox(exportBtn);
+        buttonBox.setAlignment(Pos.CENTER);
+        VBox.setMargin(title, new Insets(0, 0, 14, 0));
+        VBox.setMargin(deckCombo, new Insets(0, 0, 8, 0));
+        VBox.setMargin(formatRow, new Insets(2, 0, 8, 0));
+        VBox.setMargin(buttonBox, new Insets(22, 0, 0, 0));
+
+        container.getChildren().addAll(topBar, title, deckLabel, deckCombo, formatRow, buttonBox);
+
+        Scene scene = new Scene(container, 360, 380);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        dialog.showAndWait();
+    }
+
+    private static Button createDialogActionButton(String text) {
+        Button button = new Button(text);
+        button.setPrefWidth(250);
+        button.setPrefHeight(56);
+        String normalStyle = "-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; " +
+                "-fx-font-size: 17; -fx-font-family: Serif; -fx-background-radius: 28; " +
+                "-fx-cursor: hand;";
+        String hoverStyle = "-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; " +
+                "-fx-font-size: 17; -fx-font-family: Serif; -fx-background-radius: 28; " +
+                "-fx-cursor: hand;";
+        button.setStyle(normalStyle);
+        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
+        button.setOnMouseExited(e -> button.setStyle(normalStyle));
+        return button;
     }
 }

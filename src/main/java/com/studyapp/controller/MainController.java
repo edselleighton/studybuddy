@@ -3,7 +3,9 @@ package com.studyapp.controller;
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.studyapp.db.DatabaseConnection;
@@ -11,6 +13,7 @@ import com.studyapp.model.CardReview;
 import com.studyapp.model.Deck;
 import com.studyapp.model.Flashcard;
 import com.studyapp.model.StudySession;
+import com.studyapp.service.CsvImportExportService;
 import com.studyapp.service.JsonImportExportService;
 
 //HANDLES ALL OPERATIONS THAT CONNECTS BACKEND WITH FRONTEND
@@ -133,8 +136,8 @@ public class MainController {
         studyController.deleteSession(sessionID);
     }
 
-    public String checkAnswer(String answer, String expected){
-        return answerChecker.check(expected, answer);
+    public String checkAnswer(String expected, String actual){
+        return answerChecker.check(expected, actual);
     }
 
     //---------- CARD REVIEWS ----------------------//
@@ -268,6 +271,15 @@ public class MainController {
         Deck deck = findDeck(deckID);
         List<Flashcard> cards = getFlashcardsByDeck(deckID);
         new JsonImportExportService().exportDeckToFile(deck, cards, file);
+    }
+
+        /**
+ * Exports a deck and all its cards to a CSV file.
+    */
+    public void exportDeckToCsv(int deckID, File file) throws CustomException {
+        Deck deck = findDeck(deckID);
+        List<Flashcard> cards = getFlashcardsByDeck(deckID);
+        new CsvImportExportService().exportDeckToFile(deck, cards, file);
     }
 
 }
