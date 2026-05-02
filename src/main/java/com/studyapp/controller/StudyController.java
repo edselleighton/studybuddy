@@ -128,10 +128,28 @@ public class StudyController {
         }
     }
 
-    void saveStudySessionToDB() throws CustomException{
+    void saveNewStudySessionsToDB() throws CustomException {
         try{
             for(StudySession session: addedStudySessions){
-                studySessionDAOImpl.insert(session);
+                StudySession openSession = new StudySession(
+                        session.getSessionID(),
+                        session.getDeckID(),
+                        session.getStartedAt(),
+                        null
+                );
+                studySessionDAOImpl.insert(openSession);
+            }
+        }catch(Exception e){
+            throw new CustomException("Failed to Save Study Sessions");
+        }
+    }
+
+    void finalizeStudySessionsToDB() throws CustomException {
+        try {
+            for (StudySession session : addedStudySessions) {
+                if (session.getEndedAt() != null) {
+                    studySessionDAOImpl.updateEnd(session.getSessionID(), session.getEndedAt());
+                }
             }
             for(StudySession session: modifiedStudySessions.values()){
                 studySessionDAOImpl.updateEnd(session.getSessionID(), session.getEndedAt());

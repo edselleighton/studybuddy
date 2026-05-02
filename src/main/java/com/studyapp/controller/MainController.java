@@ -237,8 +237,9 @@ public class MainController {
     public void saveChanges() throws CustomException{
         deckController.saveDeckToDB();
         flashcardController.saveFlashcardToDB();
-        studyController.saveStudySessionToDB();
+        studyController.saveNewStudySessionsToDB();
         reviewController.saveReviewToDB();
+        studyController.finalizeStudySessionsToDB();
         System.out.println("Changes Saved to Database.");
     }
 
