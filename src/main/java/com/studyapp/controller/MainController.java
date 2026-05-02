@@ -237,8 +237,9 @@ public class MainController {
     public void saveChanges() throws CustomException{
         deckController.saveDeckToDB();
         flashcardController.saveFlashcardToDB();
-        studyController.saveStudySessionToDB();
+        studyController.saveNewStudySessionsToDB();
         reviewController.saveReviewToDB();
+        studyController.finalizeStudySessionsToDB();
         System.out.println("Changes Saved to Database.");
     }
 
@@ -249,33 +250,21 @@ public class MainController {
                 || reviewController.hasPendingChanges();
     }
 
-    public void saveImportedChanges(List<Deck> importedDecks, List<Flashcard> importedFlashcards) throws CustomException {
-        deckController.saveAddedDecks(importedDecks);
-        flashcardController.saveAddedFlashcards(importedFlashcards);
-    }
-
     // --------- JSON IMPORT / EXPORT --------------
-    /**
-     * Imports decks and cards from a JSON file.
-     * Supports both single-deck and multi-deck JSON formats.
-     * @return number of decks imported
-     */
     public int importFromJson(File file) throws CustomException {
         return new JsonImportExportService().importFromFile(file, this);
     }
 
-    /**
-     * Exports a deck and all its cards to a JSON file.
-     */
+    public int importFromCsv(File file) throws CustomException {
+        return new CsvImportExportService().importFromFile(file, this);
+    }
+
     public void exportDeckToJson(int deckID, File file) throws CustomException {
         Deck deck = findDeck(deckID);
         List<Flashcard> cards = getFlashcardsByDeck(deckID);
         new JsonImportExportService().exportDeckToFile(deck, cards, file);
     }
 
-        /**
- * Exports a deck and all its cards to a CSV file.
-    */
     public void exportDeckToCsv(int deckID, File file) throws CustomException {
         Deck deck = findDeck(deckID);
         List<Flashcard> cards = getFlashcardsByDeck(deckID);

@@ -117,12 +117,12 @@ public class FlashcardController {
         }
     }
 
-    void loadFLashcard(){
+    void loadFLashcard() throws CustomException{
         try{
             flashcards = flashcardDAOImpl.getAllFlashcards();
             lastCardID = flashcardDAOImpl.getLastID() + 1;
         }catch(Exception e){
-            System.out.println("Failed to Load Flashcards");
+            throw new CustomException("Failed to load cards.");
         }
     }
 
