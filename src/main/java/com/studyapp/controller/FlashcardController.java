@@ -1,5 +1,6 @@
 package com.studyapp.controller;
 
+import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,18 +129,8 @@ public class FlashcardController {
 
     void saveFlashcardToDB() throws CustomException{
         try{
-            for(Flashcard flashcard: addedFlashcards){
-                flashcardDAOImpl.insert(flashcard);
-            }
-            for(Flashcard flashcard: modifiedFlashcards.values()){
-                flashcardDAOImpl.update(flashcard);
-            }
-            for(int flashcardID: deletedFlashcards){
-                flashcardDAOImpl.delete(flashcardID);
-            }
-            addedFlashcards.clear();
-            modifiedFlashcards.clear();
-            deletedFlashcards.clear();
+            persistPendingChanges(null);
+            markPendingChangesSaved();
         }catch(Exception e){
             throw new CustomException("Failed to Save Flashcards");
         }
@@ -160,6 +151,37 @@ public class FlashcardController {
 
     public boolean hasPendingChanges() {
         return !addedFlashcards.isEmpty() || !modifiedFlashcards.isEmpty() || !deletedFlashcards.isEmpty();
+    }
+
+    public void persistPendingChanges(Connection conn) throws Exception {
+        if (conn == null) {
+            for (Flashcard flashcard : addedFlashcards) {
+                flashcardDAOImpl.insert(flashcard);
+            }
+            for (Flashcard flashcard : modifiedFlashcards.values()) {
+                flashcardDAOImpl.update(flashcard);
+            }
+            for (int flashcardID : deletedFlashcards) {
+                flashcardDAOImpl.delete(flashcardID);
+            }
+            return;
+        }
+
+        for (Flashcard flashcard : addedFlashcards) {
+            flashcardDAOImpl.insert(conn, flashcard);
+        }
+        for (Flashcard flashcard : modifiedFlashcards.values()) {
+            flashcardDAOImpl.update(conn, flashcard);
+        }
+        for (int flashcardID : deletedFlashcards) {
+            flashcardDAOImpl.delete(conn, flashcardID);
+        }
+    }
+
+    public void markPendingChangesSaved() {
+        addedFlashcards.clear();
+        modifiedFlashcards.clear();
+        deletedFlashcards.clear();
     }
 
     void validateConstraints(Flashcard flashcard) throws CustomException{

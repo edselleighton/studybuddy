@@ -103,11 +103,24 @@ public class MyDeckPanel {
                 try {
                     int count = "CSV".equals(format) ? mc.importFromCsv(file) : mc.importFromJson(file);
                     if (count > 0) {
-                        mainLayout.setCenter(MyDeckPanel.create(
-                                mainLayout,
-                                count + " deck(s) imported successfully! Remember to save your changes.",
-                                "#22c55e",
-                                mc));
+                        MainFrame.runSaveTask(
+                                mainLayout.getScene().getWindow(),
+                                mc,
+                                "Saving imported decks...",
+                                () -> mainLayout.setCenter(MyDeckPanel.create(
+                                        mainLayout,
+                                        count + " deck(s) imported and saved successfully!",
+                                        "#22c55e",
+                                        mc)),
+                                errorMessage -> {
+                                    MainFrame.showErrorDialog("Import autosave failed: " + errorMessage);
+                                    mainLayout.setCenter(MyDeckPanel.create(
+                                            mainLayout,
+                                            count + " deck(s) imported, but autosave failed. Changes remain unsaved.",
+                                            "#d97706",
+                                            mc));
+                                }
+                        );
                     } else {
                         mainLayout.setCenter(MyDeckPanel.create(
                                 mainLayout,

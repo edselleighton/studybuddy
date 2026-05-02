@@ -5,6 +5,7 @@ import com.studyapp.model.CardReview;
 import com.studyapp.model.Flashcard;
 import com.studyapp.model.StudySession;
 
+import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,15 +96,8 @@ public class ReviewController {
 
     void saveReviewToDB() throws CustomException{
         try{
-            for(CardReview review: addedCardReviews){
-                cardReviewDAOImp.insert(review);
-            }
-            for(int reviewID: deletedCardReviews){
-                cardReviewDAOImp.delete(reviewID);
-            }
-            addedCardReviews.clear();
-            deletedCardReviews.clear();
-
+            persistPendingChanges(null);
+            markPendingChangesSaved();
         }catch(Exception e){
             throw new CustomException(e.getMessage());
         }
@@ -111,6 +105,30 @@ public class ReviewController {
 
     public boolean hasPendingChanges() {
         return !addedCardReviews.isEmpty() || !deletedCardReviews.isEmpty();
+    }
+
+    public void persistPendingChanges(Connection conn) throws Exception {
+        if (conn == null) {
+            for (CardReview review : addedCardReviews) {
+                cardReviewDAOImp.insert(review);
+            }
+            for (int reviewID : deletedCardReviews) {
+                cardReviewDAOImp.delete(reviewID);
+            }
+            return;
+        }
+
+        for (CardReview review : addedCardReviews) {
+            cardReviewDAOImp.insert(conn, review);
+        }
+        for (int reviewID : deletedCardReviews) {
+            cardReviewDAOImp.delete(conn, reviewID);
+        }
+    }
+
+    public void markPendingChangesSaved() {
+        addedCardReviews.clear();
+        deletedCardReviews.clear();
     }
 
     void validateConstraints(CardReview cardReview) throws CustomException{
