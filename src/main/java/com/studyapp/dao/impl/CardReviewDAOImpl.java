@@ -11,14 +11,18 @@ import com.studyapp.dao.CardReviewDAO;
 import com.studyapp.db.DatabaseConnection;
 import com.studyapp.model.CardReview;
 import com.studyapp.model.ObjectFactory;
-import com.studyapp.model.StudySession;
-
 public class CardReviewDAOImpl implements CardReviewDAO{
     @Override
     public void insert(CardReview cardReview) throws SQLException{
+        try(Connection conn = DatabaseConnection.getConnection()) {
+            insert(conn, cardReview);
+        }
+    }
+
+    @Override
+    public void insert(Connection conn, CardReview cardReview) throws SQLException{
         String sql = "INSERT INTO card_review (review_id, session_id, card_id, reviewed_at, is_correct) VALUES (?, ?, ?, ?, ?)";
-        try(Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)){
+        try(PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setInt(1, cardReview.getReviewID());
             ps.setInt(2, cardReview.getStudySessionID());
             ps.setInt(3, cardReview.getFlashcardID());
@@ -59,14 +63,18 @@ public class CardReviewDAOImpl implements CardReviewDAO{
     }
 
     @Override
-    public void delete(int reviewID) {
+    public void delete(int reviewID) throws SQLException {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            delete(conn, reviewID);
+        }
+    }
+
+    @Override
+    public void delete(Connection conn, int reviewID) throws SQLException {
         String sql = "DELETE FROM card_review WHERE review_id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, reviewID);
             ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

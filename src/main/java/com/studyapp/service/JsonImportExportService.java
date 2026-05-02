@@ -25,15 +25,6 @@ public class JsonImportExportService {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    /**
-     * Imports decks and cards from a JSON file into the application via the controller.
-     * Supports both single-deck format { "deck_name":..., "cards":[...] }
-     * and multi-deck format { "decks": [...] }.
-     * Skips decks whose name already exists in the system.
-     * Persists only the imported decks and cards before returning.
-     *
-     * @return number of new decks actually imported
-     */
     public int importFromFile(File file, MainController mc) throws CustomException {
         List<DeckJson> deckJsonList = parseFile(file);
         int imported = 0;
@@ -70,13 +61,9 @@ public class JsonImportExportService {
             imported++;
         }
 
-        mc.saveImportedChanges(importedDecks, importedFlashcards);
         return imported;
     }
 
-    /**
-     * Exports a single deck and its cards to a JSON file using the single-deck format.
-     */
     public void exportDeckToFile(Deck deck, List<Flashcard> cards, File file) throws CustomException {
         List<CardJson> cardJsonList = new ArrayList<>();
         for (Flashcard card : cards) {
@@ -126,7 +113,6 @@ public class JsonImportExportService {
         }
     }
 
-    /** Normalises any case variant to the exact ENUM value; falls back to "Medium". */
     private String normaliseDifficulty(String raw) {
         if (raw == null || raw.isBlank()) return "Medium";
         String t = raw.trim();

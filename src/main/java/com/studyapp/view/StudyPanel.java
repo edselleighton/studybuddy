@@ -216,23 +216,46 @@ public class StudyPanel {
 
     // ── session end ───────────────────────────────────────────────────────────
     private void finishSession() {
-        endSession();
-        showFinalScore();
-        returnToDeckDetail();
+        if (!endSession()) {
+            return;
+        }
+        autosaveEndedSession(true);
     }
 
     private void endSessionEarly() {
-        endSession();
-        returnToDeckDetail();
+        if (!endSession()) {
+            return;
+        }
+        autosaveEndedSession(false);
     }
 
-    private void endSession() {
+    private boolean endSession() {
         try {
             studySession.setEndedAt(LocalDateTime.now());
             mc.updateEndStudySession(studySession);
+            return true;
         } catch (CustomException e) {
             MainFrame.showErrorDialog("Could not end session: " + e.getMessage());
+            return false;
         }
+    }
+
+    private void autosaveEndedSession(boolean showScoreAfterSave) {
+        MainFrame.runSaveTask(
+                mainLayout.getScene().getWindow(),
+                mc,
+                "Saving session...",
+                () -> {
+                    if (showScoreAfterSave) {
+                        showFinalScore();
+                    }
+                    returnToDeckDetail();
+                },
+                errorMessage -> {
+                    returnToDeckDetail();
+                    MainFrame.showErrorDialog("Session autosave failed: " + errorMessage);
+                }
+        );
     }
 
     private void returnToDeckDetail() {

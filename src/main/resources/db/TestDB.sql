@@ -1,8 +1,6 @@
 -- =============================================================
---  Study Assistant App — TempDB.sql
---  Single-user desktop application
---  Safe to run multiple times (CREATE IF NOT EXISTS)
---  Run: mysql -u root -p < TempDB.sql
+--  Study Assistant App - Schema
+--  Safe to run multiple times
 -- =============================================================
 
 CREATE DATABASE IF NOT EXISTS study_assistant
@@ -32,7 +30,7 @@ CREATE TABLE IF NOT EXISTS Card (
     deck_id     INT          NOT NULL,
     question    TEXT         NOT NULL,
     answer      TEXT         NOT NULL,
-    difficulty  ENUM('Easy','Medium','Hard') DEFAULT NULL,
+    difficulty  ENUM('Easy','Medium','Hard') DEFAULT 'Medium',
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_card      PRIMARY KEY (card_id),
@@ -80,109 +78,90 @@ CREATE TABLE IF NOT EXISTS Card_Review (
 );
 
 -- =============================================================
---  SAMPLE DATA
+--  VIEWS
 -- =============================================================
-
--- -------------------------------------------------------------
---  Deck 1: CMSC 127 Midterms
--- -------------------------------------------------------------
-INSERT IGNORE INTO Deck (deck_id, name, description) VALUES
-(1, 'CMSC 127 Midterms', 'Covers SQL, ER diagrams, and normalization.');
-
-INSERT IGNORE INTO Card (card_id, deck_id, question, answer, difficulty) VALUES
-(1,  1, 'What does SQL stand for?',
-        'Structured Query Language', 'Easy'),
-(2,  1, 'What is a Primary Key?',
-        'A column (or set of columns) that uniquely identifies each row in a table.', 'Easy'),
-(3,  1, 'What is a Foreign Key?',
-        'A column that references the Primary Key of another table, enforcing referential integrity.', 'Medium'),
-(4,  1, 'What is normalization?',
-        'The process of organizing a database to reduce redundancy and improve data integrity.', 'Medium'),
-(5,  1, 'What is 1NF (First Normal Form)?',
-        'Every column contains atomic (indivisible) values and each row is unique.', 'Medium'),
-(6,  1, 'What is 2NF (Second Normal Form)?',
-        'The table is in 1NF and every non-key attribute is fully dependent on the whole primary key.', 'Hard'),
-(7,  1, 'What is 3NF (Third Normal Form)?',
-        'The table is in 2NF and no non-key attribute depends on another non-key attribute (no transitive dependency).', 'Hard'),
-(8,  1, 'What is an ER Diagram?',
-        'Entity-Relationship Diagram — a visual representation of entities, their attributes, and relationships in a database.', 'Easy'),
-(9,  1, 'What does cardinality mean in an ER diagram?',
-        'The number of instances of one entity that can be associated with instances of another (e.g., 1:1, 1:N, M:N).', 'Medium'),
-(10, 1, 'What is a composite key?',
-        'A primary key made up of two or more columns that together uniquely identify a row.', 'Hard');
-
--- -------------------------------------------------------------
---  Deck 2: Java & JDBC
--- -------------------------------------------------------------
-INSERT IGNORE INTO Deck (deck_id, name, description) VALUES
-(2, 'Java & JDBC', 'Core Java and database connectivity concepts for the project.');
-
-INSERT IGNORE INTO Card (card_id, deck_id, question, answer, difficulty) VALUES
-(11, 2, 'What does JDBC stand for?',
-        'Java Database Connectivity', 'Easy'),
-(12, 2, 'What is a PreparedStatement?',
-        'A precompiled SQL statement that uses placeholders (?), preventing SQL injection and improving performance.', 'Medium'),
-(13, 2, 'What is the DAO pattern?',
-        'Data Access Object — an abstraction layer that encapsulates all SQL logic, keeping it separate from business logic.', 'Medium'),
-(14, 2, 'What is MVC?',
-        'Model-View-Controller — a pattern separating data (Model), UI (View), and application logic (Controller).', 'Medium'),
-(15, 2, 'What is a ResultSet in JDBC?',
-        'An object holding the result of a SQL query, allowing row-by-row iteration using next().', 'Medium'),
-(16, 2, 'What does ON DELETE CASCADE do?',
-        'Automatically deletes child rows when the referenced parent row is deleted.', 'Hard'),
-(17, 2, 'What is the Singleton pattern?',
-        'A design pattern that restricts a class to one instance — commonly used for DB connection management.', 'Medium'),
-(18, 2, 'What is Gson?',
-        'A Java library by Google for serializing and deserializing Java objects to/from JSON format.', 'Easy');
-
--- -------------------------------------------------------------
---  Deck 3: Spanish Vocabulary (variety deck for UI testing)
--- -------------------------------------------------------------
-INSERT IGNORE INTO Deck (deck_id, name, description) VALUES
-(3, 'Spanish Vocabulary', 'Basic Spanish words and phrases.');
-
-INSERT IGNORE INTO Card (card_id, deck_id, question, answer, difficulty) VALUES
-(19, 3, 'How do you say "Hello" in Spanish?',         'Hola',                          'Easy'),
-(20, 3, 'How do you say "Thank you" in Spanish?',     'Gracias',                       'Easy'),
-(21, 3, 'How do you say "Where is the library?"',     '¿Dónde está la biblioteca?',    'Medium');
-
--- -------------------------------------------------------------
---  Sample Study Sessions
--- -------------------------------------------------------------
-INSERT IGNORE INTO Study_Session (session_id, deck_id, started_at, ended_at) VALUES
-(1, 1, '2025-04-01 18:00:00', '2025-04-01 18:25:00'),  -- completed, Deck 1
-(2, 2, '2025-04-02 20:00:00', '2025-04-02 20:15:00'),  -- completed, Deck 2
-(3, 1, '2025-04-05 09:00:00', NULL);                    -- still active (ended_at is NULL)
-
--- -------------------------------------------------------------
---  Sample Card Reviews
---  Session 1 (Deck 1): 10 cards — 6 correct, 4 wrong
--- -------------------------------------------------------------
-INSERT IGNORE INTO Card_Review (review_id, session_id, card_id, reviewed_at, is_correct) VALUES
-(1,  1, 1,  '2025-04-01 18:02:00', TRUE),
-(2,  1, 2,  '2025-04-01 18:04:00', TRUE),
-(3,  1, 3,  '2025-04-01 18:06:00', FALSE),
-(4,  1, 4,  '2025-04-01 18:08:00', TRUE),
-(5,  1, 5,  '2025-04-01 18:10:00', FALSE),
-(6,  1, 6,  '2025-04-01 18:13:00', FALSE),
-(7,  1, 7,  '2025-04-01 18:16:00', TRUE),
-(8,  1, 8,  '2025-04-01 18:18:00', TRUE),
-(9,  1, 9,  '2025-04-01 18:21:00', TRUE),
-(10, 1, 10, '2025-04-01 18:24:00', FALSE),
--- Session 2 (Deck 2): 5 cards — 4 correct, 1 wrong
-(11, 2, 11, '2025-04-02 20:02:00', TRUE),
-(12, 2, 12, '2025-04-02 20:05:00', TRUE),
-(13, 2, 13, '2025-04-02 20:08:00', FALSE),
-(14, 2, 14, '2025-04-02 20:11:00', TRUE),
-(15, 2, 15, '2025-04-02 20:14:00', TRUE);
+CREATE OR REPLACE VIEW deck_progress AS
+    SELECT d.deck_id,
+           COUNT(cr.review_id) AS total_reviews,
+           SUM(CASE WHEN cr.is_correct = 1 THEN 1 ELSE 0 END) AS correct_reviews,
+           IFNULL(ROUND((SUM(CASE WHEN cr.is_correct = 1 THEN 1 ELSE 0 END) / COUNT(cr.review_id)) * 100, 2), 0) AS progress
+    FROM deck d
+    LEFT JOIN study_session ss ON d.deck_id = ss.deck_id
+    LEFT JOIN card_review cr ON ss.session_id = cr.session_id
+    GROUP BY d.deck_id;
 
 -- =============================================================
---  VERIFY (uncomment to check row counts after running)
+--  INDEXES
 -- =============================================================
--- SELECT 'Deck'          AS tbl, COUNT(*) AS rows FROM Deck
--- UNION ALL
--- SELECT 'Card',          COUNT(*) FROM Card
--- UNION ALL
--- SELECT 'Study_Session', COUNT(*) FROM Study_Session
--- UNION ALL
--- SELECT 'Card_Review',   COUNT(*) FROM Card_Review;
+SET @sql = (
+    SELECT IF(
+        EXISTS(
+            SELECT 1
+            FROM information_schema.statistics
+            WHERE table_schema = 'study_assistant'
+              AND table_name = 'study_session'
+              AND index_name = 'idx_study_started'
+        ),
+        'SELECT 1',
+        'CREATE INDEX idx_study_started ON study_session(started_at)'
+    )
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql = (
+    SELECT IF(
+        EXISTS(
+            SELECT 1
+            FROM information_schema.statistics
+            WHERE table_schema = 'study_assistant'
+              AND table_name = 'study_session'
+              AND index_name = 'idx_study_ended'
+        ),
+        'SELECT 1',
+        'CREATE INDEX idx_study_ended ON study_session(ended_at)'
+    )
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql = (
+    SELECT IF(
+        EXISTS(
+            SELECT 1
+            FROM information_schema.statistics
+            WHERE table_schema = 'study_assistant'
+              AND table_name = 'card'
+              AND index_name = 'idx_card_question'
+        ),
+        'SELECT 1',
+        'CREATE INDEX idx_card_question ON card(question(100))'
+    )
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- =============================================================
+--  TRIGGERS
+-- =============================================================
+DROP TRIGGER IF EXISTS trg_chk_session_active;
+
+DELIMITER //
+CREATE TRIGGER trg_chk_session_active
+BEFORE INSERT ON card_review
+FOR EACH ROW
+BEGIN
+    DECLARE session_status DATETIME;
+    SELECT ended_at INTO session_status
+    FROM study_session
+    WHERE session_id = NEW.session_id;
+
+    IF session_status IS NOT NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Cannot add card review to a finished session.';
+    END IF;
+END //
+DELIMITER ;

@@ -1,19 +1,23 @@
 package com.studyapp.view;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.studyapp.controller.MainController;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
 public class MainFrame {
 
@@ -352,6 +356,77 @@ public class MainFrame {
         dialog.setScene(scene);
         dialog.setResizable(false);
         dialog.show();
+    }
+
+    public static void runSaveTask(
+            Window owner,
+            MainController mc,
+            String loadingMessage,
+            Runnable onSuccess,
+            Consumer<String> onFailure) {
+        Stage loadingDialog = createLoadingDialog(owner, loadingMessage);
+
+        Task<Void> saveTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                mc.saveChanges();
+                return null;
+            }
+        };
+
+        saveTask.setOnSucceeded(e -> {
+            loadingDialog.close();
+            if (onSuccess != null) {
+                onSuccess.run();
+            }
+        });
+
+        saveTask.setOnFailed(e -> {
+            loadingDialog.close();
+            String message = saveTask.getException() != null && saveTask.getException().getMessage() != null
+                    ? saveTask.getException().getMessage()
+                    : "Failed to save changes.";
+            if (onFailure != null) {
+                onFailure.accept(message);
+            }
+        });
+
+        Thread thread = new Thread(saveTask, "study-assistant-save");
+        thread.setDaemon(true);
+        loadingDialog.show();
+        thread.start();
+    }
+
+    private static Stage createLoadingDialog(Window owner, String loadingMessage) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle("Saving");
+        if (owner != null) {
+            dialog.initOwner(owner);
+        }
+
+        VBox container = new VBox(18);
+        container.setPadding(new Insets(28, 40, 32, 40));
+        container.setAlignment(Pos.CENTER);
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
+
+        ProgressIndicator indicator = new ProgressIndicator();
+        indicator.setPrefSize(56, 56);
+
+        Label message = new Label(loadingMessage);
+        message.setFont(Font.font("Serif", 17));
+        message.setTextFill(Color.web(PRIMARY_BLUE));
+        message.setWrapText(true);
+        message.setAlignment(Pos.CENTER);
+
+        container.getChildren().addAll(indicator, message);
+
+        Scene scene = new Scene(container, 320, 190);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        return dialog;
     }
 
 }

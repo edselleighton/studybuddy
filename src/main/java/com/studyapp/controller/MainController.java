@@ -15,6 +15,7 @@ import com.studyapp.model.Flashcard;
 import com.studyapp.model.StudySession;
 import com.studyapp.service.CsvImportExportService;
 import com.studyapp.service.JsonImportExportService;
+import com.studyapp.service.SaveService;
 
 //HANDLES ALL OPERATIONS THAT CONNECTS BACKEND WITH FRONTEND
 //INCLUDES:
@@ -29,6 +30,7 @@ public class MainController {
     private StudyController studyController;
     private ReviewController reviewController;
     private AnswerChecker answerChecker;
+    private SaveService saveService;
 
     public MainController(){
         deckController = new DeckController(this);
@@ -36,6 +38,7 @@ public class MainController {
         studyController = new StudyController(this);
         reviewController = new ReviewController(this);
         answerChecker = new AnswerChecker();
+        saveService = new SaveService();
     }
 
     // --------- AUTHENTICATION --------------
@@ -235,10 +238,7 @@ public class MainController {
     }
 
     public void saveChanges() throws CustomException{
-        deckController.saveDeckToDB();
-        flashcardController.saveFlashcardToDB();
-        studyController.saveStudySessionToDB();
-        reviewController.saveReviewToDB();
+        saveService.saveAll(deckController, flashcardController, studyController, reviewController);
         System.out.println("Changes Saved to Database.");
     }
 
@@ -249,33 +249,21 @@ public class MainController {
                 || reviewController.hasPendingChanges();
     }
 
-    public void saveImportedChanges(List<Deck> importedDecks, List<Flashcard> importedFlashcards) throws CustomException {
-        deckController.saveAddedDecks(importedDecks);
-        flashcardController.saveAddedFlashcards(importedFlashcards);
-    }
-
     // --------- JSON IMPORT / EXPORT --------------
-    /**
-     * Imports decks and cards from a JSON file.
-     * Supports both single-deck and multi-deck JSON formats.
-     * @return number of decks imported
-     */
     public int importFromJson(File file) throws CustomException {
         return new JsonImportExportService().importFromFile(file, this);
     }
 
-    /**
-     * Exports a deck and all its cards to a JSON file.
-     */
+    public int importFromCsv(File file) throws CustomException {
+        return new CsvImportExportService().importFromFile(file, this);
+    }
+
     public void exportDeckToJson(int deckID, File file) throws CustomException {
         Deck deck = findDeck(deckID);
         List<Flashcard> cards = getFlashcardsByDeck(deckID);
         new JsonImportExportService().exportDeckToFile(deck, cards, file);
     }
 
-        /**
- * Exports a deck and all its cards to a CSV file.
-    */
     public void exportDeckToCsv(int deckID, File file) throws CustomException {
         Deck deck = findDeck(deckID);
         List<Flashcard> cards = getFlashcardsByDeck(deckID);

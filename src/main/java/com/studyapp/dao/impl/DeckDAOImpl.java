@@ -15,9 +15,15 @@ import com.studyapp.model.ObjectFactory;
 public class DeckDAOImpl implements DeckDAO{
     @Override
     public void insert(Deck deck) throws SQLException {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            insert(conn, deck);
+        }
+    }
+
+    @Override
+    public void insert(Connection conn, Deck deck) throws SQLException {
         String sql = "INSERT INTO deck (deck_id, name, description, created_at) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, deck.getDeckID());
             ps.setString(2, deck.getName());
             ps.setString(3, deck.getDescription());
@@ -29,9 +35,15 @@ public class DeckDAOImpl implements DeckDAO{
     /// ONLY NAME AND DESCRIPTION CAN BE UPDATED
     @Override
     public void update(Deck deck) throws SQLException {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            update(conn, deck);
+        }
+    }
+
+    @Override
+    public void update(Connection conn, Deck deck) throws SQLException {
         String sql = "UPDATE deck SET name = ?, description = ? WHERE deck_id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, deck.getName());
             ps.setString(2, deck.getDescription());
             ps.setInt(3, deck.getDeckID());
@@ -40,14 +52,18 @@ public class DeckDAOImpl implements DeckDAO{
     }
 
     @Override
-    public void delete(int deckID) {
+    public void delete(int deckID) throws SQLException {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            delete(conn, deckID);
+        }
+    }
+
+    @Override
+    public void delete(Connection conn, int deckID) throws SQLException {
         String sql = "DELETE FROM deck WHERE deck_id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, deckID);
             ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

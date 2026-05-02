@@ -5,6 +5,7 @@ import com.studyapp.model.Deck;
 import com.studyapp.model.Flashcard;
 import com.studyapp.model.StudySession;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -112,18 +113,8 @@ public class DeckController {
 
     public void saveDeckToDB() throws CustomException{
         try{
-            for(Deck deck: addedDecks){
-                deckDaoImpl.insert(deck);
-            }
-            for(Deck deck: modifiedDecks.values()){
-                deckDaoImpl.update(deck);
-            }
-            for(int deckID: deletedDecks){
-                deckDaoImpl.delete(deckID);
-            }
-            addedDecks.clear();
-            modifiedDecks.clear();
-            deletedDecks.clear();
+            persistPendingChanges(null);
+            markPendingChangesSaved();
         }catch(Exception e){
             throw new CustomException("Failed to Save Decks");
         }
@@ -144,6 +135,37 @@ public class DeckController {
 
     public boolean hasPendingChanges() {
         return !addedDecks.isEmpty() || !modifiedDecks.isEmpty() || !deletedDecks.isEmpty();
+    }
+
+    public void persistPendingChanges(Connection conn) throws SQLException {
+        if (conn == null) {
+            for (int deckID : deletedDecks) {
+                deckDaoImpl.delete(deckID);
+            }
+            for (Deck deck : addedDecks) {
+                deckDaoImpl.insert(deck);
+            }
+            for (Deck deck : modifiedDecks.values()) {
+                deckDaoImpl.update(deck);
+            }
+            return;
+        }
+
+        for (int deckID : deletedDecks) {
+            deckDaoImpl.delete(conn, deckID);
+        }
+        for (Deck deck : addedDecks) {
+            deckDaoImpl.insert(conn, deck);
+        }
+        for (Deck deck : modifiedDecks.values()) {
+            deckDaoImpl.update(conn, deck);
+        }
+    }
+
+    public void markPendingChangesSaved() {
+        addedDecks.clear();
+        modifiedDecks.clear();
+        deletedDecks.clear();
     }
 
     void validateConstraints(Deck deck) throws CustomException{

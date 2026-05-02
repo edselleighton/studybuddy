@@ -42,6 +42,7 @@ public class MyDeckPanel {
     private static final String DECK_ROW_HOVER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-color: #f8fbff; -fx-padding: 15; -fx-cursor: hand;";
     private static final String OPEN_BUTTON_STYLE = "-fx-background-color: #e6eaf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
     private static final String OPEN_BUTTON_HOVER_STYLE = "-fx-background-color: #d0dcf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
+    private static final String DIALOG_BG = "#f8fafc";
 
     // ── NEW: page size constant ──────────────────────────────────────────────
     private static final int PAGE_SIZE = 5;
@@ -49,7 +50,7 @@ public class MyDeckPanel {
     private static double Yoffset = 0;
 
     public static VBox create(BorderPane mainLayout, MainController mc) {
-        return create(mainLayout, "Manage decks, or import/export your deck data as JSON.", PRIMARY_BLUE, mc);
+        return create(mainLayout, "Manage decks, or import/export your deck data as JSON or CSV.", PRIMARY_BLUE, mc);
     }
 
     public static VBox create(BorderPane mainLayout, String statusMessage, String statusColor, MainController mc) {
@@ -82,20 +83,44 @@ public class MyDeckPanel {
         newBtn.setOnAction(e -> showCreateDeckDialog(mainLayout, mc));
 
         importBtn.setOnAction(e -> {
+            String format = showImportFormatDialog(mainLayout);
+            if (format == null) {
+                return;
+            }
+
             FileChooser fc = new FileChooser();
-            fc.setTitle("Import Decks from JSON");
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+            if ("CSV".equals(format)) {
+                fc.setTitle("Import Decks from CSV");
+                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+            } else {
+                fc.setTitle("Import Decks from JSON");
+                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+            }
+
             File file = fc.showOpenDialog(mainLayout.getScene().getWindow());
 
             if (file != null) {
                 try {
-                    int count = mc.importFromJson(file);
+                    int count = "CSV".equals(format) ? mc.importFromCsv(file) : mc.importFromJson(file);
                     if (count > 0) {
-                        mainLayout.setCenter(MyDeckPanel.create(
-                                mainLayout,
-                                count + " deck(s) imported successfully!",
-                                "#22c55e",
-                                mc));
+                        MainFrame.runSaveTask(
+                                mainLayout.getScene().getWindow(),
+                                mc,
+                                "Saving imported decks...",
+                                () -> mainLayout.setCenter(MyDeckPanel.create(
+                                        mainLayout,
+                                        count + " deck(s) imported and saved successfully!",
+                                        "#22c55e",
+                                        mc)),
+                                errorMessage -> {
+                                    MainFrame.showErrorDialog("Import autosave failed: " + errorMessage);
+                                    mainLayout.setCenter(MyDeckPanel.create(
+                                            mainLayout,
+                                            count + " deck(s) imported, but autosave failed. Changes remain unsaved.",
+                                            "#d97706",
+                                            mc));
+                                }
+                        );
                     } else {
                         mainLayout.setCenter(MyDeckPanel.create(
                                 mainLayout,
@@ -316,6 +341,52 @@ public class MyDeckPanel {
 
         row.getChildren().addAll(leftInfo, middleInfo, spacer, selectBtn);
         return row;
+    }
+
+    private static String showImportFormatDialog(BorderPane mainLayout) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle("Import Format");
+
+        VBox container = createDialogContainer();
+        HBox topBar = createDialogTopBar(dialog);
+
+        Label title = new Label("Import Deck");
+        title.setFont(Font.font("Serif", 38));
+        title.setTextFill(Color.web(PRIMARY_BLUE));
+
+        Label description = new Label("Choose which file type you want to import.");
+        description.setFont(Font.font("Serif", 15));
+        description.setTextFill(Color.web(PRIMARY_BLUE));
+        description.setWrapText(true);
+
+        final String[] selectedFormat = {null};
+
+        Button jsonBtn = createDialogActionButton("JSON");
+        jsonBtn.setOnAction(e -> {
+            selectedFormat[0] = "JSON";
+            dialog.close();
+        });
+
+        Button csvBtn = createDialogActionButton("CSV");
+        csvBtn.setOnAction(e -> {
+            selectedFormat[0] = "CSV";
+            dialog.close();
+        });
+
+        VBox buttonBox = new VBox(12, jsonBtn, csvBtn);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        container.getChildren().addAll(topBar, title, description, buttonBox);
+
+        Scene scene = new Scene(container, 360, 300);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        dialog.showAndWait();
+
+        return selectedFormat[0];
     }
 
     private static void showCreateDeckDialog(BorderPane mainLayout, MainController mc) {
@@ -554,5 +625,42 @@ public class MyDeckPanel {
         button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
         button.setOnMouseExited(e -> button.setStyle(normalStyle));
         return button;
+    }
+
+    private static VBox createDialogContainer() {
+        VBox container = new VBox(12);
+        container.setPadding(new Insets(0, 40, 40, 40));
+        container.setAlignment(Pos.TOP_LEFT);
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: " + DIALOG_BG + ";");
+
+        container.setOnMousePressed(event -> {
+            Xoffset = event.getSceneX();
+            Yoffset = event.getSceneY();
+        });
+
+        container.setOnMouseDragged(event -> {
+            Stage stage = (Stage) container.getScene().getWindow();
+            stage.setX(event.getScreenX() - Xoffset);
+            stage.setY(event.getScreenY() - Yoffset);
+        });
+
+        return container;
+    }
+
+    private static HBox createDialogTopBar(Stage dialog) {
+        HBox topBar = new HBox();
+        topBar.setAlignment(Pos.TOP_RIGHT);
+
+        Button closeBtn = new Button("X");
+        String xBarNormal = "-fx-background-color: transparent; -fx-text-fill: #1A438E; -fx-font-size: 18; -fx-cursor: hand;";
+        String xBarHover = "-fx-background-color: transparent; -fx-text-fill: red; -fx-font-size: 18; -fx-cursor: hand; -fx-background-radius: 0 10 0 0;";
+        closeBtn.setStyle(xBarNormal);
+        closeBtn.setOnAction(e -> dialog.close());
+        closeBtn.setOnMouseEntered(e -> closeBtn.setStyle(xBarHover));
+        closeBtn.setOnMouseExited(e -> closeBtn.setStyle(xBarNormal));
+        topBar.getChildren().add(closeBtn);
+        VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
+
+        return topBar;
     }
 }
