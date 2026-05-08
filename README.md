@@ -33,7 +33,7 @@ Study Assistant is a JavaFX desktop application for creating and managing flashc
 - Flashcard management: create, edit, and delete cards with Easy / Medium / Hard difficulty levels
 - Type-in study mode with intelligent answer checking
 - Smart answer checker using Levenshtein distance, Jaro-Winkler similarity, cosine n-gram similarity, and WordNet synonym/antonym detection
-- Per-card result feedback: **CORRECT**, **ALMOST** (accepted typo), or **INCORRECT**, with the correct answer shown when a typo is detected
+- Per-card result feedback: **CORRECT**, **CLOSE**, or **INCORRECT**, with the correct answer shown when a typo is accepted as correct
 - Import and export decks as **JSON** or **CSV**
 - Paginated card and deck lists (5 items per page)
 
@@ -74,13 +74,19 @@ Study Assistant is a JavaFX desktop application for creating and managing flashc
    mvn clean install
    ```
 
+   The app initializes the database automatically after a successful login. If you want to create the schema manually, run:
+
+   ```sql
+   SOURCE src/main/resources/db/StudyAssistantSchema.sql;
+   ```
+
 4. **Run the application:**
 
    ```powershell
    mvn javafx:run
    ```
 
-   On the first launch, a login screen will appear. Enter your MySQL username and password. The app will automatically create the database, tables, and sample data. Credentials are saved securely via the Java Preferences API and used for auto-login on future launches.
+   On the first launch, a login screen will appear. Enter your MySQL username and password. The app will automatically create the database, tables, and sample data. Credentials are stored via the Java Preferences API and used for auto-login on future launches.
 
 ---
 
@@ -91,7 +97,7 @@ Study Assistant is a JavaFX desktop application for creating and managing flashc
 **First launch:**
 - A login card will appear asking for your MySQL **Username** and **Password**.
 - These are your MySQL server credentials (not a separate app account).
-- Click **Connect** to authenticate and load the application.
+- Click **Sign In** to authenticate and load the application.
 - If authentication fails, an error message is shown and you can retry.
 
 **Subsequent launches:**
@@ -221,11 +227,11 @@ Started from the **Deck Detail** view using the **Study** button. The deck must 
 | Result        | Meaning                                                                               |
 |---------------|---------------------------------------------------------------------------------------|
 | **CORRECT**   | Answer matches the expected answer (exact, synonym, or within acceptable similarity)  |
-| **ALMOST**    | Answer was accepted as correct but contains a typo — the correct spelling is shown    |
-| **INCORRECT** | Answer did not meet the similarity threshold; correct answer is displayed             |
+| **CLOSE**     | Answer was similar but did not meet the accepted-correct threshold                    |
+| **INCORRECT** | Answer did not meet the similarity threshold                                         |
 
 5. Click **Next** to proceed to the next card, or **Retry** to attempt the same card again.
-6. When all cards are done, a **Session Summary** dialog shows total correct answers, total attempts, and a percentage score.
+6. When all cards are done, a **Session Complete** dialog shows the final score.
 7. The live sidebar during study tracks **Correct**, **Attempts**, and a **progress arc**.
 
 **Answer Checker Logic:**
@@ -402,11 +408,9 @@ study-assistant/
     │       ├── StudyPanel.java
     │       ├── QuestionPanel.java
     │       ├── ResultPanel.java
-    │       ├── ProgressPanel.java
     │       └── ExitPanel.java
     └── resources/
-        ├── db.properties
         └── db/
-            ├── TestDB.sql               # Schema creation script
+            ├── StudyAssistantSchema.sql # Schema creation script
             └── SampleData.sql           # Optional sample data
 ```
