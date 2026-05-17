@@ -9,12 +9,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import com.studyapp.controller.MainController;
-import com.studyapp.util.UiScale;
 
 public class SplashScreen {
 
@@ -42,13 +43,13 @@ public class SplashScreen {
         card.setStrokeWidth(2.5);
 
         Label title = new Label("Study Assistant\nApplication");
-        title.setFont(UiScale.titleFont(54));
+        title.setFont(Font.font("Serif", FontWeight.MEDIUM, 42));
         title.setTextFill(Color.web(PRIMARY_BLUE));
         title.setAlignment(Pos.CENTER);
         title.setOpacity(0);
 
         Label loadingLabel = new Label("Initializing...");
-        loadingLabel.setFont(UiScale.bodyFont(16));
+        loadingLabel.setFont(Font.font("Serif", 16));
         loadingLabel.setTextFill(Color.web("#8FA5DF"));
         loadingLabel.setOpacity(0);
         StackPane.setAlignment(loadingLabel, Pos.BOTTOM_CENTER);
@@ -150,4 +151,3 @@ public class SplashScreen {
         return t;
     }
 }
-

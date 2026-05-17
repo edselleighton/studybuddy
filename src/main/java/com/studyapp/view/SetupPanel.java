@@ -2,7 +2,6 @@ package com.studyapp.view;
 
 import com.studyapp.controller.CustomException;
 import com.studyapp.controller.MainController;
-import com.studyapp.util.UiScale;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class SetupPanel {
@@ -61,7 +62,7 @@ public class SetupPanel {
         VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
 
         Label titleLabel = new Label("Connect Your\nDatabase");
-        titleLabel.setFont(UiScale.titleFont(33));
+        titleLabel.setFont(Font.font("Serif", FontWeight.MEDIUM, 33));
         titleLabel.setTextFill(Color.web(primaryBlue));
         VBox.setMargin(titleLabel, new Insets(-10, 0, 20, 0));
 
@@ -72,12 +73,12 @@ public class SetupPanel {
                         "-fx-border-radius: 5; " +
                         "-fx-background-radius: 5; " +
                         "-fx-text-fill: " + primaryBlue + "; " +
-                        "-fx-font-family: 'Segoe UI'; " +
+                        "-fx-font-family: 'Serif'; " +
                         "-fx-font-size: 16px;";
 
         Label userLabel = new Label("Enter Username: ");
         userLabel.setTextFill(Color.web(primaryBlue));
-        userLabel.setFont(UiScale.headingFont(18));
+        userLabel.setFont(Font.font("Serif", FontWeight.MEDIUM, 18));
         TextField userField = new TextField();
         userField.setPrefHeight(45);
         userField.setStyle(fieldStyle);
@@ -86,7 +87,7 @@ public class SetupPanel {
 
         Label passLabel = new Label("Enter Password: ");
         passLabel.setTextFill(Color.web(primaryBlue));
-        passLabel.setFont(UiScale.headingFont(18));
+        passLabel.setFont(Font.font("Serif", FontWeight.MEDIUM, 18));
         PasswordField passField = new PasswordField();
         passField.setPrefHeight(45);
         passField.setStyle(fieldStyle);
@@ -96,12 +97,12 @@ public class SetupPanel {
                 "-fx-background-radius: 30; " +
                 "-fx-text-fill: " + primaryBlue + "; " +
                 "-fx-font-size: 25; " +
-                "-fx-font-family: 'Segoe UI';";
+                "-fx-font-family: 'Serif';";
         String loginHover  = "-fx-background-color: " + primaryBlue + "; " +
                 "-fx-background-radius: 30; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-size: 25; " +
-                "-fx-font-family: 'Segoe UI';";
+                "-fx-font-family: 'Serif';";
 
         Button connectBtn = new Button("SIGN IN");
         connectBtn.setMaxWidth(Double.MAX_VALUE);
@@ -141,4 +142,3 @@ public class SetupPanel {
         return new Scene(wrapper, SETUP_WIDTH, SETUP_HEIGHT, Color.TRANSPARENT);
     }
 }
-
