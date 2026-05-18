@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What is a process?",
+    "answer": "A program in execution, including its code, data, and state.",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What is the difference between a process and a thread?",
+    "answer": "A process has its own memory space; threads share memory within the same process.",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "What is deadlock?",
+    "answer": "A state where two or more processes are waiting for each other to release resources indefinitely.",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is virtual memory?",
+    "answer": "An abstraction that gives each process the illusion of a large, private address space.",
+    "difficulty": "Difficult"
+  },
+  {
+    "question": "What is a context switch?",
+    "answer": "The OS saving the state of a running process and loading the state of another.",
+    "difficulty": ""
+  },
+  {
+    "question": "What is paging?",
+    "answer": "Dividing memory into fixed-size pages to eliminate external fragmentation.",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the purpose of the scheduler?",
+    "answer": "To decide which process runs on the CPU at any given time.",
+    "difficulty": "N/A"
+  },
+  {
+    "question": "What is a semaphore?",
+    "answer": "A synchronization primitive used to control access to shared resources.",
+    "difficulty": "Hard"
+  }
+]

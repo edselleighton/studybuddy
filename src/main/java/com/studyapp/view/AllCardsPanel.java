@@ -1,5 +1,7 @@
 package com.studyapp.view;
 
+import com.studyapp.util.UiScale;
+
 import java.util.List;
 
 import com.studyapp.controller.CustomException;
@@ -27,12 +29,16 @@ public class AllCardsPanel {
     private static final String PRIMARY_BLUE = "#2a548f";
     private static final String HEADER_BLUE = "#41729f";
     private static final String BORDER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: white;";
-    private static final String TOOLBAR_BUTTON_STYLE = "-fx-background-color: white; -fx-border-color: #22c55e; -fx-border-radius: 5; -fx-text-fill: black; -fx-padding: 5 20; -fx-cursor: hand;";
-    private static final String TOOLBAR_BUTTON_HOVER_STYLE = "-fx-background-color: #eafbf1; -fx-border-color: #22c55e; -fx-border-radius: 5; -fx-text-fill: black; -fx-padding: 5 20; -fx-cursor: hand;";
-    private static final String DECK_ROW_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-color: white; -fx-padding: 15; -fx-cursor: hand;";
-    private static final String DECK_ROW_HOVER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-color: #f8fbff; -fx-padding: 15; -fx-cursor: hand;";
-    private static final String OPEN_BUTTON_STYLE = "-fx-background-color: #e6eaf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
-    private static final String OPEN_BUTTON_HOVER_STYLE = "-fx-background-color: #d0dcf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 8 20; -fx-cursor: hand;";
+    private static final String TOOLBAR_BUTTON_STYLE = "-fx-background-color: white; -fx-border-color: #22c55e; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-fill: black; -fx-padding: 10 28; -fx-font-family: 'Segoe UI'; -fx-font-size: 18px; -fx-font-weight: bold; -fx-cursor: hand;";
+    private static final String TOOLBAR_BUTTON_HOVER_STYLE = "-fx-background-color: #eafbf1; -fx-border-color: #22c55e; -fx-border-radius: 6; -fx-background-radius: 6; -fx-text-fill: black; -fx-padding: 10 28; -fx-font-family: 'Segoe UI'; -fx-font-size: 18px; -fx-font-weight: bold; -fx-cursor: hand;";
+    private static final String DECK_ROW_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-color: white; -fx-padding: 20 22; -fx-cursor: hand;";
+    private static final String DECK_ROW_HOVER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-color: #f8fbff; -fx-padding: 20 22; -fx-cursor: hand;";
+    private static final String OPEN_BUTTON_STYLE = "-fx-background-color: #e6eaf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 10 24; -fx-font-family: 'Segoe UI'; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand;";
+    private static final String OPEN_BUTTON_HOVER_STYLE = "-fx-background-color: #d0dcf5; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: black; -fx-padding: 10 24; -fx-font-family: 'Segoe UI'; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand;";
+    private static final String TOOLBAR_INPUT_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-background-color: white; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-family: 'Segoe UI'; -fx-font-size: 18px; -fx-padding: 6 12;";
+    private static final Insets PAGE_PADDING = new Insets(12);
+    private static final Insets CONTENT_PADDING = new Insets(14);
+    private static final int CONTENT_SPACING = 12;
 
     // ── NEW: page size constant ──────────────────────────────────────────────
     private static final int PAGE_SIZE = 5;
@@ -50,24 +56,27 @@ public class AllCardsPanel {
                 : mc.getFlashcardsByDeck(deck.getDeckID());
 
         VBox wrapper = new VBox();
-        wrapper.setPadding(new Insets(20));
+        wrapper.setPadding(PAGE_PADDING);
         wrapper.setStyle("-fx-background-color: transparent;");
         VBox.setVgrow(wrapper, Priority.ALWAYS);
 
-        VBox mainContent = new VBox(20);
-        mainContent.setPadding(new Insets(20));
+        VBox mainContent = new VBox(CONTENT_SPACING);
+        mainContent.setPadding(CONTENT_PADDING);
         mainContent.setStyle(BORDER_STYLE);
+        mainContent.setMaxWidth(Double.MAX_VALUE);
+        mainContent.setMaxHeight(Double.MAX_VALUE);
         VBox.setVgrow(mainContent, Priority.ALWAYS);
 
         Label header = new Label(deck == null ? "All Cards" : deck.getName());
-        header.setFont(Font.font("Serif", 32));
+        header.setFont(UiScale.titleFont(64));
         header.setTextFill(Color.WHITE);
         header.setMaxWidth(Double.MAX_VALUE);
         header.setAlignment(Pos.CENTER);
         header.setStyle("-fx-background-color: " + HEADER_BLUE + "; -fx-background-radius: 8; -fx-padding: 10;");
 
-        HBox toolbar = new HBox(15);
+        HBox toolbar = new HBox(18);
         toolbar.setAlignment(Pos.CENTER_LEFT);
+        toolbar.setPadding(new Insets(4, 0, 6, 0));
 
         Button newBtn = createToolbarButton("New");
         newBtn.setOnAction(e -> {
@@ -79,25 +88,27 @@ public class AllCardsPanel {
         });
 
         TextField searchField = new TextField();
-        searchField.setPromptText("Search decks");
-        searchField.setPrefWidth(300);
-        searchField.setStyle("-fx-border-color: black; -fx-background-color: white; -fx-border-radius: 0;");
+        searchField.setPromptText("Search cards");
+        searchField.setPrefWidth(UiScale.size(460));
+        searchField.setPrefHeight(UiScale.size(44));
+        searchField.setStyle(TOOLBAR_INPUT_STYLE);
 
         Label searchIcon = new Label("Search");
-        searchIcon.setFont(Font.font("Serif", 14));
+        searchIcon.setFont(UiScale.bodyFont(20));
         searchIcon.setTextFill(Color.web(PRIMARY_BLUE));
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Label sortLabel = new Label("Sort by:");
-        sortLabel.setFont(Font.font("Serif", 16));
+        sortLabel.setFont(UiScale.bodyFont(20));
 
         ComboBox<String> sortCombo = new ComboBox<>();
         sortCombo.getItems().addAll("Newest", "Oldest", "Question");
         sortCombo.setValue("Newest");
-        sortCombo.setStyle("-fx-border-color: black; -fx-background-color: white; -fx-border-radius: 0;");
-        sortCombo.setPrefWidth(120);
+        sortCombo.setStyle(TOOLBAR_INPUT_STYLE);
+        sortCombo.setPrefWidth(UiScale.size(180));
+        sortCombo.setPrefHeight(UiScale.size(44));
 
         toolbar.getChildren().addAll(newBtn, searchField, searchIcon, spacer, sortLabel, sortCombo);
 
@@ -110,32 +121,36 @@ public class AllCardsPanel {
         cardsBox.setPadding(new Insets(5, 15, 5, 5));
         cardsBox.setStyle("-fx-background-color: white;");
 
+        HBox paginationBar = new HBox(10);
+        paginationBar.setAlignment(Pos.CENTER);
+        paginationBar.setPadding(new Insets(10, 0, 4, 0));
+
         // ── NEW: single mutable page tracker shared across all listeners ─────
         int[] currentPage = {0};
 
-        updateCardList(cardsBox, cards, "", "Newest", currentPage[0], deck, mainLayout, mc);
+        updateCardList(cardsBox, paginationBar, cards, "", "Newest", currentPage[0], deck, mainLayout, mc);
 
         // Search listener — reset to page 0 on new query
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             currentPage[0] = 0;
-            updateCardList(cardsBox, cards, newValue, sortCombo.getValue(), currentPage[0], deck, mainLayout, mc);
+            updateCardList(cardsBox, paginationBar, cards, newValue, sortCombo.getValue(), currentPage[0], deck, mainLayout, mc);
         });
 
         // Sort listener — reset to page 0 on new sort
         sortCombo.setOnAction(e -> {
             currentPage[0] = 0;
-            updateCardList(cardsBox, cards, searchField.getText(), sortCombo.getValue(), currentPage[0], deck, mainLayout, mc);
+            updateCardList(cardsBox, paginationBar, cards, searchField.getText(), sortCombo.getValue(), currentPage[0], deck, mainLayout, mc);
         });
 
         scrollPane.setContent(cardsBox);
-        mainContent.getChildren().addAll(header, toolbar, scrollPane);
+        mainContent.getChildren().addAll(header, toolbar, scrollPane, paginationBar);
         wrapper.getChildren().add(mainContent);
 
         return wrapper;
     }
 
     // ── UPDATED: added pageIndex param; builds card slice + pagination bar ──
-    private static void updateCardList(VBox cardsBox, List<Flashcard> flashcards,
+    private static void updateCardList(VBox cardsBox, HBox paginationBar, List<Flashcard> flashcards,
                                        String searchQuery, String sortOption,
                                        int pageIndex,
                                        Deck deck,
@@ -167,15 +182,21 @@ public class AllCardsPanel {
         }
 
         cardsBox.getChildren().clear();
+        paginationBar.getChildren().clear();
 
         if (filteredCards.isEmpty()) {
             Label emptyLabel = new Label("No cards found");
-            emptyLabel.setFont(Font.font("Serif", 16));
+            emptyLabel.setFont(UiScale.bodyFont(16));
             emptyLabel.setTextFill(Color.GRAY);
             emptyLabel.setPadding(new Insets(20));
             cardsBox.getChildren().add(emptyLabel);
+            paginationBar.setVisible(false);
+            paginationBar.setManaged(false);
             return;
         }
+
+        paginationBar.setVisible(true);
+        paginationBar.setManaged(true);
 
         // ── Slice to current page ────────────────────────────────────────────
         int totalPages = (int) Math.ceil((double) filteredCards.size() / PAGE_SIZE);
@@ -189,43 +210,32 @@ public class AllCardsPanel {
         }
 
         // ── Pagination bar ───────────────────────────────────────────────────
-        HBox pagination = new HBox(10);
-        pagination.setAlignment(Pos.CENTER);
-        pagination.setPadding(new Insets(10, 0, 5, 0));
-
-        Button prevBtn = new Button("← Prev");
+        Button prevBtn = new Button("< Prev");
         prevBtn.setStyle(OPEN_BUTTON_STYLE);
         prevBtn.setDisable(safePage == 0);
         prevBtn.setOnMouseEntered(e -> { if (!prevBtn.isDisabled()) prevBtn.setStyle(OPEN_BUTTON_HOVER_STYLE); });
         prevBtn.setOnMouseExited(e  -> { if (!prevBtn.isDisabled()) prevBtn.setStyle(OPEN_BUTTON_STYLE); });
 
         Label pageLabel = new Label("Page " + (safePage + 1) + " of " + totalPages);
-        pageLabel.setFont(Font.font("Serif", 14));
+        pageLabel.setFont(UiScale.bodyFont(18));
         pageLabel.setTextFill(Color.web(PRIMARY_BLUE));
 
-        Button nextBtn = new Button("Next →");
+        Button nextBtn = new Button("Next >");
         nextBtn.setStyle(OPEN_BUTTON_STYLE);
         nextBtn.setDisable(safePage >= totalPages - 1);
         nextBtn.setOnMouseEntered(e -> { if (!nextBtn.isDisabled()) nextBtn.setStyle(OPEN_BUTTON_HOVER_STYLE); });
         nextBtn.setOnMouseExited(e  -> { if (!nextBtn.isDisabled()) nextBtn.setStyle(OPEN_BUTTON_STYLE); });
 
-        // Use an array so lambdas can mutate the page index
-        int[] pageRef = {safePage};
-
         prevBtn.setOnAction(e -> {
-            pageRef[0]--;
-            updateCardList(cardsBox, flashcards, searchQuery, sortOption, pageRef[0], deck, mainLayout, mc);
+            updateCardList(cardsBox, paginationBar, flashcards, searchQuery, sortOption, safePage - 1, deck, mainLayout, mc);
         });
         nextBtn.setOnAction(e -> {
-            pageRef[0]++;
-            updateCardList(cardsBox, flashcards, searchQuery, sortOption, pageRef[0], deck, mainLayout, mc);
+            updateCardList(cardsBox, paginationBar, flashcards, searchQuery, sortOption, safePage + 1, deck, mainLayout, mc);
         });
 
-        pagination.getChildren().addAll(prevBtn, pageLabel, nextBtn);
-        cardsBox.getChildren().add(pagination);
+        paginationBar.getChildren().addAll(prevBtn, pageLabel, nextBtn);
     }
 
-    // ── Everything below is unchanged ────────────────────────────────────────
 
     private static void showCreateCardDialog(BorderPane mainLayout, Deck currentDeck, MainController mc) {
         Stage dialog = new Stage();
@@ -265,11 +275,11 @@ public class AllCardsPanel {
         VBox.setMargin(topBar, new Insets(5, -30, 0, 0));
 
         Label title = new Label("Create Card");
-        title.setFont(Font.font("Serif", 38));
+        title.setFont(UiScale.headingFont(38));
         title.setTextFill(Color.web(PRIMARY_BLUE));
 
         Label deckLabel = new Label("Choose Deck:");
-        deckLabel.setFont(Font.font("Serif", 17));
+        deckLabel.setFont(UiScale.bodyFont(17));
         deckLabel.setTextFill(Color.web(PRIMARY_BLUE));
 
         List<Deck> availableDecks = mc.allDecks();
@@ -277,7 +287,7 @@ public class AllCardsPanel {
         ComboBox<Deck> deckCombo = new ComboBox<>();
         deckCombo.getItems().addAll(availableDecks);
         deckCombo.setMaxWidth(Double.MAX_VALUE);
-        deckCombo.setStyle("-fx-background-color: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: " + PRIMARY_BLUE + ";");
+        deckCombo.setStyle("-fx-background-color: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-family: 'Segoe UI'; -fx-font-size: 14; -fx-text-fill: " + PRIMARY_BLUE + ";");
         deckCombo.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Deck item, boolean empty) {
@@ -296,49 +306,49 @@ public class AllCardsPanel {
         deckCombo.setValue(initialDeck);
 
         Label diffLabel = new Label("Difficulty");
-        diffLabel.setFont(Font.font("Serif", 17));
+        diffLabel.setFont(UiScale.bodyFont(17));
         diffLabel.setTextFill(Color.web(PRIMARY_BLUE));
 
         ComboBox<String> diffCombo = new ComboBox<>();
         diffCombo.getItems().addAll("EASY", "MEDIUM", "HARD");
         diffCombo.setValue("MEDIUM");
-        diffCombo.setStyle("-fx-background-color: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-family: Serif; -fx-font-size: 14; -fx-text-fill: " + PRIMARY_BLUE + ";");
+        diffCombo.setStyle("-fx-background-color: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-family: 'Segoe UI'; -fx-font-size: 14; -fx-text-fill: " + PRIMARY_BLUE + ";");
 
         HBox diffRow = new HBox(12, diffLabel, new Region(), diffCombo);
         diffRow.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(diffRow.getChildren().get(1), Priority.ALWAYS);
 
         Label frontLabel = new Label("Enter Front");
-        frontLabel.setFont(Font.font("Serif", 17));
+        frontLabel.setFont(UiScale.bodyFont(17));
         frontLabel.setTextFill(Color.web(PRIMARY_BLUE));
 
         TextArea frontArea = new TextArea();
         frontArea.setWrapText(true);
         frontArea.setPrefHeight(176);
-        frontArea.setStyle("-fx-control-inner-background: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-family: Serif; -fx-font-size: 16; -fx-padding: 8;");
+        frontArea.setStyle("-fx-control-inner-background: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-family: 'Segoe UI'; -fx-font-size: 16; -fx-padding: 8;");
 
         Label backLabel = new Label("Enter Back");
-        backLabel.setFont(Font.font("Serif", 17));
+        backLabel.setFont(UiScale.bodyFont(17));
         backLabel.setTextFill(Color.web(PRIMARY_BLUE));
 
         TextArea backArea = new TextArea();
         backArea.setWrapText(true);
         backArea.setPrefHeight(154);
-        backArea.setStyle("-fx-control-inner-background: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-family: Serif; -fx-font-size: 16; -fx-padding: 8;");
+        backArea.setStyle("-fx-control-inner-background: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-family: 'Segoe UI'; -fx-font-size: 16; -fx-padding: 8;");
 
         Button createBtn = new Button("CREATE");
         createBtn.setPrefWidth(250);
         createBtn.setPrefHeight(56);
         createBtn.setStyle("-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; " +
-                "-fx-font-size: 17; -fx-font-family: Serif; -fx-background-radius: 28; " +
+                "-fx-font-size: 17; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 28; " +
                 "-fx-cursor: hand;");
         createBtn.setOnMouseEntered(e ->
                 createBtn.setStyle("-fx-background-color: #b3b9e0; -fx-text-fill: #2a548f; " +
-                        "-fx-font-size: 17; -fx-font-family: Serif; -fx-background-radius: 28; " +
+                        "-fx-font-size: 17; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 28; " +
                         "-fx-cursor: hand;"));
         createBtn.setOnMouseExited(e ->
                 createBtn.setStyle("-fx-background-color: #c5cae9; -fx-text-fill: #2a548f; " +
-                        "-fx-font-size: 17; -fx-font-family: Serif; -fx-background-radius: 28; " +
+                        "-fx-font-size: 17; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-background-radius: 28; " +
                         "-fx-cursor: hand;"));
 
         createBtn.setOnAction(e -> {
@@ -373,6 +383,7 @@ public class AllCardsPanel {
 
     private static Button createToolbarButton(String text) {
         Button button = new Button(text);
+        button.setPrefHeight(UiScale.size(44));
         button.setStyle(TOOLBAR_BUTTON_STYLE);
         button.setOnMouseEntered(e -> button.setStyle(TOOLBAR_BUTTON_HOVER_STYLE));
         button.setOnMouseExited(e -> button.setStyle(TOOLBAR_BUTTON_STYLE));
@@ -383,22 +394,23 @@ public class AllCardsPanel {
                                    BorderPane mainLayout, MainController mc) {
         VBox card = new VBox();
         card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(18));
-        card.setSpacing(8);
+        card.setMinHeight(UiScale.size(124));
+        card.setPadding(UiScale.insets(22));
+        card.setSpacing(10);
         card.setStyle(DECK_ROW_STYLE);
 
-        VBox textContainer = new VBox(5);
+        VBox textContainer = new VBox(8);
         Label question = new Label(flashcard.getQuestion());
-        question.setFont(Font.font("Serif", 18));
+        question.setFont(UiScale.headingFont(24));
         question.setTextFill(Color.BLACK);
         question.setWrapText(true);
 
         Label answer = new Label("Answer: " + flashcard.getAnswer());
-        answer.setFont(Font.font("Serif", 15));
+        answer.setFont(UiScale.bodyFont(20));
         answer.setTextFill(Color.web("#475569"));
 
         Label difficulty = new Label("Difficulty: " + flashcard.getDifficulty().toUpperCase());
-        difficulty.setFont(Font.font("Serif", 14));
+        difficulty.setFont(UiScale.bodyFont(18));
         difficulty.setTextFill(Color.web(PRIMARY_BLUE));
 
         textContainer.getChildren().addAll(question, answer, difficulty);
@@ -407,6 +419,8 @@ public class AllCardsPanel {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button selectBtn = new Button("OPEN");
+        selectBtn.setPrefWidth(UiScale.size(120));
+        selectBtn.setPrefHeight(UiScale.size(48));
         selectBtn.setStyle(OPEN_BUTTON_STYLE);
         selectBtn.setOnMouseEntered(e -> selectBtn.setStyle(OPEN_BUTTON_HOVER_STYLE));
         selectBtn.setOnMouseExited(e  -> selectBtn.setStyle(OPEN_BUTTON_STYLE));
@@ -426,3 +440,4 @@ public class AllCardsPanel {
         return card;
     }
 }
+

@@ -1,6 +1,5 @@
 package com.studyapp;
 
-import com.studyapp.controller.CredentialHandler;
 import com.studyapp.controller.MainController;
 import com.studyapp.view.MainFrame;
 import com.studyapp.view.SetupPanel;
@@ -33,7 +32,6 @@ public class Main extends Application {
         // Optional CLI fallback:
         // new CLIView(new MainController()).start();
 
-        CredentialHandler.clear(); //COMMENT THIS OUT TO ENABLE AUTO LOGIN
         Application.launch(args);
     }
 }

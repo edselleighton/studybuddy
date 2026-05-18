@@ -1,0 +1,9 @@
+question,answer,difficulty
+What is a foreign key?,A column that references the primary key of another table.,Easy
+What is a JOIN in SQL?,An operation that combines rows from two or more tables based on a related column.,Medium
+What is an index?,A data structure that speeds up data retrieval at the cost of additional storage.,Hard
+What is a transaction?,A sequence of operations performed as a single logical unit of work.,Difficult
+What does ACID stand for?,Atomicity Consistency Isolation and Durability — properties of a reliable transaction.,
+What is a view in SQL?,A virtual table based on the result of a SELECT query.,easy
+What is database normalization?,The process of organizing a database to reduce redundancy and improve data integrity.,N/A
+What is a stored procedure?,A precompiled set of SQL statements stored in the database and executed by name.,Hard

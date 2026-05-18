@@ -1,27 +1,31 @@
 package com.studyapp.view;
 
-import java.util.Optional;
+import com.studyapp.util.UiScale;
+
+import java.util.function.Consumer;
 
 import com.studyapp.controller.MainController;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
 public class MainFrame {
 
     private static final String PRIMARY_BLUE = "#2a548f";
     private static final String BORDER_STYLE = "-fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 10; -fx-background-radius: 10; -fx-background-color: white;";
-    private static final String ACTIVE_STYLE = "-fx-background-color: #e6eaf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
-    private static final String INACTIVE_STYLE = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
-    private static final String HOVER_STYLE = "-fx-background-color: #f0f4f8; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+    private static final String ACTIVE_STYLE = "-fx-background-color: #e6eaf5; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 14 18; -fx-cursor: hand;";
+    private static final String INACTIVE_STYLE = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 14 18; -fx-cursor: hand;";
+    private static final String HOVER_STYLE = "-fx-background-color: #f0f4f8; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 14 18; -fx-cursor: hand;";
 
     private static Button dashBtn;
     private static Button decksBtn;
@@ -34,20 +38,22 @@ public class MainFrame {
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-background-color: #f8fafc;");
 
-        VBox sidebar = new VBox(15);
-        sidebar.setPadding(new Insets(20, 20, 20, 20));
-        sidebar.setPrefWidth(250);
-        sidebar.setMinWidth(250);
-        sidebar.setMaxWidth(250);
+        VBox sidebar = new VBox(18);
+        sidebar.setPadding(UiScale.insets(20, 24, 20, 24));
+        sidebar.setPrefWidth(UiScale.size(290));
+        sidebar.setMinWidth(UiScale.size(290));
+        sidebar.setMaxWidth(UiScale.size(290));
         sidebar.setStyle("-fx-background-color: transparent;");
 
         Label appTitleLabel = new Label("Study Assistant\nApplication");
-        appTitleLabel.setFont(Font.font("Serif", 18));
+        appTitleLabel.setFont(UiScale.titleFont(38));
+        appTitleLabel.setWrapText(true);
+        appTitleLabel.setMaxWidth(UiScale.size(242));
         appTitleLabel.setTextFill(Color.web(PRIMARY_BLUE));
-        VBox.setMargin(appTitleLabel, new Insets(0, 0, 10, 0));
+        VBox.setMargin(appTitleLabel, new Insets(0, 0, 10, 12));
 
-        VBox buttonBox = new VBox(15);
-        buttonBox.setPadding(new Insets(20));
+        VBox buttonBox = new VBox(18);
+        buttonBox.setPadding(UiScale.insets(24));
         buttonBox.setStyle(BORDER_STYLE);
         VBox.setVgrow(buttonBox, Priority.ALWAYS);
 
@@ -60,9 +66,10 @@ public class MainFrame {
 
         Button exitBtn = new Button("EXIT");
         exitBtn.setMaxWidth(Double.MAX_VALUE);
-        exitBtn.setFont(Font.font("Serif", 16));
-        String exitDefault = "-fx-background-color: #ff9999; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
-        String exitHover = "-fx-background-color: #ff6666; -fx-text-fill: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+        exitBtn.setPrefHeight(UiScale.size(56));
+        exitBtn.setFont(UiScale.buttonFont(20));
+        String exitDefault = "-fx-background-color: #ff9999; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 14 18; -fx-cursor: hand;";
+        String exitHover = "-fx-background-color: #ff6666; -fx-text-fill: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 14 18; -fx-cursor: hand;";
         exitBtn.setStyle(exitDefault);
         exitBtn.setOnMouseEntered(e -> exitBtn.setStyle(exitHover));
         exitBtn.setOnMouseExited(e -> exitBtn.setStyle(exitDefault));
@@ -106,13 +113,19 @@ public class MainFrame {
         stage.setMaximized(true);
     }
 
-    public static void showPrebuilt(Stage stage, BorderPane mainLayout) {
+    public static void showPrebuilt(Stage stage, BorderPane mainLayout, MainController mc) {
         Scene existing = stage.getScene();
         if (existing == null) {
             stage.setScene(new Scene(mainLayout, 1024, 768));
         } else {
             existing.setRoot(mainLayout);
         }
+        stage.setOnCloseRequest(event -> {
+            if (stage.getScene().getRoot() == mainLayout) {
+                event.consume();
+                handleExit(mainLayout, mc);
+            }
+        });
         stage.show();
         stage.setMaximized(true);
     }
@@ -120,20 +133,22 @@ public class MainFrame {
     public static void buildInto(BorderPane mainLayout, MainController mc) {
         mainLayout.setStyle("-fx-background-color: #f8fafc;");
 
-        VBox sidebar = new VBox(15);
-        sidebar.setPadding(new Insets(20, 20, 20, 20));
-        sidebar.setPrefWidth(250);
-        sidebar.setMinWidth(250);
-        sidebar.setMaxWidth(250);
+        VBox sidebar = new VBox(18);
+        sidebar.setPadding(UiScale.insets(20, 24, 20, 24));
+        sidebar.setPrefWidth(UiScale.size(290));
+        sidebar.setMinWidth(UiScale.size(290));
+        sidebar.setMaxWidth(UiScale.size(290));
         sidebar.setStyle("-fx-background-color: transparent;");
 
         Label appTitleLabel = new Label("Study Assistant\nApplication");
-        appTitleLabel.setFont(Font.font("Serif", 18));
+        appTitleLabel.setFont(UiScale.titleFont(38));
+        appTitleLabel.setWrapText(true);
+        appTitleLabel.setMaxWidth(UiScale.size(242));
         appTitleLabel.setTextFill(Color.web(PRIMARY_BLUE));
-        VBox.setMargin(appTitleLabel, new Insets(0, 0, 10, 0));
+        VBox.setMargin(appTitleLabel, new Insets(0, 0, 10, 12));
 
-        VBox buttonBox = new VBox(15);
-        buttonBox.setPadding(new Insets(20));
+        VBox buttonBox = new VBox(18);
+        buttonBox.setPadding(UiScale.insets(24));
         buttonBox.setStyle(BORDER_STYLE);
         VBox.setVgrow(buttonBox, Priority.ALWAYS);
 
@@ -146,9 +161,10 @@ public class MainFrame {
 
         Button exitBtn = new Button("EXIT");
         exitBtn.setMaxWidth(Double.MAX_VALUE);
-        exitBtn.setFont(Font.font("Serif", 16));
-        String exitDefault = "-fx-background-color: #ff9999; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
-        String exitHover = "-fx-background-color: #ff6666; -fx-text-fill: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10 15; -fx-cursor: hand;";
+        exitBtn.setPrefHeight(UiScale.size(56));
+        exitBtn.setFont(UiScale.buttonFont(20));
+        String exitDefault = "-fx-background-color: #ff9999; -fx-text-fill: black; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 14 18; -fx-cursor: hand;";
+        String exitHover = "-fx-background-color: #ff6666; -fx-text-fill: white; -fx-border-color: " + PRIMARY_BLUE + "; -fx-border-radius: 7; -fx-background-radius: 7; -fx-padding: 14 18; -fx-cursor: hand;";
         exitBtn.setStyle(exitDefault);
         exitBtn.setOnMouseEntered(e -> exitBtn.setStyle(exitHover));
         exitBtn.setOnMouseExited(e -> exitBtn.setStyle(exitDefault));
@@ -180,7 +196,8 @@ public class MainFrame {
     private static Button createNavButton(String text) {
         Button btn = new Button(text);
         btn.setMaxWidth(Double.MAX_VALUE);
-        btn.setFont(Font.font("Serif", 16));
+        btn.setPrefHeight(UiScale.size(56));
+        btn.setFont(UiScale.buttonFont(20));
         btn.setStyle(INACTIVE_STYLE);
         btn.setOnMouseEntered(e -> {
             if (!btn.getStyle().equals(ACTIVE_STYLE)) {
@@ -229,12 +246,12 @@ public class MainFrame {
         });
 
         Label title = new Label("Error");
-        title.setFont(Font.font("Serif", 38));
+        title.setFont(UiScale.headingFont(38));
         title.setTextFill(Color.web("#D32F2F"));
         VBox.setMargin(title, new Insets(-8, 0, 0, 0));
 
         Label description = new Label(message);
-        description.setFont(Font.font("Serif", 15));
+        description.setFont(UiScale.bodyFont(15));
         description.setTextFill(Color.web("#2a548f"));
         description.setWrapText(true);
         description.setMaxWidth(300);
@@ -303,12 +320,12 @@ public class MainFrame {
         });
 
         Label title = new Label("Success");
-        title.setFont(Font.font("Serif", 38));
+        title.setFont(UiScale.headingFont(38));
         title.setTextFill(Color.web("#b3ffae"));
         VBox.setMargin(title, new Insets(-8, 0, 0, 0));
 
         Label description = new Label(message);
-        description.setFont(Font.font("Serif", 15));
+        description.setFont(UiScale.bodyFont(15));
         description.setTextFill(Color.web("#2a548f"));
         description.setWrapText(true);
         description.setMaxWidth(300);
@@ -354,4 +371,76 @@ public class MainFrame {
         dialog.show();
     }
 
+    public static void runSaveTask(
+            Window owner,
+            MainController mc,
+            String loadingMessage,
+            Runnable onSuccess,
+            Consumer<String> onFailure) {
+        Stage loadingDialog = createLoadingDialog(owner, loadingMessage);
+
+        Task<Void> saveTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                mc.saveChanges();
+                return null;
+            }
+        };
+
+        saveTask.setOnSucceeded(e -> {
+            loadingDialog.close();
+            if (onSuccess != null) {
+                onSuccess.run();
+            }
+        });
+
+        saveTask.setOnFailed(e -> {
+            loadingDialog.close();
+            String message = saveTask.getException() != null && saveTask.getException().getMessage() != null
+                    ? saveTask.getException().getMessage()
+                    : "Failed to save changes.";
+            if (onFailure != null) {
+                onFailure.accept(message);
+            }
+        });
+
+        Thread thread = new Thread(saveTask, "study-assistant-save");
+        thread.setDaemon(true);
+        loadingDialog.show();
+        thread.start();
+    }
+
+    private static Stage createLoadingDialog(Window owner, String loadingMessage) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.TRANSPARENT);
+        dialog.setTitle("Saving");
+        if (owner != null) {
+            dialog.initOwner(owner);
+        }
+
+        VBox container = new VBox(18);
+        container.setPadding(new Insets(28, 40, 32, 40));
+        container.setAlignment(Pos.CENTER);
+        container.setStyle("-fx-border-color: #2a548f; -fx-border-radius: 12; -fx-background-radius: 10; -fx-background-color: #f8fafc;");
+
+        ProgressIndicator indicator = new ProgressIndicator();
+        indicator.setPrefSize(56, 56);
+
+        Label message = new Label(loadingMessage);
+        message.setFont(UiScale.bodyFont(17));
+        message.setTextFill(Color.web(PRIMARY_BLUE));
+        message.setWrapText(true);
+        message.setAlignment(Pos.CENTER);
+
+        container.getChildren().addAll(indicator, message);
+
+        Scene scene = new Scene(container, 320, 190);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        return dialog;
+    }
+
 }
+

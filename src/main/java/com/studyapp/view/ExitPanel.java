@@ -2,16 +2,15 @@ package com.studyapp.view;
 
 import com.studyapp.controller.CustomException;
 import com.studyapp.controller.MainController;
+import com.studyapp.util.UiScale;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -45,7 +44,7 @@ public class ExitPanel {
         Label description = createDescription("You have unsaved changes, do you want to save before exiting?");
 
         Label errorLabel = new Label();
-        errorLabel.setFont(Font.font("Serif", 13));
+        errorLabel.setFont(UiScale.bodyFont(13));
         errorLabel.setTextFill(Color.web(ERROR_COLOR));
         errorLabel.setWrapText(true);
         errorLabel.setVisible(false);
@@ -162,14 +161,14 @@ public class ExitPanel {
 
     private static Label createTitle(String text) {
         Label title = new Label(text);
-        title.setFont(Font.font("Serif", 41));
+        title.setFont(UiScale.headingFont(41));
         title.setTextFill(Color.web(PRIMARY_COLOR));
         return title;
     }
 
     private static Label createDescription(String text) {
         Label description = new Label(text);
-        description.setFont(Font.font("Serif", 15));
+        description.setFont(UiScale.bodyFont(15));
         description.setTextFill(Color.web(PRIMARY_COLOR));
         description.setWrapText(true);
         VBox.setMargin(description, new Insets(20, 20, 35, 0));
@@ -194,3 +193,4 @@ public class ExitPanel {
         return btn;
     }
 }
+

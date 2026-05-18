@@ -1,0 +1,30 @@
+[
+  {
+    "question": "What is a stack?",
+    "answer": "A linear data structure that follows Last-In, First-Out (LIFO) order."
+  },
+  {
+    "question": "What is a queue?",
+    "answer": "A linear data structure that follows First-In, First-Out (FIFO) order."
+  },
+  {
+    "question": "What is a linked list?",
+    "answer": "A sequence of nodes where each node stores data and a pointer to the next node."
+  },
+  {
+    "question": "What is a binary tree?",
+    "answer": "A hierarchical structure where each node has at most two children: left and right."
+  },
+  {
+    "question": "What is the time complexity of binary search?",
+    "answer": "O(log n), because the search space is halved with each comparison."
+  },
+  {
+    "question": "What is a hash table?",
+    "answer": "A data structure that maps keys to values using a hash function for fast lookups."
+  },
+  {
+    "question": "What is a graph?",
+    "answer": "A set of nodes (vertices) connected by edges, used to represent relationships."
+  }
+]
