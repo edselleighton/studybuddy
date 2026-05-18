@@ -9,6 +9,7 @@ import com.studyapp.controller.CustomException;
 import com.studyapp.controller.MainController;
 import com.studyapp.model.Deck;
 import com.studyapp.service.CardJson;
+import com.studyapp.util.UiScale;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -39,7 +40,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -162,7 +162,7 @@ public class ImportDialogPanel {
 
         // ── title header bar ──────────────────────────────────────────
         Label titleLbl = new Label("IMPORT QUESTIONS");
-        titleLbl.setFont(Font.font("Serif", 28));
+        titleLbl.setFont(UiScale.titleFont(32));
         titleLbl.setTextFill(Color.WHITE);
         titleLbl.setMaxWidth(Double.MAX_VALUE);
         titleLbl.setAlignment(Pos.CENTER);
@@ -192,8 +192,7 @@ public class ImportDialogPanel {
 
         // "ADD TO DECK:" heading
         Label addToDeckLbl = new Label("ADD TO DECK:");
-        addToDeckLbl.setFont(Font.font("Serif", 16));
-        addToDeckLbl.setStyle("-fx-font-weight: bold;");
+        addToDeckLbl.setFont(UiScale.headingFont(18));
         addToDeckLbl.setTextFill(Color.web(PRIMARY_BLUE));
 
         ToggleGroup deckToggle = new ToggleGroup();
@@ -201,7 +200,7 @@ public class ImportDialogPanel {
         // ── "Add to Existing Deck" branch ─────────────────────────────
         RadioButton existingRadio = new RadioButton("Add to Existing Deck:");
         existingRadio.setToggleGroup(deckToggle);
-        existingRadio.setFont(Font.font("Serif", 14));
+        existingRadio.setFont(UiScale.bodyFont(16));
         existingRadio.setTextFill(Color.web(PRIMARY_BLUE));
 
         ComboBox<Deck> existingCombo = new ComboBox<>();
@@ -217,7 +216,7 @@ public class ImportDialogPanel {
         // ── "Add to New Deck" branch ───────────────────────────────────
         RadioButton newDeckRadio = new RadioButton("Add to New Deck:");
         newDeckRadio.setToggleGroup(deckToggle);
-        newDeckRadio.setFont(Font.font("Serif", 14));
+        newDeckRadio.setFont(UiScale.bodyFont(16));
         newDeckRadio.setTextFill(Color.web(PRIMARY_BLUE));
 
         TextField nameField = new TextField();
@@ -367,7 +366,7 @@ public class ImportDialogPanel {
 
         // "SELECT ALL" row
         CheckBox selectAllCb = new CheckBox("SELECT ALL");
-        selectAllCb.setFont(Font.font("Serif", 13));
+        selectAllCb.setFont(UiScale.bodyFont(15));
         selectAllCb.setTextFill(Color.web(PRIMARY_BLUE));
         HBox selectAllRow = new HBox(selectAllCb);
         selectAllRow.setAlignment(Pos.CENTER_LEFT);
@@ -378,7 +377,7 @@ public class ImportDialogPanel {
         placeholder.setStyle(previewBoxStyle());
         VBox.setVgrow(placeholder, Priority.ALWAYS);
         Label placeholderLbl = new Label("-QUESTIONS WILL BE PREVIEWED HERE-");
-        placeholderLbl.setFont(Font.font("Serif", 16));
+        placeholderLbl.setFont(UiScale.bodyFont(18));
         placeholderLbl.setTextFill(Color.web("#8888b8"));
         placeholder.getChildren().add(placeholderLbl);
 
@@ -524,7 +523,7 @@ public class ImportDialogPanel {
                     "-fx-border-color: " + PANEL_BORDER + "; " +
                     "-fx-border-width: 1; " +
                     "-fx-border-radius: 4; -fx-background-radius: 4; " +
-                    "-fx-font-family: Serif; -fx-font-size: 15; -fx-padding: 4 6;"
+                    UiScale.uiFontCss(17) + " -fx-padding: 4 6;"
                 );
                 ta.setMaxWidth(Double.MAX_VALUE);
                 ta.setMinHeight(54);
@@ -587,8 +586,8 @@ public class ImportDialogPanel {
                 combo.getItems().addAll("--Select Difficulty--", "Easy", "Medium", "Hard");
                 combo.setMaxWidth(Double.MAX_VALUE);
                 combo.setStyle(
-                    "-fx-font-family: Serif; -fx-font-size: 15; " +
-                    "-fx-background-color: white; " +
+                    UiScale.uiFontCss(17) +
+                    " -fx-background-color: white; " +
                     "-fx-border-color: " + PANEL_BORDER + "; " +
                     "-fx-border-radius: 4;"
                 );
@@ -717,12 +716,12 @@ public class ImportDialogPanel {
         VBox.setMargin(topBar, new Insets(5, -25, 0, 0));
 
         Label titleLbl = new Label(title);
-        titleLbl.setFont(Font.font("Serif", 38));
+        titleLbl.setFont(UiScale.titleFont(42));
         titleLbl.setTextFill(Color.web(PRIMARY_BLUE));
         titleLbl.setWrapText(true);
 
         Label msgLbl = new Label(message);
-        msgLbl.setFont(Font.font("Serif", 14));
+        msgLbl.setFont(UiScale.bodyFont(16));
         msgLbl.setTextFill(Color.web(PRIMARY_BLUE));
         msgLbl.setWrapText(true);
         VBox.setMargin(msgLbl, new Insets(15, 10, 30, 0));
@@ -765,12 +764,12 @@ public class ImportDialogPanel {
         VBox.setMargin(topBar, new Insets(5, -25, 0, 0));
 
         Label titleLbl = new Label(title);
-        titleLbl.setFont(Font.font("Serif", 38));
+        titleLbl.setFont(UiScale.titleFont(42));
         titleLbl.setTextFill(Color.web(PRIMARY_BLUE));
         titleLbl.setWrapText(true);
 
         Label msgLbl = new Label(message);
-        msgLbl.setFont(Font.font("Serif", 14));
+        msgLbl.setFont(UiScale.bodyFont(16));
         msgLbl.setTextFill(Color.web(PRIMARY_BLUE));
         msgLbl.setWrapText(true);
         VBox.setMargin(msgLbl, new Insets(15, 10, 30, 0));
@@ -805,9 +804,9 @@ public class ImportDialogPanel {
     private static Button popupXButton(Runnable onClose) {
         Button btn = new Button("X");
         String normal = "-fx-background-color: transparent; -fx-text-fill: #1A438E;" +
-                        " -fx-font-size: 18; -fx-cursor: hand;";
+                        " -fx-font-size: " + (int) UiScale.size(20) + "px; -fx-cursor: hand;";
         String hover  = "-fx-background-color: transparent; -fx-text-fill: red;" +
-                        " -fx-font-size: 18; -fx-cursor: hand;";
+                        " -fx-font-size: " + (int) UiScale.size(20) + "px; -fx-cursor: hand;";
         btn.setStyle(normal);
         btn.setOnMouseEntered(e -> btn.setStyle(hover));
         btn.setOnMouseExited(e -> btn.setStyle(normal));
@@ -819,11 +818,11 @@ public class ImportDialogPanel {
         Button btn = new Button(text);
         btn.setPrefWidth(230);
         btn.setPrefHeight(45);
-        String normal = "-fx-background-color: " + normalColor + "; -fx-text-fill: " + PRIMARY_BLUE + ";" +
-                        " -fx-font-size: 15; -fx-font-weight: bold;" +
+        String normal = "-fx-background-color: " + normalColor + "; -fx-text-fill: " + PRIMARY_BLUE + "; " +
+                        UiScale.buttonFontCss(17) +
                         " -fx-background-radius: 25; -fx-cursor: hand;";
-        String hover  = "-fx-background-color: " + hoverColor  + "; -fx-text-fill: " + PRIMARY_BLUE + ";" +
-                        " -fx-font-size: 15; -fx-font-weight: bold;" +
+        String hover  = "-fx-background-color: " + hoverColor  + "; -fx-text-fill: " + PRIMARY_BLUE + "; " +
+                        UiScale.buttonFontCss(17) +
                         " -fx-background-radius: 25; -fx-cursor: hand;";
         btn.setStyle(normal);
         btn.setOnMouseEntered(e -> btn.setStyle(hover));
@@ -857,14 +856,14 @@ public class ImportDialogPanel {
         return "-fx-background-color: white; " +
                "-fx-border-color: " + PANEL_BORDER + "; " +
                "-fx-border-width: 1.5; -fx-border-radius: 5; -fx-background-radius: 5; " +
-               "-fx-font-family: Serif; -fx-font-size: 13;";
+               UiScale.uiFontCss(15);
     }
 
     private static String inputStyle() {
         return "-fx-background-color: white; " +
                "-fx-border-color: " + PANEL_BORDER + "; " +
                "-fx-border-width: 1.5; -fx-border-radius: 5; -fx-background-radius: 5; " +
-               "-fx-font-family: Serif; -fx-font-size: 13; -fx-padding: 6 8;";
+               UiScale.uiFontCss(15) + " -fx-padding: 6 8;";  
     }
 
     private static String previewBoxStyle() {
@@ -882,11 +881,11 @@ public class ImportDialogPanel {
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setPrefHeight(38);
         String normal = "-fx-background-color: #d5d5e8; -fx-text-fill: " + PRIMARY_BLUE + "; " +
-                        "-fx-font-family: Serif; -fx-font-size: 13; " +
-                        "-fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 14;";
+                        UiScale.buttonFontCss(15) +
+                        " -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 14;";
         String hover  = "-fx-background-color: #bbbbd8; -fx-text-fill: " + PRIMARY_BLUE + "; " +
-                        "-fx-font-family: Serif; -fx-font-size: 13; " +
-                        "-fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 14;";
+                        UiScale.buttonFontCss(15) +
+                        " -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 14;";
         btn.setStyle(normal);
         btn.setOnMouseEntered(e -> btn.setStyle(hover));
         btn.setOnMouseExited(e  -> btn.setStyle(normal));
@@ -906,13 +905,14 @@ public class ImportDialogPanel {
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setPrefHeight(62);
         String normal   = "-fx-background-color: " + normalColour + "; -fx-text-fill: white; " +
-                          "-fx-font-family: Serif; -fx-font-size: 18; " +
-                          "-fx-background-radius: 28; -fx-cursor: hand;";
+                          UiScale.buttonFontCss(20) +
+                          " -fx-background-radius: 28; -fx-cursor: hand;";
         String hover    = "-fx-background-color: " + hoverColour  + "; -fx-text-fill: white; " +
-                          "-fx-font-family: Serif; -fx-font-size: 18; " +
-                          "-fx-background-radius: 28; -fx-cursor: hand;";
+                          UiScale.buttonFontCss(20) +
+                          " -fx-background-radius: 28; -fx-cursor: hand;";
         String disabled = "-fx-background-color: #b0b0b0; -fx-text-fill: #e8e8e8; " +
-                          "-fx-font-family: Serif; -fx-font-size: 18; -fx-background-radius: 28;";
+                          UiScale.buttonFontCss(20) +
+                          " -fx-background-radius: 28;";
         btn.setStyle(normal);
         btn.setOnMouseEntered(e -> { if (!btn.isDisabled()) btn.setStyle(hover);  });
         btn.setOnMouseExited(e  -> { if (!btn.isDisabled()) btn.setStyle(normal); });

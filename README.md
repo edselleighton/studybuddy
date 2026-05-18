@@ -34,7 +34,8 @@ Study Assistant is a JavaFX desktop application for creating and managing flashc
 - Type-in study mode with intelligent answer checking
 - Smart answer checker using Levenshtein distance, Jaro-Winkler similarity, cosine n-gram similarity, and WordNet synonym/antonym detection
 - Per-card result feedback: **CORRECT**, **CLOSE**, or **INCORRECT**, with the correct answer shown when a typo is accepted as correct
-- Import and export decks as **JSON** or **CSV**
+- Import cards from **JSON** or **CSV** files into any deck via a full-screen preview dialog — review, edit, and select individual cards before committing
+- Export any deck to **JSON** or **CSV**
 - Paginated card and deck lists (5 items per page)
 
 ---
@@ -127,7 +128,7 @@ Displays all your decks in a paginated list (5 per page). Each deck row shows it
 | Button   | Action                                                                                        |
 |----------|-----------------------------------------------------------------------------------------------|
 | New      | Opens a dialog to create a new deck (name required, description optional)                    |
-| Import   | Import one or more decks from a JSON or CSV file (see [Import & Export](#8-import--export)) |
+| Import   | Opens the Import dialog to load cards from a JSON or CSV file into a chosen deck (see [Import & Export](#8-import--export)) |
 | Export   | Select a deck from a dropdown and export it to a JSON or CSV file                            |
 | Open     | Opens the [Deck Detail](#5-deck-detail) view for the selected deck                           |
 | Previous / Next | Navigate between pages                                                                |
@@ -245,10 +246,18 @@ This allows minor typos, synonym answers, and case/punctuation differences to be
 Accessed via the **Import** and **Export** buttons in My Decks.
 
 **Import:**
-1. Click **Import** and choose a format: **JSON** or **CSV**.
-2. A file chooser opens - select your file.
-3. The app reads the file, creates any new decks and cards found, and reports how many decks were imported.
-4. Decks with a name that already exists in the app are **skipped**.
+1. Click **Import** in the My Decks view. A full-screen import dialog opens.
+2. Choose a target deck:
+   - **Add to Existing Deck** — select from the dropdown of your current decks.
+   - **Add to New Deck** — enter a deck name (required) and an optional description.
+3. Click **Import from CSV** or **Import from JSON** to open a file chooser and load a file.
+4. A preview table appears showing every card parsed from the file. Each row has:
+   - A **checkbox** to include or exclude the card.
+   - An editable **Question** and **Answer** field.
+   - A **Difficulty** dropdown (Easy / Medium / Hard).
+5. Review and edit the cards as needed. Cards without a difficulty assigned must have one selected before importing.
+6. Use **Select All** to toggle all checkboxes at once.
+7. Click **Import to System** to save all checked cards into the chosen deck. The dialog closes and you are returned to My Decks.
 
 **Export:**
 1. Click **Export** and choose a format: **JSON** or **CSV**.
@@ -260,91 +269,79 @@ Accessed via the **Import** and **Export** buttons in My Decks.
 
 ## Import File Templates
 
+Files imported through the Import dialog contain a flat list of cards only — the target deck is chosen inside the app, not in the file.
+
 ### JSON Template
 
-Two formats are accepted:
+The file must be a **JSON array** of card objects. The `difficulty` field is optional.
 
-**Single deck:**
+**With difficulty:**
 ```json
-{
-  "deck_name": "Your Deck Name",
-  "description": "Optional description of the deck",
-  "exported_at": "2025-01-01T00:00:00",
-  "cards": [
-    {
-      "question": "What is the question?",
-      "answer": "The answer goes here.",
-      "difficulty": "Easy"
-    },
-    {
-      "question": "Another question?",
-      "answer": "Another answer.",
-      "difficulty": "Medium"
-    },
-    {
-      "question": "A harder question?",
-      "answer": "A harder answer.",
-      "difficulty": "Hard"
-    }
-  ]
-}
+[
+  {
+    "question": "What is the question?",
+    "answer": "The answer goes here.",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Another question?",
+    "answer": "Another answer.",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "A harder question?",
+    "answer": "A harder answer.",
+    "difficulty": "Hard"
+  }
+]
 ```
 
-**Multiple decks (array wrapper):**
+**Without difficulty:**
 ```json
-{
-  "decks": [
-    {
-      "deck_name": "First Deck",
-      "description": "Description for the first deck",
-      "cards": [
-        {
-          "question": "Question 1",
-          "answer": "Answer 1",
-          "difficulty": "Easy"
-        }
-      ]
-    },
-    {
-      "deck_name": "Second Deck",
-      "description": "Description for the second deck",
-      "cards": [
-        {
-          "question": "Question A",
-          "answer": "Answer A",
-          "difficulty": "Hard"
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "question": "What is a stack?",
+    "answer": "A linear data structure that follows Last-In, First-Out (LIFO) order."
+  },
+  {
+    "question": "What is a queue?",
+    "answer": "A linear data structure that follows First-In, First-Out (FIFO) order."
+  }
+]
 ```
 
 > **Notes:**
-> - `difficulty` must be `"Easy"`, `"Medium"`, or `"Hard"` (case-insensitive). Omitting it defaults to `"Medium"`.
-> - `description` and `exported_at` are optional.
-> - Cards with a blank `question` or `answer` are skipped.
-> - Decks whose name already exists in the app are skipped.
+> - The root must be a JSON **array** — object wrappers are not accepted.
+> - `difficulty` must be `"Easy"`, `"Medium"`, or `"Hard"` (case-insensitive). Missing, blank, or unrecognised values appear as **"--Select Difficulty--"** in the preview table and must be assigned before importing.
+> - Cards with a blank `question` or `answer` are skipped during parsing.
 
 ---
 
 ### CSV Template
 
+Two header formats are accepted. The target deck is always chosen inside the app.
+
+**With difficulty column (`question,answer,difficulty`):**
 ```csv
-deck_name,description,question,answer,difficulty
-My Deck,Optional description,What is the question?,The answer goes here.,Easy
-My Deck,Optional description,Another question?,Another answer.,Medium
-Second Deck,Another deck,What is 2 + 2?,4,Easy
-Second Deck,Another deck,What is the capital of France?,Paris,Hard
+question,answer,difficulty
+What is a foreign key?,A column that references the primary key of another table.,Easy
+What is a JOIN in SQL?,Combines rows from two or more tables based on a related column.,Medium
+What is an index?,A data structure that speeds up retrieval at the cost of extra storage.,Hard
+```
+
+**Without difficulty column (`question,answer`):**
+```csv
+question,answer
+What is an IP address?,A numerical label assigned to each device on a network.
+What does DNS stand for?,Domain Name System — translates domain names into IP addresses.
+What is HTTP?,HyperText Transfer Protocol — the foundation of web data communication.
 ```
 
 > **Notes:**
-> - The header row `deck_name,description,question,answer,difficulty` is **required** exactly as shown.
-> - Multiple rows with the same `deck_name` are grouped into one deck.
-> - The `description` only needs to appear once per deck name; all non-blank descriptions for the same deck must match.
-> - `difficulty` must be `Easy`, `Medium`, or `Hard` (case-insensitive). Omitting or leaving blank defaults to `Medium`.
+> - The header row must be exactly `question,answer,difficulty` or `question,answer` (case-insensitive).
+> - When the `difficulty` column is present, missing, blank, or unrecognised values appear as **"--Select Difficulty--"** in the preview table and must be assigned before importing.
 > - Rows with a blank `question` or `answer` are skipped.
-> - Decks whose name already exists in the app are skipped entirely.
+> - RFC 4180 quoting is supported — fields containing commas or quotes should be wrapped in double-quotes.
 
 ---
 
@@ -356,7 +353,11 @@ studybuddy/
 |-- README.md
 |-- sample-data/
 |   |-- sample-deck.json
-|   `-- sample-data2.json
+|   |-- sample-data2.json
+|   |-- sample-with-difficulty.json
+|   |-- sample-no-difficulty.json
+|   |-- sample-with-difficulty.csv
+|   `-- sample-no-difficulty.csv
 `-- src/main/
     |-- java/com/studyapp/
     |   |-- Launcher.java              # Executable JAR entry point; delegates to Main
@@ -394,6 +395,8 @@ studybuddy/
     |   |   |-- DeckJson.java
     |   |   |-- JsonImportExportService.java
     |   |   `-- SaveService.java
+    |   |-- util/
+    |   |   `-- UiScale.java                # Screen-aware font and size scaling helpers
     |   `-- view/
     |       |-- AllCardsPanel.java
     |       |-- CardDetailPanel.java
@@ -401,6 +404,7 @@ studybuddy/
     |       |-- DashboardPanel.java
     |       |-- DeckDetailPanel.java
     |       |-- ExitPanel.java
+    |       |-- ImportDialogPanel.java      # Full-screen card import dialog
     |       |-- MainFrame.java
     |       |-- MyDeckPanel.java
     |       |-- QuestionPanel.java
