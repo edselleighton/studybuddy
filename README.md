@@ -10,17 +10,17 @@ Study Assistant is a JavaFX desktop application for creating and managing flashc
 - [Tech Stack](#tech-stack)
 - [Setup & Installation](#setup--installation)
 - [User Manual](#user-manual)
-  - [Login / Database Connection](#1-login--database-connection)
-  - [Dashboard](#2-dashboard)
-  - [My Decks](#3-my-decks)
-  - [All Cards](#4-all-cards)
-  - [Deck Detail](#5-deck-detail)
-  - [Card Detail](#6-card-detail)
-  - [Study Mode](#7-study-mode)
-  - [Import & Export](#8-import--export)
+    - [Login / Database Connection](#1-login--database-connection)
+    - [Dashboard](#2-dashboard)
+    - [My Decks](#3-my-decks)
+    - [All Cards](#4-all-cards)
+    - [Deck Detail](#5-deck-detail)
+    - [Card Detail](#6-card-detail)
+    - [Study Mode](#7-study-mode)
+    - [Import & Export](#8-import--export)
 - [Import File Templates](#import-file-templates)
-  - [JSON Template](#json-template)
-  - [CSV Template](#csv-template)
+    - [JSON Template](#json-template)
+    - [CSV Template](#csv-template)
 - [Project Structure](#project-structure)
 
 ---
@@ -98,7 +98,10 @@ Study Assistant is a JavaFX desktop application for creating and managing flashc
 
 **Subsequent launches:**
 - If valid credentials are already saved, the app skips the login screen and opens directly via the splash screen.
-- To reset credentials (e.g. to change the database user), clear the stored values by re-entering them through the login screen on next launch after a failed auto-login.
+- To remove saved credentials:
+    ```powershell
+    reg delete HKCU\Software\JavaSoft\Prefs\com\studyapp /f
+    ```
 
 ---
 
@@ -253,12 +256,12 @@ Accessed via the **Import** and **Export** buttons in My Decks.
 **Import:**
 1. Click **Import** to open the full-screen **Import Cards** dialog.
 2. In the **left panel**, choose where the imported cards will go:
-   - **Add to Existing Deck** — select a deck from the dropdown.
-   - **Add to New Deck** — enter a deck name (required) and an optional description.
+    - **Add to Existing Deck** — select a deck from the dropdown.
+    - **Add to New Deck** — enter a deck name (required) and an optional description.
 3. Click **IMPORT FROM CSV** or **IMPORT FROM JSON** to open a file chooser and load a file.
 4. The **right panel** shows a preview table with columns: checkbox, **QUESTION**, **ANSWER**, and **DIFFICULTY**.
-   - Cards whose difficulty was not recognised in the file show a `--Select Difficulty--` dropdown that must be filled before importing.
-   - Toggle **EDIT PREVIEW** to edit any card's question, answer, or difficulty inline before saving.
+    - Cards whose difficulty was not recognised in the file show a `--Select Difficulty--` dropdown that must be filled before importing.
+    - Toggle **EDIT PREVIEW** to edit any card's question, answer, or difficulty inline before saving.
 5. Select the cards to import using the per-row checkboxes or the **SELECT ALL** checkbox.
 6. Click **IMPORT TO SYSTEM**. A success message reports how many cards were imported, and the view returns to My Decks.
 
@@ -320,7 +323,7 @@ Two formats are accepted:
 
 > **Notes:**
 > - `difficulty` must be `"Easy"`, `"Medium"`, or `"Hard"` (case-insensitive). Unrecognised or missing values show as `--Select Difficulty--` in the preview and must be assigned before importing.
-> - `description` and `exported_at` are optional; when present in a deck wrapper, the import dialog pre-fills the deck name and description fields.
+> - `description` is optional; when present in a deck wrapper, the import dialog pre-fills the deck name and description fields.
 > - Cards with a blank `question` or `answer` are skipped.
 > - The destination deck is always chosen in the Import Cards dialog, regardless of the `deck_name` field in the file.
 
@@ -402,6 +405,8 @@ studybuddy/
     |   |   |-- ImportPreview.java
     |   |   |-- JsonImportExportService.java
     |   |   `-- SaveService.java
+    |   |-- util/
+    |   |   `-- UiScale.java
     |   `-- view/
     |       |-- AllCardsPanel.java
     |       |-- CardDetailPanel.java
