@@ -43,7 +43,6 @@ bin/
 
 .env
 
-# Local configuration and secrets (never commit)
 **/db.properties
 .env*
 *.local.properties
